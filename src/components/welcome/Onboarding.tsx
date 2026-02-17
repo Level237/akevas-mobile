@@ -151,12 +151,12 @@ export default function Onboarding() {
                 animated: true,
             });
         } else {
-            router.replace('/(tabs)');
+            router.replace('/welcome');
         }
     };
 
     const handleSkip = () => {
-        router.replace('/(tabs)');
+        router.replace('/welcome');
     };
 
     return (
