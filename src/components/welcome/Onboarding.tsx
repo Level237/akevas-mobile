@@ -1,3 +1,4 @@
+import { images } from '@/constants/images';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -32,19 +33,19 @@ const DATA = [
         id: '1',
         title: 'Le marché local dans votre poche',
         description: 'Accédez aux meilleures boutiques de votre région et soutenez le commerce de proximité.',
-        image: require('../../assets/images/onboarding-1.png'),
+        image: images.onboarding1,
     },
     {
         id: '2',
         title: 'Achetez en toute sérénité',
         description: 'Des transactions sécurisées et un suivi de commande en temps réel pour chaque boutique.',
-        image: require('../../assets/images/onboarding-2.png'),
+        image: images.onboarding2,
     },
     {
         id: '3',
         title: 'Restez connecté',
         description: 'Stay in touch with friends and communities in real-time with our seamless chat.',
-        image: require('../../assets/images/onboarding-3.png'),
+        image: images.onboarding3,
     },
 ];
 

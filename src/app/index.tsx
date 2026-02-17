@@ -1,4 +1,4 @@
-import Onboarding from '../components/Onboarding';
+import Onboarding from '@/components/welcome/Onboarding';
 
 export default function OnboardingScreen() {
     // If we needed to check if onboarding was already seen, 
