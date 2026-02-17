@@ -1,3 +1,4 @@
+import { images } from '@/constants/images';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -46,7 +47,7 @@ export default function WelcomeScreen() {
                 {/* Top Illustration */}
                 <View style={styles.illustrationContainer}>
                     <Image
-                        source={require('../../assets/images/welcome.png')}
+                        source={images.welcome2}
                         style={styles.illustration}
                         contentFit="contain"
                     />
@@ -54,9 +55,9 @@ export default function WelcomeScreen() {
 
                 {/* Text Content */}
                 <View style={styles.textContainer}>
-                    <Text style={styles.headline}>Bienvenue sur Akevas</Text>
+                    <Text style={styles.headline}>Tout Akevas à portée de main</Text>
                     <Text style={styles.subheadline}>
-                        Découvrez une Marketplace unique, simple et sécurisée pour tous vos besoins.
+                        Explorez des milliers de boutiques locales et achetez en toute sécurité.
                     </Text>
                 </View>
 
@@ -106,13 +107,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingBottom: 40, // Added padding to avoid system navigation overlap
     },
     illustrationContainer: {
         width: width * 0.8,
         height: width * 0.8,
         marginBottom: 40,
         justifyContent: 'center',
-        alignItems: 'center',
     },
     illustration: {
         width: '100%',

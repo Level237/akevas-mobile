@@ -43,8 +43,8 @@ const DATA = [
     },
     {
         id: '3',
-        title: 'Restez connecté',
-        description: 'Stay in touch with friends and communities in real-time with our seamless chat.',
+        title: 'Tout Akevas pour vous',
+        description: 'Une expérience personnalisée selon vos goûts et vos envies.',
         image: images.onboarding3,
     },
 ];
