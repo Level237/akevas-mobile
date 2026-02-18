@@ -127,7 +127,7 @@ const Pagination = ({ x }: { x: SharedValue<number> }) => {
     );
 };
 
-export default function Onboarding() {
+const OnboardingScreen = () => {
     const x = useSharedValue(0);
     const flatListRef = React.useRef<Animated.FlatList<any>>(null);
     const [currentIndex, setCurrentIndex] = React.useState(0);
@@ -305,3 +305,5 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
+
+export default OnboardingScreen;

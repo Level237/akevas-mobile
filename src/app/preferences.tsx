@@ -1,5 +1,5 @@
-import PreferencesScreen from "@/screens/welcome/PreferenceScreen";
+import { PreferenceScreen } from "@/features/welcome";
 
 export default function Preferences() {
-    return <PreferencesScreen />;
+    return <PreferenceScreen />;
 }

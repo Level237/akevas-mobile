@@ -1,13 +1,13 @@
-import Onboarding from '@/screens/welcome/OnboardingScreen';
+import { OnboardingScreen } from '@/features/welcome';
 
-export default function OnboardingScreen() {
+export default function Onboarding() {
     // If we needed to check if onboarding was already seen, 
     // we would do it here and return <Redirect href="/(tabs)" />
 
     return (
         <>
 
-            <Onboarding />
+            <OnboardingScreen />
         </>
     );
 }
