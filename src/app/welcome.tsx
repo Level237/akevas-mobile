@@ -26,7 +26,7 @@ export default function WelcomeScreen() {
 
     const insets = useSafeAreaInsets();
     const handleGuest = () => {
-        router.replace('/(tabs)');
+        router.replace('/preferences');
     };
 
     const handleLogin = () => {

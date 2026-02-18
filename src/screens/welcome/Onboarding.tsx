@@ -243,9 +243,6 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         marginBottom: 12,
         letterSpacing: 0.5,
-        textShadowColor: 'rgba(0, 0, 0, 0.3)',
-        textShadowOffset: { width: 0, height: 2 },
-        textShadowRadius: 4,
     },
     description: {
         fontSize: 16,
