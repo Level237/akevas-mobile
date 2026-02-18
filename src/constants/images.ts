@@ -5,4 +5,5 @@ export const images = {
     welcome: require('@/assets/images/welcome.png'),
     welcome1: require("@/assets/images/welcome1.webp"),
     welcome2: require("@/assets/images/welcome2.webp"),
+    logo: require("@/assets/images/logo.png"),
 }

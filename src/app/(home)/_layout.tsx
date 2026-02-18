@@ -15,18 +15,28 @@ export default function TabLayout() {
 
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
 
-            <StatusBar style="auto" />
+            <StatusBar style="dark" />
 
             <Tabs
                 screenOptions={{
                     tabBarActiveTintColor: COLORS.primary,
-                    headerShown: false,
                     tabBarButton: HapticTab,
-                    tabBarStyle: { height: 60, paddingBottom: 10 }, // Petit conseil pour aérer le bas
+                    tabBarStyle: {
+                        backgroundColor: '#FFFFFF', // 👈 C'est ici que tu changes le background
+                        borderTopWidth: 0,           // Pour enlever le trait gris du haut
+                        elevation: 10,               // Ombre sur Android
+                        shadowColor: '#000',         // Ombre sur iOS
+                        shadowOffset: { width: 0, height: -2 },
+                        shadowOpacity: 0.1,
+                        shadowRadius: 10,
+                        height: 60,                  // Un peu plus haut pour le confort
+                        paddingBottom: 10,           // Aligne bien les icônes
+                    }, // Petit conseil pour aérer le bas
                 }}>
                 <Tabs.Screen
                     name="index"
                     options={{
+                        headerShown: false,
                         title: 'Accueil',
                         tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
                     }}
