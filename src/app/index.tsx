@@ -1,4 +1,4 @@
-import Onboarding from '@/screens/welcome/Onboarding';
+import Onboarding from '@/screens/welcome/OnboardingScreen';
 
 export default function OnboardingScreen() {
     // If we needed to check if onboarding was already seen, 
