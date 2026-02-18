@@ -78,7 +78,7 @@ export default function PreferencesScreen() {
             // Functional logic for adding custom category would go here
             setCustomCategory('');
         } else {
-            router.replace('/(tabs)');
+            router.replace('/(home)');
         }
     };
 
