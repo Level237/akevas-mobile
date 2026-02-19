@@ -1,8 +1,9 @@
 
 import Cart from "@/components/common/Cart";
+import SearchResource from "@/components/common/Search";
 import { COLORS } from "@/constants/colors";
 import { images } from "@/constants/images";
-import { Bell, Menu, Search } from 'lucide-react-native';
+import { Bell, Menu } from 'lucide-react-native';
 import React from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -26,9 +27,7 @@ const HomeHeader = () => {
 
                 {/* Right Section: Search, Notifications, Cart */}
                 <View style={styles.rightSection}>
-                    <TouchableOpacity activeOpacity={0.7} style={styles.iconButton}>
-                        <Search size={24} color={COLORS.iconLight} />
-                    </TouchableOpacity>
+                    <SearchResource />
 
                     <TouchableOpacity activeOpacity={0.7} style={styles.iconButton}>
                         <View>

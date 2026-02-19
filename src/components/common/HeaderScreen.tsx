@@ -1,10 +1,11 @@
 
 import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft } from 'lucide-react-native';
+import { ChevronLeft } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Cart from './Cart';
+import SearchResource from './Search';
 
 type Props = {
     title: string;
@@ -24,7 +25,7 @@ const HeaderScreen = ({ title, showCart = true, rightComponent }: Props) => {
                     onPress={() => navigation.goBack()}
                     activeOpacity={0.7}
                 >
-                    <ArrowLeft size={24} color="#333" />
+                    <ChevronLeft size={26} color="#333" />
                 </TouchableOpacity>
 
                 {/* CENTRE : Titre Dynamique */}
@@ -35,7 +36,13 @@ const HeaderScreen = ({ title, showCart = true, rightComponent }: Props) => {
                 </View>
 
                 {/* DROITE : Panier ou Composant Custom */}
+                <View style={{ marginRight: 12, marginLeft: -20 }}>
+
+                    <SearchResource />
+                </View>
+
                 <Cart />
+
             </View>
         </SafeAreaView>
     );
