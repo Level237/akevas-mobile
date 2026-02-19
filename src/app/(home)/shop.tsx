@@ -1,10 +1,17 @@
-import { Text, View } from "react-native";
+import { ShopScreen } from "@/features/shop";
+import { View } from "react-native";
 
-
-export default function ShopScreen() {
+export default function Shop() {
     return (
-        <View>
-            <Text>ShopScreen</Text>
+        <View style={styles.container}>
+            <ShopScreen />
         </View>
     );
+}
+
+const styles = {
+    container: {
+        flex: 1,
+        backgroundColor: '#FFF',
+    }
 }

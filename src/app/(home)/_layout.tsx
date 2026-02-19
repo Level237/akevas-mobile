@@ -45,6 +45,7 @@ export default function TabLayout() {
                     name="shop"
                     options={{
                         title: 'Boutiques',
+                        headerShown: false,
                         // "bag.fill" ou "storefront.fill" sont les standards pour les boutiques
                         tabBarIcon: ({ color }) => <Store color={color} style={{ width: 28, height: 28 }} />,
                     }}

@@ -1,9 +1,10 @@
 
+import Cart from "@/components/common/Cart";
 import { COLORS } from "@/constants/colors";
 import { images } from "@/constants/images";
-import { Bell, Menu, Search, ShoppingCart } from 'lucide-react-native';
+import { Bell, Menu, Search } from 'lucide-react-native';
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HomeHeader = () => {
@@ -36,14 +37,7 @@ const HomeHeader = () => {
                         </View>
                     </TouchableOpacity>
 
-                    <TouchableOpacity activeOpacity={0.7} style={styles.iconButton}>
-                        <View>
-                            <ShoppingCart size={24} color={COLORS.iconLight} />
-                            <View style={styles.cartBadge}>
-                                <Text style={styles.cartBadgeText}>2</Text>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
+                    <Cart />
                 </View>
             </View>
         </View>
@@ -110,25 +104,7 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         borderColor: COLORS.background,
     },
-    cartBadge: {
-        position: 'absolute',
-        top: -6,
-        right: -8,
-        backgroundColor: COLORS.primary,
-        borderRadius: 10,
-        minWidth: 18,
-        height: 18,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 4,
-        borderWidth: 1.5,
-        borderColor: COLORS.background,
-    },
-    cartBadgeText: {
-        color: COLORS.background,
-        fontSize: 10,
-        fontWeight: 'bold',
-    },
+
     logo: {
         width: 50,
         height: 50,
