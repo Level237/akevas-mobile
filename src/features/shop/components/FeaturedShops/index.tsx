@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
     useAnimatedScrollHandler,
     useSharedValue
@@ -8,7 +8,7 @@ import Animated, {
 import CarouselHeader from './CarouselHeader';
 import PaginationDots from './PaginationDots';
 import ShopCard from './ShopCard';
-import { SNAP_INTERVAL, styles } from './styles';
+import { styles } from './styles';
 
 type Shop = {
     id: string | number;
@@ -23,12 +23,23 @@ type Props = {
 
 const FeaturedShops = ({ shops }: Props) => {
     const scrollX = useSharedValue(0);
-
+    const [activeIndex, setActiveIndex] = useState(0);
+    const SCREEN_PADDING = 20;
+    const { width } = Dimensions.get('window');
+    const CARD_WIDTH = (width - (SCREEN_PADDING * 3)) / 2;
+    const SNAP_INTERVAL = CARD_WIDTH + SCREEN_PADDING;
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: (event) => {
             scrollX.value = event.contentOffset.y === 0 ? event.contentOffset.x : scrollX.value;
         },
     });
+
+    const onScroll = (event: any) => {
+        const scrollOffset = event.nativeEvent.contentOffset.x;
+        // On divise la position actuelle par la largeur totale d'un groupe (2 cartes + marges)
+        const index = Math.round(scrollOffset / (SNAP_INTERVAL * 2));
+        setActiveIndex(index);
+    };
 
     return (
         <View style={styles.container}>
@@ -44,18 +55,23 @@ const FeaturedShops = ({ shops }: Props) => {
                 snapToAlignment="start"
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={{
+                    paddingHorizontal: SCREEN_PADDING,
+                }}
                 renderItem={({ item }) => (
-                    <ShopCard
-                        name={item.name}
-                        image={item.image}
-                        isPremium={item.isPremium}
-                    />
+                    <View style={{ width: CARD_WIDTH, marginRight: SCREEN_PADDING }}>
+                        <ShopCard
+
+                            name={item.name}
+                            image={item.image}
+                            isPremium={item.isPremium}
+                        />
+                    </View>
                 )}
             />
 
             <View style={styles.footer}>
-                <PaginationDots data={shops} scrollX={scrollX} />
+                <PaginationDots data={shops} scrollX={scrollX} snapInterval={SNAP_INTERVAL} />
 
                 <TouchableOpacity style={styles.viewAllButton} activeOpacity={0.7}>
                     <Text style={styles.viewAllText}>Voir toutes les boutiques</Text>
