@@ -10,9 +10,17 @@ import Animated, {
     withTiming
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import FeaturedShops from "../components/FeaturedShops";
 import GenderHeader from "../components/GenderPanel";
 import HomeHeader from "../components/HomeHeader";
 import HomeHero from "../components/HomeHero";
+
+const dummyShops = [
+    { id: 1, name: 'chia-2y30a', image: require('@/assets/images/shop1.webp'), isPremium: true },
+    { id: 2, name: 'lari-i0b9c', image: require('@/assets/images/shop2.webp'), isPremium: true },
+    { id: 3, name: 'Shop 3', image: require('@/assets/images/shop3.webp'), isPremium: false },
+    { id: 4, name: 'Shop 4', image: require('@/assets/images/shop4.webp'), isPremium: true },
+];
 
 export default function HomeScreen() {
     const insets = useSafeAreaInsets();
@@ -83,6 +91,7 @@ export default function HomeScreen() {
                 ListHeaderComponent={() => (
                     <View style={styles.heroWrapper}>
                         <HomeHero />
+                        <FeaturedShops shops={dummyShops} />
                     </View>
                 )}
                 renderItem={({ item }) => (
