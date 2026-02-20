@@ -34,15 +34,6 @@ const ShopHeader = ({ scrollY }: Props) => {
         return { opacity };
     });
 
-    const animatedSearchStyle = useAnimatedStyle(() => {
-        const translateY = interpolate(
-            scrollY.value,
-            [0, SCROLL_DISTANCE],
-            [0, -100],
-            Extrapolation.CLAMP
-        );
-        return { transform: [{ translateY }] };
-    });
 
 
 
@@ -83,7 +74,7 @@ const ShopHeader = ({ scrollY }: Props) => {
                 </Animated.View>
 
                 {/* Barre de recherche */}
-                <Animated.View style={[styles.searchBarContainer, animatedSearchStyle]}>
+                <View style={[styles.searchBarContainer]}>
                     <View style={styles.searchBar}>
                         <Search color="rgba(255,255,255,0.6)" size={20} />
                         <TextInput
@@ -92,7 +83,7 @@ const ShopHeader = ({ scrollY }: Props) => {
                             style={styles.searchInput}
                         />
                     </View>
-                </Animated.View>
+                </View>
 
                 {/* Stats */}
 
