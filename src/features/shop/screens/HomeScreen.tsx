@@ -1,6 +1,6 @@
 import { COLORS } from "@/constants/colors";
 import React from 'react';
-import { StyleSheet, Text, View } from "react-native";
+import { StatusBar, StyleSheet, Text, View } from "react-native";
 import Animated, {
     Extrapolation,
     interpolate,
@@ -71,7 +71,7 @@ export default function HomeScreen() {
         <View style={styles.container}>
             {/* Fixed Top Header (Safe Area handled inside) */}
             <HomeHeader />
-
+            <StatusBar barStyle="dark-content" />
             {/* Animated Secondary Header (Gender) */}
             <GenderHeader animatedStyle={animatedHeaderStyle} />
 

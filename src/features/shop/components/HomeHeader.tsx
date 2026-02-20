@@ -3,10 +3,12 @@ import Cart from "@/components/common/Cart";
 import SearchResource from "@/components/common/Search";
 import { COLORS } from "@/constants/colors";
 import { images } from "@/constants/images";
+import { router } from 'expo-router';
 import { Bell, Menu } from 'lucide-react-native';
 import React from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 const HomeHeader = () => {
     const insets = useSafeAreaInsets();
@@ -16,7 +18,11 @@ const HomeHeader = () => {
             <View style={styles.content}>
                 {/* Left Section: Hamburger + Logo */}
                 <View style={styles.leftSection}>
-                    <TouchableOpacity activeOpacity={0.7} style={styles.iconButton}>
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        style={styles.iconButton}
+                        onPress={() => router.push('/(navigation)/category')}
+                    >
                         <Menu size={28} color={COLORS.iconLight} />
                     </TouchableOpacity>
 
@@ -24,6 +30,7 @@ const HomeHeader = () => {
                         <Image source={images.logo} style={styles.logo} />
                     </View>
                 </View>
+
 
                 {/* Right Section: Search, Notifications, Cart */}
                 <View style={styles.rightSection}>

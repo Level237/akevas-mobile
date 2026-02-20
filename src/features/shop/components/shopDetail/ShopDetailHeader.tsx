@@ -24,12 +24,12 @@ const ShopDetailHeader = ({ shop }: Props) => {
                         <Text style={styles.name}>{shop.name}</Text>
 
                         <View style={styles.row}>
-                            <MapPin size={16} color="#FFF" />
+                            <MapPin size={14} color="#FFF" />
                             <Text style={styles.location}>{shop.city}</Text>
                         </View>
 
                         <View style={styles.row}>
-                            <Star size={16} color="#E67E22" fill="#E67E22" />
+                            <Star size={14} color="#E67E22" fill="#E67E22" />
                             <Text style={styles.rating}>
                                 {shop.rating} ({shop.reviewsCount} avis)
                             </Text>
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     },
     banner: {
         width: '100%',
-        height: 350,
+        height: 250,
         justifyContent: 'flex-end',
     },
     gradient: {
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     },
     name: {
         color: '#FFF',
-        fontSize: 28,
+        fontSize: 25,
         fontWeight: 'bold',
         marginBottom: 8,
     },
@@ -79,11 +79,11 @@ const styles = StyleSheet.create({
     },
     location: {
         color: 'rgba(255,255,255,0.9)',
-        fontSize: 16,
+        fontSize: 13,
     },
     rating: {
         color: 'rgba(255,255,255,0.9)',
-        fontSize: 16,
+        fontSize: 12,
     },
     logoContainer: {
         position: 'absolute',
