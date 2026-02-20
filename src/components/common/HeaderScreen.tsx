@@ -19,30 +19,31 @@ const HeaderScreen = ({ title, showCart = true, rightComponent }: Props) => {
     return (
         <SafeAreaView edges={['top']} style={styles.safeArea}>
             <View style={styles.container}>
-                {/* GAUCHE : Bouton Retour */}
-                <TouchableOpacity
-                    style={styles.backButton}
-                    onPress={() => navigation.goBack()}
-                    activeOpacity={0.7}
-                >
-                    <ChevronLeft size={26} color="#333" />
-                </TouchableOpacity>
+                {/* LEFT: Back Button with Standard Hit Target */}
+                <View style={styles.leftContainer}>
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => navigation.goBack()}
+                        activeOpacity={0.7}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                        <ChevronLeft size={28} color="#1A1A1A" />
+                    </TouchableOpacity>
+                </View>
 
-                {/* CENTRE : Titre Dynamique */}
-                <View style={styles.titleContainer}>
+                {/* CENTER: Premium Bold Title */}
+                <View style={styles.centerContainer}>
                     <Text style={styles.title} numberOfLines={1}>
                         {title}
                     </Text>
                 </View>
 
-                {/* DROITE : Panier ou Composant Custom */}
-                <View style={{ marginRight: 12, marginLeft: -20 }}>
-
+                {/* RIGHT: Action Group (Search + Cart) */}
+                <View style={styles.rightContainer}>
                     <SearchResource />
+                    {showCart && <Cart />}
+                    {rightComponent}
                 </View>
-
-                <Cart />
-
             </View>
         </SafeAreaView>
     );
@@ -52,50 +53,46 @@ const styles = StyleSheet.create({
     safeArea: {
         backgroundColor: '#FFF',
         borderBottomWidth: 0.5,
-        borderBottomColor: '#E0E0E0',
-        elevation: 3, // Ombre Android
-        shadowColor: '#000', // Ombre iOS
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        borderBottomColor: '#F2F2F2',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
         shadowRadius: 2,
     },
     container: {
-        height: 56,
+        height: 60,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
+        paddingHorizontal: 12,
     },
-    backButton: {
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
+    leftContainer: {
+        width: 60,
         alignItems: 'flex-start',
     },
-    titleContainer: {
+    centerContainer: {
         flex: 1,
         alignItems: 'center',
     },
-    title: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-    },
     rightContainer: {
-        width: 40,
-        alignItems: 'flex-end',
+        width: 80, // Space for 2 icons usually
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
     },
-    iconButton: {
-        position: 'relative',
+    actionButton: {
+        width: 44,
+        height: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    badge: {
-        position: 'absolute',
-        right: -2,
-        top: -2,
-        backgroundColor: '#E67E22', // Ton orange Akevas
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-    }
+    title: {
+        fontSize: 20,
+        fontWeight: '800',
+        color: '#1A1A1A',
+        letterSpacing: -0.5,
+        textAlign: 'center',
+    },
 });
 
 export default HeaderScreen;

@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { ChevronRight, MapPin, Star } from 'lucide-react-native';
 import React, { memo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -6,10 +7,18 @@ import { styles, THEME } from './style';
 import { ShopCardProps } from './types';
 
 const ShopCardCompact = ({ shop, onPress, isPriority = false }: ShopCardProps) => {
+
+    const handlePress = (shopId: any) => {
+        // Si ton fichier est app/(shop)/[id].tsx
+        router.push({
+            pathname: "/[id]", // Le nom du fichier entre crochets
+            params: { id: shopId } // L'ID dynamique (ex: 1)
+        });
+    }
     return (
         <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => onPress?.(shop)}
+            onPress={() => handlePress(shop.id)}
             style={styles.compactContainer}
         >
             {/* Image Section */}
