@@ -3,8 +3,8 @@ import { X } from 'lucide-react-native';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CategoryCard from '../components/CategoryCard';
-import GenderTabs from '../components/GenderTabs';
+import CategoryCard from '../components/Category/CategoryCard';
+import GenderTabs from '../components/Category/GenderTabs';
 import { CATEGORIES, Gender } from '../types';
 
 const MenuScreen = () => {

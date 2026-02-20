@@ -2,7 +2,8 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { Category } from '../types';
+import { Category } from '../../types';
+
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 42) / 2; // (width - horizontalPadding - gap) / 2

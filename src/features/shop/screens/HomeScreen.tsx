@@ -10,9 +10,9 @@ import Animated, {
     withTiming
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import HomeHeader from "../../../components/common/HomeHeader";
 import FeaturedShops from "../components/FeaturedShops";
 import GenderHeader from "../components/GenderPanel";
-import HomeHeader from "../components/HomeHeader";
 import HomeHero from "../components/HomeHero";
 
 const dummyShops = [

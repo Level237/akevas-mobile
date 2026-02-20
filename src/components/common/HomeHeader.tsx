@@ -36,7 +36,7 @@ const HomeHeader = () => {
                 <View style={styles.rightSection}>
                     <SearchResource />
 
-                    <TouchableOpacity activeOpacity={0.7} style={styles.iconButton}>
+                    <TouchableOpacity onPress={() => router.push('/(navigation)/notification')} activeOpacity={0.7} style={styles.iconButton}>
                         <View>
                             <Bell size={24} color={COLORS.iconLight} />
                             <View style={styles.notificationDot} />

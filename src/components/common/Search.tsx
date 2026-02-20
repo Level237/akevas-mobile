@@ -2,13 +2,20 @@ import { COLORS } from "@/constants/colors";
 import { Search } from "lucide-react-native";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
+import { router } from "expo-router";
+
 const SearchResource = () => {
     return (
-        <TouchableOpacity activeOpacity={0.7} style={styles.iconButton}>
+        <TouchableOpacity
+            activeOpacity={0.7}
+            style={styles.iconButton}
+            onPress={() => router.push('/(navigation)/search')}
+        >
             <Search size={24} color={COLORS.iconLight} />
         </TouchableOpacity>
     );
 }
+
 
 const styles = StyleSheet.create({
     iconButton: {
