@@ -5,7 +5,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ShoppingBag, ShoppingCart, Store } from "lucide-react-native";
+import { ShoppingBag, ShoppingCart, Store, User } from "lucide-react-native";
 import React from 'react';
 
 export default function TabLayout() {
@@ -71,7 +71,7 @@ export default function TabLayout() {
                     options={{
                         title: 'Compte',
                         // "person.fill" pour l'espace utilisateur
-                        tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+                        tabBarIcon: ({ color }) => <User color={color} style={{ width: 28, height: 28 }} />,
                     }}
                 />
             </Tabs>
