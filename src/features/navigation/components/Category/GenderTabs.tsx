@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Gender } from '../types';
+import { Gender } from '../../types';
 
 type Props = {
     activeGender: Gender;

@@ -1,4 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SLIDE_DATA } from '../../data/slideData';
@@ -68,7 +69,7 @@ const HomeHero = () => {
                         {/* Footer Section (CTA + Pagination) */}
                         <View style={styles.footer}>
                             <HeroPagination activeIndex={activeIndex} onPressDot={(index) => handleManualPress(index)} />
-                            <TouchableOpacity style={styles.ctaButton} activeOpacity={0.9}>
+                            <TouchableOpacity onPress={() => router.push(slide.link as any)} style={styles.ctaButton} activeOpacity={0.9}>
                                 <Text style={[styles.ctaText, { color: slide.colors[1] }]}>{slide.ctaText}</Text>
                             </TouchableOpacity>
 
