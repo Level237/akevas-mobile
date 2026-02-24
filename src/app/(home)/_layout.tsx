@@ -5,7 +5,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ShoppingBag, ShoppingCart, Store, User } from "lucide-react-native";
+import { Heart, ShoppingCart, Store, User } from "lucide-react-native";
 import React from 'react';
 
 export default function TabLayout() {
@@ -51,18 +51,19 @@ export default function TabLayout() {
                     }}
                 />
                 <Tabs.Screen
-                    name="product"
+                    name="wishlist"
                     options={{
-                        title: 'Produits',
+                        title: 'Mes Favoris',
                         headerShown: false,
                         // "square.grid.2x2.fill" évoque bien un catalogue de produits
-                        tabBarIcon: ({ color }) => <ShoppingBag color={color} style={{ width: 28, height: 28 }} />,
+                        tabBarIcon: ({ color }) => <Heart color={color} style={{ width: 28, height: 28 }} />,
                     }}
                 />
                 <Tabs.Screen
                     name="cart"
                     options={{
                         title: 'Panier',
+                        headerShown: false,
                         // "cart.fill" est indispensable ici
                         tabBarIcon: ({ color }) => <ShoppingCart color={color} style={{ width: 28, height: 28 }} />,
                     }}

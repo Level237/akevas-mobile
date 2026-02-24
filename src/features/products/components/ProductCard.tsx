@@ -4,7 +4,7 @@ import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { Product } from '../types';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 48) / 2; // (width - horizontalPadding*2 - gap) / 2
+const CARD_WIDTH = (width - 43) / 2 // (width - horizontalPadding*2 - gap) / 2
 
 type Props = {
     product: Product;
