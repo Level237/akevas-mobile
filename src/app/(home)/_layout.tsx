@@ -54,6 +54,7 @@ export default function TabLayout() {
                     name="product"
                     options={{
                         title: 'Produits',
+                        headerShown: false,
                         // "square.grid.2x2.fill" évoque bien un catalogue de produits
                         tabBarIcon: ({ color }) => <ShoppingBag color={color} style={{ width: 28, height: 28 }} />,
                     }}

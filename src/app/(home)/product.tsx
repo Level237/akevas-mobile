@@ -1,10 +1,19 @@
-import { Text, View } from "react-native";
+import { ProductScreen } from "@/features/products";
+import { StyleSheet, View } from "react-native";
 
 
-export default function ProductScreen() {
+export default function Product() {
     return (
-        <View>
-            <Text>ProductScreen</Text>
+        <View style={styles.container}>
+            <ProductScreen />
         </View>
+
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#F9F9F9',
+    },
+});
