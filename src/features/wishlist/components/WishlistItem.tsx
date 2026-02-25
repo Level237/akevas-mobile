@@ -18,10 +18,10 @@ const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
     return (
         <TouchableOpacity
             style={styles.container}
-            activeOpacity={0.9}
+            activeOpacity={0.8}
             onPress={() => onPress?.(item)}
         >
-            {/* Product Image */}
+            {/* Product Image - Portrait 3:4 */}
             <View style={styles.imageContainer}>
                 <Image
                     source={item.imageUrl}
@@ -30,13 +30,13 @@ const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
                     transition={200}
                 />
 
-                {/* Favorite Icon (Always filled red) */}
+                {/* Favorite Icon (Filled Orange, No circle) */}
                 <TouchableOpacity
                     style={styles.heartButton}
                     onPress={() => onRemove(item.id)}
-                    activeOpacity={0.7}
+                    activeOpacity={0.6}
                 >
-                    <Ionicons name="heart" size={18} color="#E74C3C" />
+                    <Ionicons name="heart" size={24} color="#E67E22" />
                 </TouchableOpacity>
             </View>
 
@@ -52,7 +52,9 @@ const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
                         onPress={() => onAddToCart(item)}
                         activeOpacity={0.7}
                     >
-                        <Ionicons name="cart" size={16} color="#FFF" />
+                        <View style={styles.cartCircle}>
+                            <Ionicons name="cart-outline" size={16} color="#E67E22" />
+                        </View>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -65,20 +67,16 @@ const styles = StyleSheet.create({
         width: CARD_WIDTH,
         backgroundColor: '#FFFFFF',
         borderRadius: 20,
-        marginBottom: 16,
+        marginBottom: 20,
         overflow: 'hidden',
-        // Soft shadow
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 2,
     },
     imageContainer: {
         width: '100%',
-        aspectRatio: 1,
+        aspectRatio: 3 / 4,
         backgroundColor: '#F9F9F9',
+        borderRadius: 20,
         position: 'relative',
+        overflow: 'hidden',
     },
     image: {
         width: '100%',
@@ -86,28 +84,19 @@ const styles = StyleSheet.create({
     },
     heartButton: {
         position: 'absolute',
-        top: 10,
-        right: 10,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        top: 12,
+        right: 12,
+        zIndex: 10,
     },
     details: {
-        padding: 12,
+        paddingTop: 10,
+        paddingHorizontal: 4,
     },
     title: {
         fontSize: 14,
-        fontWeight: '600',
-        color: '#1A1A1A',
-        marginBottom: 6,
+        fontWeight: '500',
+        color: '#333',
+        marginBottom: 4,
     },
     footer: {
         flexDirection: 'row',
@@ -116,14 +105,18 @@ const styles = StyleSheet.create({
     },
     price: {
         fontSize: 15,
-        fontWeight: '800',
-        color: '#1A1A1A',
+        fontWeight: 'bold',
+        color: '#000',
     },
     cartButton: {
+        padding: 4,
+    },
+    cartCircle: {
         width: 32,
         height: 32,
-        borderRadius: 10,
-        backgroundColor: '#E67E22', // Akevas Orange
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: '#E67E22',
         justifyContent: 'center',
         alignItems: 'center',
     },

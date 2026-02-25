@@ -7,9 +7,11 @@ type Props = {
     items: WishlistItemType[];
     onRemove: (id: string) => void;
     onAddToCart: (item: WishlistItemType) => void;
+    ListHeaderComponent?: React.ComponentType<any> | React.ReactElement | null; // Ajouté
+    ListFooterComponent?: React.ComponentType<any> | React.ReactElement | null; // Ajouté
 };
 
-const WishlistGrid = ({ items, onRemove, onAddToCart }: Props) => {
+const WishlistGrid = ({ items, onRemove, onAddToCart, ListHeaderComponent, ListFooterComponent }: Props) => {
     return (
         <FlatList
             data={items}
@@ -18,6 +20,8 @@ const WishlistGrid = ({ items, onRemove, onAddToCart }: Props) => {
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={styles.container}
             showsVerticalScrollIndicator={false}
+            ListHeaderComponent={ListHeaderComponent}
+            ListFooterComponent={ListFooterComponent}
             renderItem={({ item }) => (
                 <WishlistItem
                     item={item}
@@ -32,7 +36,6 @@ const WishlistGrid = ({ items, onRemove, onAddToCart }: Props) => {
 const styles = StyleSheet.create({
     container: {
         padding: 16,
-        paddingBottom: 100,
     },
     columnWrapper: {
         justifyContent: 'space-between',

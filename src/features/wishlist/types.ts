@@ -5,3 +5,10 @@ export type WishlistItemType = {
     imageUrl: any;
     category?: string;
 };
+
+export type RecommendationItemType = {
+    id: string;
+    title: string;
+    price: number;
+    imageUrl: any;
+};
