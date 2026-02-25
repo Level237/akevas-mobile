@@ -25,8 +25,10 @@ export default function NavigationLayout() {
                     name="explore"
                     options={{
                         presentation: 'modal',
-                        animation: 'slide_from_right',
-
+                        animation: 'slide_from_bottom',
+                        gestureEnabled: true,
+                        fullScreenGestureEnabled: true,
+                        headerShown: false,
                     }}
                 />
             </Stack>
