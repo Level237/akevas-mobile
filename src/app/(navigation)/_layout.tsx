@@ -18,9 +18,17 @@ export default function NavigationLayout() {
                     name="category"
                     options={{
                         title: 'Catégories',
+
                     }}
                 />
+                <Stack.Screen
+                    name="explore"
+                    options={{
+                        presentation: 'modal',
+                        animation: 'slide_from_right',
 
+                    }}
+                />
             </Stack>
             <StatusBar style="dark" />
         </ThemeProvider>

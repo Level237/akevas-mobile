@@ -18,7 +18,7 @@ const EmptyCart = () => {
 
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => router.push('/')}
+                onPress={() => router.push('/(navigation)/explore')}
                 activeOpacity={0.8}
             >
                 <Text style={styles.buttonText}>Explorer les produits</Text>
