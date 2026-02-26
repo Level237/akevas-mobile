@@ -1,4 +1,5 @@
 import { COLORS } from "@/constants/colors";
+import { useGetHomeShopsQuery } from "@/services/guardService";
 import React from 'react';
 import { StatusBar, StyleSheet, Text, View } from "react-native";
 import Animated, {
@@ -16,7 +17,7 @@ import GenderHeader from "../components/GenderPanel";
 import HomeHero from "../components/HomeHero";
 
 const dummyShops = [
-    { id: 1, name: 'chia-2y30a', image: require('@/assets/images/shop1.webp'), isPremium: true },
+    { id: 1, name: 'chia-2y30as', image: require('@/assets/images/shop1.webp'), isPremium: true },
     { id: 2, name: 'lari-i0b9c', image: require('@/assets/images/shop2.webp'), isPremium: true },
     { id: 3, name: 'Shop 3', image: require('@/assets/images/shop3.webp'), isPremium: false },
     { id: 4, name: 'Shop 4', image: require('@/assets/images/shop4.webp'), isPremium: true },
@@ -24,7 +25,10 @@ const dummyShops = [
 
 export default function HomeScreen() {
     const insets = useSafeAreaInsets();
-
+    const { data: { data: shopsData } = {}, isLoading: shopsLoading, error: shopsError } = useGetHomeShopsQuery("guard", {
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: 30
+    })
     // Shared value for scroll position
     const scrollY = useSharedValue(0);
     const lastScrollY = useSharedValue(0);
@@ -64,8 +68,7 @@ export default function HomeScreen() {
         };
     });
 
-    // Dummy data for scroll testing
-    const dummyData = Array.from({ length: 50 }).map((_, i) => ({ id: i.toString(), title: `Produit ${i + 1}` }));
+
 
     return (
         <View style={styles.container}>
@@ -77,7 +80,7 @@ export default function HomeScreen() {
 
             {/* Scrollable Content */}
             <Animated.FlatList
-                data={dummyData}
+                data={shopsData}
                 keyExtractor={(item) => item.id}
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
@@ -91,7 +94,7 @@ export default function HomeScreen() {
                 ListHeaderComponent={() => (
                     <View style={styles.heroWrapper}>
                         <HomeHero />
-                        <FeaturedShops shops={dummyShops} />
+                        <FeaturedShops shops={shopsData} />
                     </View>
                 )}
                 renderItem={({ item }) => (

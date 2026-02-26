@@ -1,3 +1,5 @@
+
+import { Shop } from '@/types/seller';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
@@ -9,13 +11,6 @@ import CarouselHeader from './CarouselHeader';
 import PaginationDots from './PaginationDots';
 import ShopCard from './ShopCard';
 import { styles } from './styles';
-
-type Shop = {
-    id: string | number;
-    name: string;
-    image: any;
-    isPremium?: boolean;
-};
 
 type Props = {
     shops: Shop[];
@@ -41,13 +36,24 @@ const FeaturedShops = ({ shops }: Props) => {
         setActiveIndex(index);
     };
 
+    const renderItem = React.useCallback(({ item }: { item: Shop }) => (
+        <View style={{ width: CARD_WIDTH, marginRight: SCREEN_PADDING }}>
+            <ShopCard
+                id={item.shop_id}
+                key={item.shop_id}
+                name={item.shop_key}
+                image={item.shop_profile}
+            />
+        </View>
+    ), [CARD_WIDTH, SCREEN_PADDING]);
+
     return (
         <View style={styles.container}>
             <CarouselHeader />
 
             <Animated.FlatList
                 data={shops}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => item.shop_id}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 snapToInterval={SNAP_INTERVAL}
@@ -55,23 +61,18 @@ const FeaturedShops = ({ shops }: Props) => {
                 snapToAlignment="start"
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
+                initialNumToRender={4}
+                maxToRenderPerBatch={4}
+                windowSize={5}
+                removeClippedSubviews={true}
                 contentContainerStyle={{
                     paddingHorizontal: SCREEN_PADDING,
                 }}
-                renderItem={({ item }) => (
-                    <View style={{ width: CARD_WIDTH, marginRight: SCREEN_PADDING }}>
-                        <ShopCard
-
-                            name={item.name}
-                            image={item.image}
-                            isPremium={item.isPremium}
-                        />
-                    </View>
-                )}
+                renderItem={renderItem}
             />
 
             <View style={styles.footer}>
-                <PaginationDots data={shops} scrollX={scrollX} snapInterval={SNAP_INTERVAL} />
+                <PaginationDots data={shops || []} scrollX={scrollX} snapInterval={SNAP_INTERVAL} />
 
                 <TouchableOpacity style={styles.viewAllButton} activeOpacity={0.7}>
                     <Text style={styles.viewAllText}>Voir toutes les boutiques</Text>
@@ -82,4 +83,4 @@ const FeaturedShops = ({ shops }: Props) => {
     );
 };
 
-export default FeaturedShops;
+export default React.memo(FeaturedShops);

@@ -18,12 +18,12 @@ const ShopCardCompact = ({ shop, onPress, isPriority = false }: ShopCardProps) =
     return (
         <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => handlePress(shop.id)}
+            onPress={() => handlePress(shop.shop_id)}
             style={styles.compactContainer}
         >
             {/* Image Section */}
             <Image
-                source={shop.imageUrl}
+                source={shop.shop_profile}
                 style={styles.compactImage}
                 contentFit="cover"
                 transition={200}
@@ -35,33 +35,36 @@ const ShopCardCompact = ({ shop, onPress, isPriority = false }: ShopCardProps) =
                 <View>
                     <View style={styles.compactHeader}>
                         <Text style={styles.compactTitle} numberOfLines={1}>
-                            {shop.name}
+                            {shop.shop_name}
                         </Text>
+                        {/* 
+                        // To re-enable when isPremium is available in API
                         {shop.isPremium && (
                             <View style={{ backgroundColor: THEME.primary, borderRadius: 4, paddingHorizontal: 4, paddingVertical: 1 }}>
                                 <Text style={{ color: '#FFF', fontSize: 8, fontWeight: 'bold' }}>PREMIUM</Text>
                             </View>
-                        )}
+                        )} 
+                        */}
                     </View>
 
                     <View style={styles.compactRatingRow}>
                         <Star size={14} color={THEME.star} fill={THEME.star} />
                         <Text style={styles.compactRatingText}>
-                            {shop.rating} ({shop.reviewsCount} avis)
+                            {shop.review_average || 0} ({shop.reviewCount || 0} avis)
                         </Text>
                     </View>
 
                     <View style={styles.compactLocationRow}>
                         <MapPin size={12} color={THEME.textSecondary} />
-                        <Text style={styles.compactLocationText}>{shop.city}</Text>
+                        <Text style={styles.compactLocationText}>{shop.town}</Text>
                     </View>
                 </View>
 
                 <View style={styles.compactFooter}>
                     <View style={styles.compactTagsRow}>
-                        {shop.tags.slice(0, 2).map((tag, index) => (
+                        {shop.categories?.slice(0, 2).map((cat: any, index: number) => (
                             <View key={index} style={styles.tagChip}>
-                                <Text style={styles.tagText}>{tag}</Text>
+                                <Text style={styles.tagText}>{cat.category_name || cat.name}</Text>
                             </View>
                         ))}
                     </View>

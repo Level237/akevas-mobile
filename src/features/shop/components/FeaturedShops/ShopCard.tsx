@@ -1,18 +1,21 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CARD_MARGIN } from './styles';
 
 type Props = {
+    id: string;
     name: string;
     image: any;
     isPremium?: boolean;
 };
 
-const ShopCard = ({ name, image, isPremium }: Props) => {
+const ShopCard = ({ id, name, image, isPremium }: Props) => {
+    const router = useRouter()
     return (
-        <View style={styles.container}>
+        <TouchableOpacity activeOpacity={1} onPress={() => { router.push({ pathname: "/[id]", params: { id: id } }); }} style={styles.container}>
             <Image
                 source={image}
                 contentFit="cover"
@@ -32,7 +35,7 @@ const ShopCard = ({ name, image, isPremium }: Props) => {
                     <Text style={styles.premiumText}>Premium</Text>
                 </View>
             )}
-        </View>
+        </TouchableOpacity>
     );
 };
 
@@ -79,4 +82,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ShopCard;
+export default React.memo(ShopCard);

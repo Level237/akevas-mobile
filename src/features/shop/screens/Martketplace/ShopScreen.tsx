@@ -9,23 +9,21 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Shop, ShopCardCompact } from '../../components/ShopCardList';
 import ShopHeader from '../../components/shopDetail/ShopHeader';
 
-const dummyData: Shop[] = Array.from({ length: 40 }).map((_, i) => ({
-    id: i.toString(),
-    name: `Akevas Boutique ${i + 1}`,
-    description: "Une description élégante pour une boutique de mode locale premium.",
-    rating: 4.5 + (i % 5) * 0.1,
-    reviewsCount: 120 + i * 2,
-    city: i % 2 === 0 ? "Douala" : "Yaoundé",
-    isPremium: i % 3 === 0,
-    tags: ["Mode", "Artisanat", "Luxe"],
-    imageUrl: require('@/assets/images/shop1.webp'),
-    bannerUrl: require('@/assets/images/shop1.webp'),
-    logoUrl: require('@/assets/images/logo.png'),
-}));
+
+import { useGetHomeShopsQuery } from '@/services/guardService';
+import { useRouter } from 'expo-router';
+import { useCallback } from 'react';
+import { ActivityIndicator, Text } from "react-native";
 
 export default function ShopScreen() {
     const scrollY = useSharedValue(0);
     const insets = useSafeAreaInsets();
+    const router = useRouter();
+
+    const { data: { data: shopsData } = {}, isLoading: shopsLoading, error: shopsError } = useGetHomeShopsQuery("guard", {
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: 30
+    });
 
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: (event) => {
@@ -33,21 +31,42 @@ export default function ShopScreen() {
         },
     });
 
-    const renderItem = ({ item, index }: { item: Shop; index: number }) => (
+    const renderItem = useCallback(({ item, index }: { item: Shop; index: number }) => (
         <ShopCardCompact
             shop={item}
             isPriority={index < 5}
-            onPress={(shop) => console.log('Shop pressed:', shop.name)}
+            onPress={(shop) => {
+                router.push({
+                    pathname: "/[id]",
+                    params: { id: shop.shop_id }
+                });
+            }}
         />
-    );
+    ), [router]);
+
+    if (shopsLoading) {
+        return (
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color="#E67E22" />
+            </View>
+        );
+    }
+
+    if (shopsError) {
+        return (
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <Text>Erreur de chargement des boutiques.</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
             {/* Main Content List */}
             <HeaderTabs title='Boutiques' />
             <Animated.FlatList
-                data={dummyData}
-                keyExtractor={(item) => item.id.toString()}
+                data={shopsData || []}
+                keyExtractor={(item) => item.shop_id}
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
                 ListHeaderComponent={() => <ShopHeader scrollY={scrollY} />}

@@ -75,4 +75,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PaginationDots;
+export default React.memo(PaginationDots);
