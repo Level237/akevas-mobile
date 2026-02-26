@@ -33,12 +33,6 @@ const MenuScreen = () => {
 
     const currentCategories = currentGender?.categories;
 
-    // Dans ton rendu (JSX)
-    if (isLoading || isTabChanging) {
-        return <SkeletonCategory />;
-    }
-    const displayData = isLoading || isTabChanging ? <SkeletonCategory /> : currentCategories;
-    //console.log(filteredCategories);
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             {/* Header */}
@@ -52,16 +46,20 @@ const MenuScreen = () => {
             {/* Tabs */}
             <GenderTabs activeGender={activeGender} onGenderChange={setActiveGender} />
 
-            {/* Grid */}
-            <FlatList
-                data={displayData}
-                keyExtractor={(item) => item.id}
-                numColumns={2}
-                renderItem={({ item }) => <CategoryCard category={item} />}
-                contentContainerStyle={styles.gridContent}
-                columnWrapperStyle={styles.columnWrapper}
-                showsVerticalScrollIndicator={false}
-            />
+            {/* Grid or Skeleton */}
+            {isLoading || isTabChanging ? (
+                <SkeletonCategory />
+            ) : (
+                <FlatList
+                    data={currentCategories}
+                    keyExtractor={(item) => item.id}
+                    numColumns={2}
+                    renderItem={({ item }) => <CategoryCard category={item} />}
+                    contentContainerStyle={styles.gridContent}
+                    columnWrapperStyle={styles.columnWrapper}
+                    showsVerticalScrollIndicator={false}
+                />
+            )}
         </View>
     );
 };

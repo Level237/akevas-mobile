@@ -1,25 +1,47 @@
+import React, { useEffect, useRef } from 'react';
+import { Animated, FlatList, StyleSheet, View } from 'react-native';
 
-import { FlatList, StyleSheet, View } from 'react-native';
+const SkeletonCategory = () => {
+    const pulseAnim = useRef(new Animated.Value(0.3)).current;
 
+    useEffect(() => {
+        const pulse = Animated.loop(
+            Animated.sequence([
+                Animated.timing(pulseAnim, {
+                    toValue: 0.7,
+                    duration: 1000,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(pulseAnim, {
+                    toValue: 0.3,
+                    duration: 1000,
+                    useNativeDriver: true,
+                }),
+            ])
+        );
 
-const SkeletonCategory = () => (
-    <View style={styles.container}>
+        pulse.start();
+        return () => pulse.stop();
+    }, [pulseAnim]);
 
-        <FlatList
-            data={[1, 2, 3, 4]}
-            keyExtractor={(item) => item.toString()}
-            numColumns={2}
-            renderItem={({ item }) => (
-                <View key={item} style={styles.category}>
-                    <View style={styles.categoryImage} />
-                </View>
-            )}
-            contentContainerStyle={styles.gridContent}
-            columnWrapperStyle={styles.columnWrapper}
-            showsVerticalScrollIndicator={false}
-        />
-    </View>
-);
+    return (
+        <View style={styles.container}>
+            <FlatList
+                data={[1, 2, 3, 4, 5, 6]}
+                keyExtractor={(item) => item.toString()}
+                numColumns={2}
+                renderItem={({ item }) => (
+                    <View key={item} style={styles.category}>
+                        <Animated.View style={[styles.categoryImage, { opacity: pulseAnim }]} />
+                    </View>
+                )}
+                contentContainerStyle={styles.gridContent}
+                columnWrapperStyle={styles.columnWrapper}
+                showsVerticalScrollIndicator={false}
+            />
+        </View>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -43,8 +65,7 @@ const styles = StyleSheet.create({
     categoryImage: {
         width: '100%',
         height: '100%',
-        backgroundColor: '#e5e7eb', // Gris clair
-        //animation: 'pulse 1.5s infinite',
+        backgroundColor: '#e5e7eb',
     },
 });
 

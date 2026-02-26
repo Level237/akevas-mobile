@@ -2,41 +2,45 @@ import { useGetProfileShopQuery } from '@/services/guardService';
 import { Image } from 'expo-image';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import HeroSkeleton from './HeroSkeleton';
 
 
 // These could be passed as props, but using placeholders for now as per constraints
 const HeroImageGrid = () => {
     const { data: shops, isLoading } = useGetProfileShopQuery("guard");
-    console.log(shops);
+
     return (
         <View style={styles.container}>
-            <View style={styles.grid}>
-                {!isLoading && shops?.length > 0 && (
-                    <>
-                        <View style={styles.row}>
-                            <View style={styles.imageBox} >
-                                <Image transition={500} contentFit="cover" source={shops[0].shop_profile} style={styles.image} />
-                            </View>
-                            <View style={styles.imageBox} >
-                                <Image contentFit="cover"
-                                    transition={500} source={shops[1].shop_profile} style={styles.image} />
-                            </View>
+            {isLoading ? (
+                <HeroSkeleton />
+            ) : (
+                <View style={styles.grid}>
+                    {shops?.length > 0 && (
+                        <>
+                            <View style={styles.row}>
+                                <View style={styles.imageBox} >
+                                    <Image transition={500} contentFit="cover" source={shops[0].shop_profile} style={styles.image} />
+                                </View>
+                                <View style={styles.imageBox} >
+                                    <Image contentFit="cover"
+                                        transition={500} source={shops[1].shop_profile} style={styles.image} />
+                                </View>
 
-                        </View>
-                        <View style={styles.row}>
-                            <View style={styles.imageBox} >
-                                <Image transition={500} contentFit="cover" source={shops[2].shop_profile} style={styles.image} />
                             </View>
-                            <View style={styles.imageBox} >
-                                <Image contentFit="cover"
-                                    transition={500} source={shops[3].shop_profile} style={styles.image} />
+                            <View style={styles.row}>
+                                <View style={styles.imageBox} >
+                                    <Image transition={500} contentFit="cover" source={shops[2].shop_profile} style={styles.image} />
+                                </View>
+                                <View style={styles.imageBox} >
+                                    <Image contentFit="cover"
+                                        transition={500} source={shops[3].shop_profile} style={styles.image} />
+                                </View>
+
                             </View>
-
-                        </View>
-                    </>
-                )}
-
-            </View>
+                        </>
+                    )}
+                </View>
+            )}
         </View>
     );
 };
@@ -70,4 +74,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default HeroImageGrid;
+export default React.memo(HeroImageGrid);
