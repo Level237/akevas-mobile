@@ -6,6 +6,7 @@ import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, R
 
 // Tes services API (RTK Query)
 
+import categorySlice from '@/features/navigation/store/categorySlice';
 import { guardService } from "@/services/guardService";
 
 
@@ -13,6 +14,7 @@ import { guardService } from "@/services/guardService";
 const rootReducer = combineReducers({
 
     [guardService.reducerPath]: guardService.reducer,
+    [categorySlice.name]: categorySlice.reducer,
 });
 
 // 2. Configuration de la persistance
@@ -31,8 +33,12 @@ export const store = configureStore({
     reducer: persistedReducer, // On utilise le version "persistante" et pas le rootReducer brut
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({
         // Au lieu de mettre "false", on ignore juste les actions de redux-persist
+
         serializableCheck: {
+            // ✅ On ignore les actions de persist
             ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+            // ✅ On augmente le seuil à 128ms pour éviter le warning en Dev
+            warnAfter: 128,
         },
     }).concat(
         guardService.middleware,

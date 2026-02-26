@@ -50,7 +50,7 @@ export const guardService = createApi({
         }),
         getCategoriesWithParentIdNull: builder.query({
             query: (genderId) => {
-
+                console.log(genderId);
                 let url = `/api/categories/with-parent-id-null`;
                 if (genderId != 4) {
                     // L'argument est ici directement la valeur du genre (ex: 'homme')
@@ -108,10 +108,16 @@ export const guardService = createApi({
             }),
             providesTags: ['guard'],
         }),
+        allGenders: builder.query({
+            query: () => ({
+                url: "/api/all/genders",
+                method: "GET"
+            })
+        }),
 
         getCurrentHomeByGender: builder.query({
             query: (id) => ({
-                url: `/api/current/gender/${id}`,
+                url: `/api/current/gender/categories/${id}`,
                 method: "GET",
             }),
             providesTags: ['guard'],
@@ -178,6 +184,7 @@ export const {
     useGetCategoryByGenderQuery,
     useGetSubCategoriesQuery,
     useGetHomeShopsQuery,
+    useAllGendersQuery,
     useGetCurrentHomeByGenderQuery,
     useGetHomeProductsQuery,
     useGetProductByUrlQuery,

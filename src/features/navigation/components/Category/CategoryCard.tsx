@@ -1,8 +1,9 @@
+import { Category } from '@/types/product';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { Category } from '../../types';
+
 
 
 const { width } = Dimensions.get('window');
@@ -21,7 +22,7 @@ const CategoryCard = ({ category, onPress }: Props) => {
             activeOpacity={0.8}
         >
             <Image
-                source={category.imageUrl}
+                source={category.category_profile}
                 style={styles.image}
                 contentFit="cover"
                 transition={200}
@@ -30,7 +31,7 @@ const CategoryCard = ({ category, onPress }: Props) => {
                 colors={['transparent', 'rgba(0,0,0,0.7)']}
                 style={styles.overlay}
             >
-                <Text style={styles.name}>{category.name}</Text>
+                <Text style={styles.name}>{category.category_name}</Text>
             </LinearGradient>
         </TouchableOpacity>
     );

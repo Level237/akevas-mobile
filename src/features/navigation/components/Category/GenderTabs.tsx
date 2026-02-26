@@ -1,27 +1,30 @@
+import { Gender } from '@/services/gender';
+import { useAllGendersQuery } from '@/services/guardService';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Gender } from '../../types';
+
 
 type Props = {
-    activeGender: Gender;
-    onGenderChange: (gender: Gender) => void;
+    activeGender: number;
+    onGenderChange: (gender: number) => void;
 };
 
 const GenderTabs = ({ activeGender, onGenderChange }: Props) => {
-    const genders: Gender[] = ['HOMME', 'FEMME', 'ENFANT'];
+
+    const { data: genders, isLoading, isError } = useAllGendersQuery('guard');
 
     return (
         <View style={styles.container}>
-            {genders.map((gender) => {
-                const isActive = activeGender === gender;
+            {!isLoading && genders && genders.map((gender: Gender) => {
+                const isActive: boolean = activeGender === gender.id;
                 return (
                     <TouchableOpacity
-                        key={gender}
-                        onPress={() => onGenderChange(gender)}
+                        key={gender.id}
+                        onPress={() => onGenderChange(gender.id)}
                         style={[styles.tab, isActive && styles.activeTab]}
                     >
                         <Text style={[styles.tabText, isActive && styles.activeTabText]}>
-                            {gender}
+                            {gender.gender_name}
                         </Text>
                     </TouchableOpacity>
                 );

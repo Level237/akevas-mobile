@@ -1,24 +1,44 @@
+
+import { useGetCurrentHomeByGenderQuery } from '@/services/guardService';
 import { router } from 'expo-router';
 import { X } from 'lucide-react-native';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CategoryCard from '../components/Category/CategoryCard';
 import GenderTabs from '../components/Category/GenderTabs';
-import { CATEGORIES, Gender } from '../types';
+import SkeletonCategory from '../components/Category/SkeletonCategory';
 
 const MenuScreen = () => {
     const insets = useSafeAreaInsets();
-    const [activeGender, setActiveGender] = useState<Gender>('FEMME');
+    const [activeGender, setActiveGender] = useState<number>(1);
+    const [isTabChanging, setIsTabChanging] = useState(false);
+    const [categories, setCategories] = useState<any[]>([]);
+    const { data, isLoading, isError } = useGetCurrentHomeByGenderQuery(activeGender, {
+        skip: !activeGender, // Très bien, ça évite les appels vides
+        refetchOnMountOrArgChange: true, // Je conseille True pour une Home, pour avoir les données fraîches au retour
+        refetchOnFocus: false, // Bien, pas la peine de spammer en changeant d'onglet
+        refetchOnReconnect: false // Bien
+    });
 
-    const filteredCategories = useMemo(() =>
-        CATEGORIES.filter(c => c.gender === activeGender),
-        [activeGender]);
+    const currentGender = data?.data;
+    //console.log(currentGender);
+
+
+
 
     const handleClose = useCallback(() => {
         router.back();
     }, []);
 
+    const currentCategories = currentGender?.categories;
+
+    // Dans ton rendu (JSX)
+    if (isLoading || isTabChanging) {
+        return <SkeletonCategory />;
+    }
+    const displayData = isLoading || isTabChanging ? <SkeletonCategory /> : currentCategories;
+    //console.log(filteredCategories);
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             {/* Header */}
@@ -34,7 +54,7 @@ const MenuScreen = () => {
 
             {/* Grid */}
             <FlatList
-                data={filteredCategories}
+                data={displayData}
                 keyExtractor={(item) => item.id}
                 numColumns={2}
                 renderItem={({ item }) => <CategoryCard category={item} />}
