@@ -3,6 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "baseUrl": ".",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": [
         "src/*"
@@ -13,6 +14,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "src/services/baseQueryWithReauth.js"
   ]
 }
