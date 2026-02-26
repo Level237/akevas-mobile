@@ -115,6 +115,13 @@ export const guardService = createApi({
             })
         }),
 
+        getProfileShop: builder.query({
+            query: () => ({
+                url: '/api/get/profile/shop',
+                method: "GET"
+            })
+        }),
+
         getCurrentHomeByGender: builder.query({
             query: (id) => ({
                 url: `/api/current/gender/categories/${id}`,
@@ -184,6 +191,7 @@ export const {
     useGetCategoryByGenderQuery,
     useGetSubCategoriesQuery,
     useGetHomeShopsQuery,
+    useGetProfileShopQuery,
     useAllGendersQuery,
     useGetCurrentHomeByGenderQuery,
     useGetHomeProductsQuery,
