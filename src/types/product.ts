@@ -19,7 +19,6 @@ export interface Product {
     product_categories: Category[],
     residence: string,
     product_attributes: string[] | null,
-    product_variants: string[] | null,
     variations: Variant[] | null,
     status: boolean,
     count_seller: string,

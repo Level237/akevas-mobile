@@ -1,7 +1,7 @@
 import { normalizeProduct } from '@/lib/normalizeProduct';
 import React, { useMemo, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
-import ProductCard from './ProductCard';
+import ProductCard from '../../../../components/ProductCard';
 import ShopDetailHeader from './ShopDetailHeader';
 import ShopTabs from './ShopTabs';
 import { ShopDetailData } from './types';
@@ -20,9 +20,6 @@ type SectionData = {
 const ShopDetailFeature = ({ shopData }: any) => {
     const [activeTab, setActiveTab] = useState<'Produits' | 'À propos' | 'Avis'>('Produits');
     const products = shopData.products || [];
-
-    console.log("endfb")
-    //const safeProducts = shopData.products || [];
 
     const normalizedProducts = products.map(normalizeProduct);
 
