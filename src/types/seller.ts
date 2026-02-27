@@ -14,30 +14,32 @@ export interface Seller {
     identity_card_with_the_person: string | null,
     email: string
     avatar: string,
-    shop: {
-        shop_id: string | null,
-        shop_name: string | null,
-        shop_description: string | null,
-        shop_key: string | null,
-        categories: Category[] | null,
-        shop_profile: string | null,
-        products_count: number | null,
-        review_average: number | null,
-        reviewCount: number | null,
-        products: Product[] | null,
-        isPublished: boolean | null,
-        orders_count: number | null,
-        coins: number | null,
-        images: Image[] | null,
-        town: string | null,
-        quarter: string | null,
-        state: string | null,
-        level: string | null,
-        cover: string | null
-    },
+    shop: Shop,
     role_id: number,
 
     created_at: string
+}
+
+export interface Shop {
+    shop_id: string | null,
+    shop_name: string | null,
+    shop_description: string | null,
+    shop_key: string | null,
+    categories: Category[] | null,
+    shop_profile: string | null,
+    products_count: number | null,
+    review_average: number | null,
+    reviewCount: number | null,
+    products: Product[] | null,
+    isPublished: boolean | null,
+    orders_count: number | null,
+    coins: number | null,
+    images: Image[] | null,
+    town: string | null,
+    quarter: string | null,
+    state: string | null,
+    level: string | null,
+    cover: string | null
 }
 
 export interface SellerResponse {
@@ -47,19 +49,3 @@ export interface SellerResponse {
     isLoading: boolean
 }
 
-export interface Shop {
-    shop_id: string;
-    shop_name: string;
-    shop_description: string;
-    shop_profile: string;
-    shop_key: string;
-    review_average: number | null,
-    reviewCount: number | null,
-    products_count: number;
-    products: Product[];
-    town: string;
-    categories: Category[];
-    images: Image[];
-    quarter: string;
-
-}

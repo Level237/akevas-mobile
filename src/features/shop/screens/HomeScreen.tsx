@@ -29,6 +29,7 @@ export default function HomeScreen() {
         refetchOnFocus: true,
         refetchOnMountOrArgChange: 30
     })
+
     // Shared value for scroll position
     const scrollY = useSharedValue(0);
     const lastScrollY = useSharedValue(0);
@@ -81,7 +82,7 @@ export default function HomeScreen() {
             {/* Scrollable Content */}
             <Animated.FlatList
                 data={shopsData}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.shop_id}
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
                 contentContainerStyle={[

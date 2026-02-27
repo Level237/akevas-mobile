@@ -1,7 +1,7 @@
+import { Product } from '@/types/product';
 import { Image } from 'expo-image';
 import React, { memo } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Product } from './types';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 40 - 15) / 2;
@@ -12,6 +12,7 @@ type Props = {
 };
 
 const ProductCard = ({ product, onPress }: Props) => {
+
     return (
         <TouchableOpacity
             style={styles.container}
@@ -19,16 +20,16 @@ const ProductCard = ({ product, onPress }: Props) => {
             activeOpacity={0.8}
         >
             <Image
-                source={product.imageUrl}
+                source={{ uri: product.product_profile }}
                 style={styles.image}
                 contentFit="cover"
                 transition={200}
             />
             <View style={styles.content}>
                 <Text style={styles.name} numberOfLines={1}>
-                    {product.name}
+                    {product.product_name}
                 </Text>
-                <Text style={styles.price}>{product.price.toLocaleString()} FCFA</Text>
+                <Text style={styles.price}>{product.product_price} FCFA</Text>
             </View>
         </TouchableOpacity>
     );

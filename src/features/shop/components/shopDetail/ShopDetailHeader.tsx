@@ -1,18 +1,22 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { MapPin, Star } from 'lucide-react-native';
 import React from 'react';
-import { Image, ImageBackground, ImageSourcePropType, StyleSheet, Text, View } from 'react-native';
+import { Image, ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { ShopDetailData } from './types';
 
 type Props = {
     shop: ShopDetailData;
 };
 
-const ShopDetailHeader = ({ shop }: Props) => {
+const ShopDetailHeader = ({ shop }: any) => {
+
+    console.log(shop.images?.[0]?.path)
+    console.log("mrt")
     return (
         <View style={styles.container}>
+
             <ImageBackground
-                source={shop.bannerUrl as ImageSourcePropType}
+                source={{ uri: shop.images?.[0]?.path }}
                 style={styles.banner}
                 resizeMode="cover"
             >
@@ -21,17 +25,17 @@ const ShopDetailHeader = ({ shop }: Props) => {
                     style={styles.gradient}
                 >
                     <View style={styles.infoContainer}>
-                        <Text style={styles.name}>{shop.name}</Text>
+                        <Text style={styles.name}>{shop.shop_key}</Text>
 
                         <View style={styles.row}>
                             <MapPin size={14} color="#FFF" />
-                            <Text style={styles.location}>{shop.city}</Text>
+                            <Text style={styles.location}>{shop.town} - {shop.quarter}</Text>
                         </View>
 
                         <View style={styles.row}>
                             <Star size={14} color="#E67E22" fill="#E67E22" />
                             <Text style={styles.rating}>
-                                {shop.rating} ({shop.reviewsCount} avis)
+                                {shop.review_average} ({shop.reviewCount} avis)
                             </Text>
                         </View>
                     </View>
@@ -39,7 +43,7 @@ const ShopDetailHeader = ({ shop }: Props) => {
 
                 {/* Overlapping Logo */}
                 <View style={styles.logoContainer}>
-                    <Image source={shop.logoUrl as ImageSourcePropType} style={styles.logo} />
+                    <Image source={{ uri: shop.shop_profile }} style={styles.logo} />
                 </View>
             </ImageBackground>
         </View>

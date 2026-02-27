@@ -1,12 +1,18 @@
 import HeaderScreen from "@/components/common/HeaderScreen";
 import ShopDetailFeature from "@/features/shop/components/shopDetail";
 import { ShopDetailData } from "@/features/shop/components/shopDetail/types";
+import { useGetShopQuery } from "@/services/guardService";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React from 'react';
 import { View } from "react-native";
 
 export default function ShopDetailScreen() {
     const { id } = useLocalSearchParams();
+    const { data: { data: shop } = {}, isLoading, error } = useGetShopQuery(id);
+    console.log(shop?.id)
+    console.log("lelelelel")
+
+    const shopPreview = shop?.shop || []
 
     // Mock data for the shop
     const shopData: ShopDetailData = {
@@ -31,7 +37,7 @@ export default function ShopDetailScreen() {
         <View style={{ flex: 1 }}>
             <Stack.Screen options={{ headerShown: false }} />
             <HeaderScreen title="Détails de la boutique" />
-            <ShopDetailFeature shopData={shopData} />
+            <ShopDetailFeature shopData={shopPreview} />
         </View>
     );
 }
