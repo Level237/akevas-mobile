@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ImageCarousel from '../components/ProductDetail/ImageCarousel';
-import InstallmentPlan from '../components/ProductDetail/InstallmentPlan';
 import ProductActionButton from '../components/ProductDetail/ProductActionButton';
 import ProductInfo from '../components/ProductDetail/ProductInfo';
 import VariationSelector from '../components/ProductDetail/VariationSelector';
@@ -99,9 +98,7 @@ const ProductDetailScreen = ({ url }: Props) => {
                     onVariantChange={setSelectedVariant}
                 />
 
-                <View style={styles.section}>
-                    <InstallmentPlan price={product.product_price} />
-                </View>
+
 
                 <View style={styles.descriptionSection}>
                     <Text style={styles.sectionTitle}>Description</Text>
