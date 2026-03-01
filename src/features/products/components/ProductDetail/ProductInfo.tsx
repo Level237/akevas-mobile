@@ -1,3 +1,4 @@
+import { COLORS } from '@/constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -48,7 +49,7 @@ const styles = StyleSheet.create({
     },
     shopName: {
         fontSize: 14,
-        color: '#6366F1',
+        color: COLORS.primary,
         fontWeight: '600',
         textTransform: 'uppercase',
         letterSpacing: 0.5,

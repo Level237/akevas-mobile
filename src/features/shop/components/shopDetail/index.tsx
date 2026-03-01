@@ -1,7 +1,8 @@
+import ProductCard from '@/components/ProductCard';
 import { normalizeProduct } from '@/lib/normalizeProduct';
+import { Image } from 'expo-image';
 import React, { useMemo, useState } from 'react';
-import { SectionList, StyleSheet, Text, View } from 'react-native';
-import ProductCard from '../../../../components/ProductCard';
+import { SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ShopDetailHeader from './ShopDetailHeader';
 import ShopTabs from './ShopTabs';
 import { ShopDetailData } from './types';
@@ -9,7 +10,6 @@ import { ShopDetailData } from './types';
 type Props = {
     shopData: ShopDetailData;
 };
-
 
 type SectionData = {
     title: string;
@@ -23,14 +23,15 @@ const ShopDetailFeature = ({ shopData }: any) => {
 
     const normalizedProducts = products.map(normalizeProduct);
 
+    // Génération des lignes pour la grille
     const productRows = useMemo(() => {
         const rows = [];
         for (let i = 0; i < normalizedProducts.length; i += 2) {
-            // On prend une tranche de 2 produits (ou 1 s'il reste un seul à la fin)
             rows.push(normalizedProducts.slice(i, i + 2));
         }
         return rows;
     }, [normalizedProducts]);
+
     const sections = useMemo<SectionData[]>(() => [
         {
             title: 'Header',
@@ -44,20 +45,54 @@ const ShopDetailFeature = ({ shopData }: any) => {
         },
         {
             title: 'Content',
-            data: activeTab === 'Produits' ? productRows : [activeTab],
+            // Astuce : Si vide, on injecte un marqueur
+            data: activeTab === 'Produits'
+                ? (productRows.length > 0 ? productRows : [{ isEmpty: true }])
+                : [activeTab],
+
             renderItem: ({ item }: { item: any }) => {
                 if (activeTab === 'Produits') {
-                    // 3. 'item' représente maintenant UNE ligne (contenant 1 ou 2 produits)
+                    // Affichage de l'état vide
+                    if (item.isEmpty) {
+                        return (
+                            <View style={styles.emptyContainer}>
+                                {/* Illustration (Tu peux remplacer l'URL par une icône locale ou un Lottie) */}
+                                <Image
+                                    source={{ uri: 'https://cdni.iconscout.com/illustration/premium/thumb/empty-cart-2130356-1800917.png' }}
+                                    style={styles.emptyImage}
+
+                                />
+
+                                <Text style={styles.emptyTitle}>C'est calme ici...</Text>
+
+                                <Text style={styles.emptyDescription}>
+                                    Cette boutique est en train de remplir ses rayons. Reviens bientôt pour voir ses pépites !
+                                </Text>
+
+                                <TouchableOpacity
+                                    style={styles.exploreButton}
+                                    onPress={() => { }} // Assure-toi d'avoir navigation ou une callback
+                                >
+                                    <Text style={styles.exploreButtonText}>Explorer les autres boutiques</Text>
+                                </TouchableOpacity>
+                            </View>
+                        );
+                    }
+
+                    // Affichage de la grille
                     return (
                         <View style={styles.productsGrid}>
                             {item.map((product: any) => (
-                                <View key={product.id}>
+                                <View key={product.id} style={styles.productContainer}>
+                                    {/* Ici ton  */}
                                     <ProductCard product={product} />
                                 </View>
                             ))}
                         </View>
                     );
                 }
+
+                // Affichage des autres onglets
                 return (
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>
@@ -72,8 +107,7 @@ const ShopDetailFeature = ({ shopData }: any) => {
                 );
             },
         },
-    ], [shopData, activeTab]);
-
+    ], [shopData, activeTab, productRows]);
 
     return (
         <View style={styles.container}>
@@ -81,7 +115,6 @@ const ShopDetailFeature = ({ shopData }: any) => {
                 sections={sections}
                 keyExtractor={(item, index) => index.toString()}
                 stickySectionHeadersEnabled={true}
-
                 renderItem={({ item, section }) => {
                     if (section.title === 'Tabs') return null;
                     return section.renderItem({ item });
@@ -101,17 +134,72 @@ const styles = StyleSheet.create({
     listContent: {
         paddingBottom: 40,
     },
-    stickyHeader: {
-        backgroundColor: '#FFF',
-        zIndex: 100,
-    },
     productsGrid: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
         justifyContent: 'space-between',
         paddingHorizontal: 20,
         paddingTop: 20,
+    }, emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 6, // Beaucoup d'espace vertical
+        paddingHorizontal: 40,
     },
+    emptyImage: {
+        width: 150,
+        height: 150,
+        marginBottom: 12,
+        opacity: 0.8,
+    },
+    emptyTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#1A1A1A', // Noir doux
+        textAlign: 'center',
+        marginBottom: 10,
+    },
+    emptyDescription: {
+        fontSize: 13,
+        color: '#666666',
+        textAlign: 'center',
+        lineHeight: 24,
+        marginBottom: 20, // Espace avant le bouton
+    },
+    exploreButton: {
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderColor: '#FF6B00', // Ta couleur orange (à adapter)
+        paddingHorizontal: 32,
+        paddingVertical: 12,
+        borderRadius: 12, // Bouton pilule
+    },
+    exploreButtonText: {
+        color: '#FF6B00',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    productContainer: {
+        width: '48%',
+        backgroundColor: '#fff',
+        marginBottom: 15,
+        borderRadius: 8,
+        padding: 10,
+    },
+    // Styles pour l'état vide
+    emptyState: {
+        padding: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
+    },
+
+    emptyText: {
+        fontSize: 14,
+        color: '#666',
+        textAlign: 'center',
+    },
+    // Styles existants
     section: {
         backgroundColor: '#FFF',
         padding: 20,
@@ -130,6 +218,10 @@ const styles = StyleSheet.create({
         color: '#666',
         lineHeight: 22,
     },
+    debugText: {
+        fontSize: 12,
+        color: 'red'
+    }
 });
 
 export default ShopDetailFeature;

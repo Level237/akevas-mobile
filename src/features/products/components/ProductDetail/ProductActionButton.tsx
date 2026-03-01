@@ -1,3 +1,4 @@
+import { COLORS } from '@/constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
     buyButton: {
         flex: 1,
         height: 54,
-        backgroundColor: '#6366F1', // Premium Indigo
+        backgroundColor: COLORS.primary,
         borderRadius: 27,
         justifyContent: 'center',
         alignItems: 'center',

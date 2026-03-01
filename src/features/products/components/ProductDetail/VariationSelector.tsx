@@ -1,3 +1,4 @@
+import { COLORS } from '@/constants/colors';
 import { Color, Variant } from '@/types/product';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -115,7 +116,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     selectedColorBadge: {
-        borderColor: '#6366F1',
+        borderColor: COLORS.primary,
         backgroundColor: '#EEF2FF',
     },
     colorCircle: {
