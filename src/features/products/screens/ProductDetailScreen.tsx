@@ -48,7 +48,7 @@ const ProductDetailScreen = ({ url }: Props) => {
     }, [product, selectedVariant]);
     const getAllImages = () => {
         if (selectedVariant) {
-            console.log('Selected variantess:', selectedVariant.images);
+
             // Si une variante est sélectionnée, retourner toutes ses images
             return selectedVariant.images?.map((path: any) => ({ path })) || [];
         }
@@ -223,6 +223,8 @@ const ProductDetailScreen = ({ url }: Props) => {
         }
     };
 
+    const currentInfo = getCurrentProductInfo();
+
     if (isLoading) {
         return (
             <View style={styles.center}>
@@ -267,7 +269,7 @@ const ProductDetailScreen = ({ url }: Props) => {
 
                 <ProductInfo
                     name={product.product_name}
-                    price={product.product_price}
+                    price={currentInfo.price}
                     rating={product.review_average}
                     reviewCount={product.reviewCount}
                     shopName={product.shop_key}
@@ -276,6 +278,7 @@ const ProductDetailScreen = ({ url }: Props) => {
                 <VariationSelector
                     variants={product.variations}
                     onVariantChange={handleVariantSelect}
+                    handleAttributeSelect={handleAttributeSelect}
                 />
 
 

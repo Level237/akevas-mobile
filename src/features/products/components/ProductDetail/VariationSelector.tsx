@@ -6,11 +6,12 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 type Props = {
     variants: Variant[] | null;
     onVariantChange: (variant: Variant) => void;
+    handleAttributeSelect: (attr: any) => void;
 };
 
-const VariationSelector = ({ variants, onVariantChange }: Props) => {
+const VariationSelector = ({ variants, onVariantChange, handleAttributeSelect }: Props) => {
     const [selectedVariant, setSelectedVariant] = useState<Variant | null>(variants?.[0] || null);
-
+    const [selectedAttribute, setSelectedAttribute] = useState<any>(null);
     if (!variants || variants.length === 0) return null;
 
     // Extraire les couleurs uniques
@@ -29,6 +30,17 @@ const VariationSelector = ({ variants, onVariantChange }: Props) => {
             setSelectedVariant(variant);
             onVariantChange(variant);
         }
+    };
+
+    const handleSelectAttribute = (attr: any) => {
+        const variant = variants.find((v: any) => v.attributes.find((a: any) => a.id === attr.id));
+        if (variant) {
+            setSelectedVariant(variant);
+            onVariantChange(variant);
+
+        }
+        handleAttributeSelect(attr)
+        setSelectedAttribute(attr)
     };
 
     return (
@@ -66,10 +78,12 @@ const VariationSelector = ({ variants, onVariantChange }: Props) => {
                                 key={attr.id}
                                 style={[
                                     styles.attrBadge,
-                                    attr.quantity === 0 && styles.outOfStockBadge
+                                    attr.quantity === 0 && styles.outOfStockBadge,
+                                    attr.value === selectedAttribute?.value && styles.selectedColorBadge
                                 ]}
                                 activeOpacity={attr.quantity > 0 ? 0.7 : 1}
                                 disabled={attr.quantity === 0}
+                                onPress={() => handleSelectAttribute(attr)}
                             >
                                 <Text style={[
                                     styles.attrText,
