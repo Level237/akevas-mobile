@@ -2,19 +2,15 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Search } from 'lucide-react-native';
 import React from 'react';
-import { Dimensions, StyleSheet, Text, TextInput, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { Extrapolation, interpolate, SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ShopSearchModal from '../ShopSearch/ShopSearchModal';
 
 const { width } = Dimensions.get('window');
 
 export const MAX_HEADER_HEIGHT = 400;
 export const MIN_HEADER_HEIGHT = 120;
-
-
-
-
-import { Extrapolation, interpolate, SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 type Props = {
     scrollY: SharedValue<number>;
@@ -23,6 +19,7 @@ type Props = {
 const ShopHeader = ({ scrollY }: Props) => {
     const insets = useSafeAreaInsets();
     const SCROLL_DISTANCE = 200;
+    const [searchVisible, setSearchVisible] = React.useState(false);
 
     const animatedContentStyle = useAnimatedStyle(() => {
         const opacity = interpolate(
@@ -34,23 +31,12 @@ const ShopHeader = ({ scrollY }: Props) => {
         return { opacity };
     });
 
-
-
-
-
-
-
-
-
-
-
-
     return (
         <Animated.View style={[styles.container]}>
-            {/* Image de fond avec overlay */}
+            {/* Background Image with Overlay */}
             <Animated.View style={[StyleSheet.absoluteFill]}>
                 <Image
-                    source={require('@/assets/images/shop1.webp')} // Placeholder for cloth blur
+                    source={require('@/assets/images/shop1.webp')}
                     style={StyleSheet.absoluteFill}
                     contentFit="cover"
                 />
@@ -60,34 +46,34 @@ const ShopHeader = ({ scrollY }: Props) => {
                 />
             </Animated.View>
 
-            {/* Fond bordeaux uni (Sticky mode) */}
-
-
-            {/* Top Bar: Burger, Logo, Search, User, Cart */}
-
-
-            {/* Contenu central */}
+            {/* Central Content */}
             <View style={styles.centerContainer}>
                 <Animated.View style={[styles.titlesContainer, animatedContentStyle]}>
                     <Text style={styles.title}>Explorez vos Boutiques locales</Text>
-                    <Text style={styles.description}>Découvrez nos meilleures boutiques  qui correspondent à votre style</Text>
+                    <Text style={styles.description}>Découvrez nos meilleures boutiques qui correspondent à votre style</Text>
                 </Animated.View>
 
-                {/* Barre de recherche */}
-                <View style={[styles.searchBarContainer]}>
+                {/* Clickable Search Bar Trigger */}
+                <TouchableOpacity
+                    activeOpacity={0.9}
+                    onPress={() => setSearchVisible(true)}
+                    style={styles.searchBarContainer}
+                >
                     <View style={styles.searchBar}>
                         <Search color="rgba(255,255,255,0.6)" size={20} />
-                        <TextInput
-                            placeholder="Rechercher une boutique..."
-                            placeholderTextColor="rgba(255,255,255,0.6)"
-                            style={styles.searchInput}
-                        />
+                        <View style={styles.searchInputContainer}>
+                            <Text style={styles.placeholderText}>
+                                Rechercher une boutique...
+                            </Text>
+                        </View>
                     </View>
-                </View>
-
-                {/* Stats */}
-
+                </TouchableOpacity>
             </View>
+
+            <ShopSearchModal
+                visible={searchVisible}
+                onClose={() => setSearchVisible(false)}
+            />
         </Animated.View>
     );
 };
@@ -97,21 +83,6 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: '#6b0f1a', // Ensure solid background if image fails
         overflow: 'hidden',
-
-    },
-    logo: {
-        width: 100,
-        height: 40,
-        resizeMode: 'contain',
-        tintColor: '#FFF', // Make logo white for dark header integration if possible
-    },
-    rightIcons: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 15,
-    },
-    iconButton: {
-        padding: 4,
     },
     centerContainer: {
         flex: 1,
@@ -149,47 +120,19 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.15)',
         borderRadius: 25,
         paddingHorizontal: 12,
-        height: 45,
+        height: 48,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
     },
-    searchInput: {
+    searchInputContainer: {
         flex: 1,
         marginLeft: 10,
-        color: '#FFF',
-
-        fontSize: 16,
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        marginTop: 30,
-        gap: 20,
-    },
-    statCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        padding: 15,
-        borderRadius: 15,
-        gap: 12,
-        minWidth: 150,
-    },
-    statIconContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: 10,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        alignItems: 'center',
+        height: '100%',
         justifyContent: 'center',
     },
-    statValue: {
-        color: '#FFF',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    statLabel: {
+    placeholderText: {
         color: 'rgba(255,255,255,0.6)',
-        fontSize: 12,
+        fontSize: 15,
     },
 });
 

@@ -25,7 +25,7 @@ export default function ShopScreen() {
     const [allShops, setAllShops] = useState<Shop[]>([]);
     const [isFooterLoading, setIsFooterLoading] = useState(false);
     const { data, isLoading: isFetching, isError } = useGetAllShopsQuery(page.toString());
-
+    console.log(page)
     useEffect(() => {
         if (data?.shopList) {
             if (page === 1) {
@@ -50,7 +50,11 @@ export default function ShopScreen() {
         if (data && data.totalPagesResponse && page >= data.totalPagesResponse) return;
 
         setIsFooterLoading(true);
-        setPage((prev) => prev + 1);
+
+        setTimeout(() => {
+            setPage((prev) => prev + 1);
+        }, 600);
+
     };
 
     const renderListFooter = () => {
@@ -109,7 +113,7 @@ export default function ShopScreen() {
                 keyExtractor={(item: any) => item.shop_id}
                 onScroll={scrollHandler}
                 onEndReached={handleLoadMore}
-                onEndReachedThreshold={0.5}
+                onEndReachedThreshold={0.1}
                 maintainVisibleContentPosition={{
                     minIndexForVisible: 0,
                     autoscrollToTopThreshold: 10
@@ -119,10 +123,9 @@ export default function ShopScreen() {
                 renderItem={renderItem}
                 showsVerticalScrollIndicator={false}
                 ListFooterComponent={renderListFooter}
-                removeClippedSubviews={true} // Attention : à utiliser avec getItemLayout pour être parfait, mais aide déjà ici
                 maxToRenderPerBatch={10} // Le nombre d'items rendus par cycle (optimisation RN)
                 windowSize={10} // 
-                contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+                contentContainerStyle={{ paddingBottom: insets.bottom + 50 }}
             />
         </View>
     );
