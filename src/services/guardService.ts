@@ -1,4 +1,5 @@
 
+import { Shop } from "@/types/seller";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery } from "./baseQuery";
 
@@ -122,6 +123,20 @@ export const guardService = createApi({
             })
         }),
 
+        getAllShops: builder.query({
+            query: (page) => ({
+                url: `/api/all/shops?page=${page}`,
+                method: "GET",
+            }),
+            transformResponse: (response: { data: Shop[], meta: { last_page: number, current_page: number, total: number } }) => ({
+                shopList: response.data,
+                totalPagesResponse: response.meta.last_page,
+                currentPageResponse: response.meta.current_page,
+                totalShopsResponse: response.meta.total,
+            }),
+            providesTags: ['guard'],
+        }),
+
         getCurrentHomeByGender: builder.query({
             query: (id) => ({
                 url: `/api/current/gender/categories/${id}`,
@@ -190,6 +205,7 @@ export const {
     useGetCategoriesWithParentIdQuery,
     useGetCategoryByGenderQuery,
     useGetSubCategoriesQuery,
+    useGetAllShopsQuery,
     useGetHomeShopsQuery,
     useGetProfileShopQuery,
     useAllGendersQuery,
