@@ -4,23 +4,17 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 
-import { useRouter } from "expo-router";
+type SuggestedShopItemProps = {
+    shop: Shop;
+    onPress: () => void;
+};
 
-const SuggestedShopItem = React.memo(({ shop }: { shop: Shop }) => {
-    const router = useRouter();
-
-    const handlePress = () => {
-        router.push({
-            pathname: "/[id]",
-            params: { id: shop.shop_id || "" }
-        });
-    };
-
+const SuggestedShopItem = React.memo(({ shop, onPress }: SuggestedShopItemProps) => {
     return (
         <TouchableOpacity
             style={styles.storyItem}
             activeOpacity={0.8}
-            onPress={handlePress}
+            onPress={onPress}
         >
             <View style={styles.storyImageContainer}>
                 <Image

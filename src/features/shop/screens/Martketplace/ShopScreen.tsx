@@ -10,6 +10,7 @@ import { Shop, ShopCardCompact } from '../../components/ShopCardList';
 import ShopHeader from '../../components/shopDetail/ShopHeader';
 
 
+import { useAppRefresh } from '@/hooks/useAppRefresh';
 import { useGetAllShopsQuery } from '@/services/guardService';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
@@ -24,7 +25,8 @@ export default function ShopScreen() {
 
     const [allShops, setAllShops] = useState<Shop[]>([]);
     const [isFooterLoading, setIsFooterLoading] = useState(false);
-    const { data, isLoading: isFetching, isError } = useGetAllShopsQuery(page.toString());
+    const { data, isLoading: isFetching, isError, refetch } = useGetAllShopsQuery(page.toString());
+    const { refreshControl, ProgressBar, DimOverlay } = useAppRefresh(refetch);
     console.log(page)
     useEffect(() => {
         if (data?.shopList) {
@@ -108,10 +110,13 @@ export default function ShopScreen() {
         <View style={styles.container}>
             {/* Main Content List */}
             <HeaderTabs title='Boutiques' />
+            <ProgressBar />
+
             <Animated.FlatList
                 data={allShops || []}
                 keyExtractor={(item: any) => item.shop_id}
                 onScroll={scrollHandler}
+                refreshControl={refreshControl}
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.1}
                 maintainVisibleContentPosition={{
@@ -127,6 +132,7 @@ export default function ShopScreen() {
                 windowSize={10} // 
                 contentContainerStyle={{ paddingBottom: insets.bottom + 50 }}
             />
+            <DimOverlay />
         </View>
     );
 }

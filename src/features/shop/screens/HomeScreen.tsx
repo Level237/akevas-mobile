@@ -1,4 +1,5 @@
 import { COLORS } from "@/constants/colors";
+import { useAppRefresh } from '@/hooks/useAppRefresh';
 import { useGetHomeShopsQuery } from "@/services/guardService";
 import React from 'react';
 import { StatusBar, StyleSheet, Text, View } from "react-native";
@@ -25,10 +26,11 @@ const dummyShops = [
 
 export default function HomeScreen() {
     const insets = useSafeAreaInsets();
-    const { data: { data: shopsData } = {}, isLoading: shopsLoading, error: shopsError } = useGetHomeShopsQuery("guard", {
+    const { data: { data: shopsData } = {}, isLoading: shopsLoading, error: shopsError, refetch } = useGetHomeShopsQuery("guard", {
         refetchOnFocus: true,
         refetchOnMountOrArgChange: 30
     })
+    const { refreshControl, ProgressBar } = useAppRefresh(refetch);
 
     // Shared value for scroll position
     const scrollY = useSharedValue(0);
@@ -74,16 +76,18 @@ export default function HomeScreen() {
     return (
         <View style={styles.container}>
             {/* Fixed Top Header (Safe Area handled inside) */}
+
             <HomeHeader />
             <StatusBar barStyle="dark-content" />
             {/* Animated Secondary Header (Gender) */}
             <GenderHeader animatedStyle={animatedHeaderStyle} />
-
+            <ProgressBar />
             {/* Scrollable Content */}
             <Animated.FlatList
                 data={shopsData}
                 keyExtractor={(item) => item.shop_id}
                 onScroll={scrollHandler}
+                refreshControl={refreshControl}
                 scrollEventThrottle={16}
                 contentContainerStyle={[
                     styles.scrollContent,
@@ -95,7 +99,7 @@ export default function HomeScreen() {
                 ListHeaderComponent={() => (
                     <View style={styles.heroWrapper}>
                         <HomeHero />
-                        <FeaturedShops shops={shopsData} />
+                        <FeaturedShops refetchControl={refreshControl} shops={shopsData} />
                     </View>
                 )}
                 renderItem={({ item }) => (

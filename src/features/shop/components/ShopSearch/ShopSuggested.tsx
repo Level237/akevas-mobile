@@ -6,9 +6,10 @@ import { Shop } from "@/types/seller";
 
 type Props = {
     shops: Shop[];
+    onPressStory: (shop: Shop) => void;
 };
 
-const RenderSuggestedShops = ({ shops }: Props) => (
+const RenderSuggestedShops = ({ shops, onPressStory }: Props) => (
     <View style={styles.suggestedContainer}>
         <Text style={styles.sectionTitle}>Suggestions pour vous</Text>
         <FlatList
@@ -16,7 +17,12 @@ const RenderSuggestedShops = ({ shops }: Props) => (
             data={shops?.slice(0, 10)}
             keyExtractor={(item: any) => `suggested-${item.shop_id}`}
             showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => <SuggestedShopItem shop={item} />}
+            renderItem={({ item }) => (
+                <SuggestedShopItem
+                    shop={item}
+                    onPress={() => onPressStory(item)}
+                />
+            )}
             contentContainerStyle={styles.suggestedList}
         />
     </View>

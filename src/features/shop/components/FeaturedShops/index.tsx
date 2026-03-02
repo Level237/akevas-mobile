@@ -14,9 +14,10 @@ import { styles } from './styles';
 
 type Props = {
     shops: Shop[];
+    refetchControl: any;
 };
 
-const FeaturedShops = ({ shops }: Props) => {
+const FeaturedShops = ({ shops, refetchControl }: Props) => {
     const scrollX = useSharedValue(0);
     const [activeIndex, setActiveIndex] = useState(0);
     const SCREEN_PADDING = 20;
@@ -39,10 +40,10 @@ const FeaturedShops = ({ shops }: Props) => {
     const renderItem = React.useCallback(({ item }: { item: Shop }) => (
         <View style={{ width: CARD_WIDTH, marginRight: SCREEN_PADDING }}>
             <ShopCard
-                id={item.shop_id}
-                key={item.shop_id}
-                name={item.shop_key}
-                image={item.shop_profile}
+                id={item.shop_id || ''}
+                key={item.shop_id || ''}
+                name={item.shop_key || ''}
+                image={item.shop_profile || ''}
             />
         </View>
     ), [CARD_WIDTH, SCREEN_PADDING]);
@@ -53,7 +54,9 @@ const FeaturedShops = ({ shops }: Props) => {
 
             <Animated.FlatList
                 data={shops}
-                keyExtractor={(item) => item.shop_id}
+                refreshControl={refetchControl}
+                keyExtractor={(item) => item.shop_id || ''}
+
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 snapToInterval={SNAP_INTERVAL}

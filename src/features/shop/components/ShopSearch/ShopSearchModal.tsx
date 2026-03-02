@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Shop } from '../ShopCardList';
+import ShopStoryViewer from './ShopStoryViewer';
 import RenderSuggestedShops from './ShopSuggested';
 
 import { useRouter } from 'expo-router';
@@ -71,7 +72,16 @@ const ShopSearchModal = ({ visible, onClose }: Props) => {
         skip: !visible
     });
 
+    const [selectedStoryShop, setSelectedStoryShop] = useState<Shop | null>(null);
+    const router = useRouter();
     const shops = useMemo(() => homeShopsData?.data || [], [homeShopsData]);
+
+    const handleViewShop = (shopId: string) => {
+        router.push({
+            pathname: "/[id]",
+            params: { id: shopId }
+        });
+    };
 
     const filteredShops = useMemo(() => {
         if (!searchQuery.trim()) return [];
@@ -123,7 +133,12 @@ const ShopSearchModal = ({ visible, onClose }: Props) => {
                     keyExtractor={(item: any) => item.shop_id.toString()}
                     ListHeaderComponent={() => (
                         <>
-                            {!searchQuery && <RenderSuggestedShops shops={shops || []} />}
+                            {!searchQuery && (
+                                <RenderSuggestedShops
+                                    shops={shops || []}
+                                    onPressStory={(shop) => setSelectedStoryShop(shop)}
+                                />
+                            )}
                             {searchQuery.length > 0 && filteredShops.length > 0 && (
                                 <Text style={styles.sectionTitleResults}>Résultats de recherche</Text>
                             )}
@@ -151,6 +166,13 @@ const ShopSearchModal = ({ visible, onClose }: Props) => {
                         <ActivityIndicator color="#E67E22" size="large" />
                     </View>
                 )}
+
+                <ShopStoryViewer
+                    visible={!!selectedStoryShop}
+                    shop={selectedStoryShop}
+                    onClose={() => setSelectedStoryShop(null)}
+                    onViewShop={handleViewShop}
+                />
             </View>
         </Modal>
     );
