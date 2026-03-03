@@ -1,5 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BaseQueryFn, FetchArgs, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
+import * as SecureStore from 'expo-secure-store';
 import { baseUrl } from './baseQuery'; // On réutilise la config de base
 
 // On crée un baseQuery custom qui gère le token
@@ -8,7 +8,7 @@ const baseQueryWithAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQuery
     // 1. Récupérer le token
     let token = null;
     try {
-        token = await AsyncStorage.getItem('userToken');
+        token = await SecureStore.getItemAsync('access_token');
     } catch (e) {
         console.log("Erreur lecture token");
     }

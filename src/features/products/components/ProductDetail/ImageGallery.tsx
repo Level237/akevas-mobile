@@ -79,7 +79,7 @@ const ImageGallery = ({ images }: Props) => {
                                 source={{ uri: item.path }}
                                 style={styles.mainImage}
                                 contentFit="cover"
-                                transition={300}
+
                                 priority="high"
                             />
                         </TouchableOpacity>

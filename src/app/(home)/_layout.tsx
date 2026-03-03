@@ -72,6 +72,7 @@ export default function TabLayout() {
                     name="account"
                     options={{
                         title: 'Compte',
+                        headerShown: false,
                         // "person.fill" pour l'espace utilisateur
                         tabBarIcon: ({ color }) => <User color={color} style={{ width: 28, height: 28 }} />,
                     }}
