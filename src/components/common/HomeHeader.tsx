@@ -2,12 +2,12 @@
 import Cart from "@/components/common/Cart";
 import SearchResource from "@/components/common/Search";
 import { COLORS } from "@/constants/colors";
-import { images } from "@/constants/images";
 import { router } from 'expo-router';
 import { Bell, Menu } from 'lucide-react-native';
 import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Logo from "./Logo";
 
 
 const HomeHeader = () => {
@@ -25,10 +25,8 @@ const HomeHeader = () => {
                     >
                         <Menu size={28} color={COLORS.iconLight} />
                     </TouchableOpacity>
+                    <Logo />
 
-                    <View style={styles.logoContainer}>
-                        <Image source={images.logo} style={styles.logo} />
-                    </View>
                 </View>
 
 
@@ -111,11 +109,7 @@ const styles = StyleSheet.create({
         borderColor: COLORS.background,
     },
 
-    logo: {
-        width: 50,
-        height: 50,
-        resizeMode: 'contain',
-    }
+
 });
 
 export default HomeHeader;

@@ -6,10 +6,11 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type SuggestedShopItemProps = {
     shop: Shop;
+    color?: string;
     onPress: () => void;
 };
 
-const SuggestedShopItem = React.memo(({ shop, onPress }: SuggestedShopItemProps) => {
+const SuggestedShopItem = React.memo(({ shop, onPress, color }: SuggestedShopItemProps) => {
     return (
         <TouchableOpacity
             style={styles.storyItem}
@@ -24,7 +25,7 @@ const SuggestedShopItem = React.memo(({ shop, onPress }: SuggestedShopItemProps)
                     transition={200}
                 />
             </View>
-            <Text style={styles.storyText} numberOfLines={1}>
+            <Text style={[styles.storyText, { color }]} numberOfLines={1}>
                 {shop.shop_name}
             </Text>
         </TouchableOpacity>
@@ -54,7 +55,6 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     storyText: {
-        color: '#FFF',
         fontSize: 12,
         fontWeight: '600',
         textAlign: 'center',

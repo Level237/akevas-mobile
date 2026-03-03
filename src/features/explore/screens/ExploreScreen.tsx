@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, FlatList, StatusBar, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CategoryChips from '../components/CategoryChips';
+import CategoryChips from '../../../components/common/CategoryChips';
 import ExploreHeader from '../components/ExploreHeader';
 import ExploreProductCard from '../components/ExploreProductCard';
 import { Category, ExploreProduct } from '../types';

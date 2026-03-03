@@ -7,11 +7,12 @@ import { Shop } from "@/types/seller";
 type Props = {
     shops: Shop[];
     onPressStory: (shop: Shop) => void;
+    color?: string;
 };
 
-const RenderSuggestedShops = ({ shops, onPressStory }: Props) => (
+const RenderSuggestedShops = ({ shops, onPressStory, color }: Props) => (
     <View style={styles.suggestedContainer}>
-        <Text style={styles.sectionTitle}>Suggestions pour vous</Text>
+        <Text style={[styles.sectionTitle, { color }]}>Suggestions pour vous</Text>
         <FlatList
             horizontal
             data={shops?.slice(0, 10)}
@@ -19,6 +20,7 @@ const RenderSuggestedShops = ({ shops, onPressStory }: Props) => (
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => (
                 <SuggestedShopItem
+                    color={color}
                     shop={item}
                     onPress={() => onPressStory(item)}
                 />
@@ -34,7 +36,6 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     sectionTitle: {
-        color: '#FFF',
         fontSize: 16,
         fontWeight: '700',
         marginBottom: 16,

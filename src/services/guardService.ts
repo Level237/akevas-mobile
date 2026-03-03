@@ -158,6 +158,12 @@ export const guardService = createApi({
             }),
             providesTags: ['guard'],
         }),
+        searchByQuery: builder.query({
+            query: ({ query, userId }) => ({
+                url: `/api/search/${query}/${userId}`,
+                method: "GET"
+            })
+        }),
         getAllProducts: builder.query({
             query: ({ page = 1, min_price, max_price, categories, colors, attribut, gender, seller_mode, bulk_price_range }) => {
                 const params = new URLSearchParams();
@@ -206,6 +212,7 @@ export const {
     useGetCategoryByGenderQuery,
     useGetSubCategoriesQuery,
     useGetAllShopsQuery,
+    useSearchByQueryQuery,
     useGetHomeShopsQuery,
     useGetProfileShopQuery,
     useAllGendersQuery,

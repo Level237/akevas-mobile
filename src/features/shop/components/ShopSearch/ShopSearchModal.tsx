@@ -1,7 +1,7 @@
-import { useGetHomeShopsQuery } from '@/services/guardService';
+import { useGetHomeShopsQuery, useSearchByQueryQuery } from '@/services/guardService';
 import { Image } from 'expo-image';
 import { Search as SearchIcon, X } from 'lucide-react-native';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
@@ -68,14 +68,26 @@ const SearchResultItem = React.memo(({ shop }: { shop: Shop }) => {
 const ShopSearchModal = ({ visible, onClose }: Props) => {
     const insets = useSafeAreaInsets();
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedQuery, setDebouncedQuery] = useState('');
     const { data: homeShopsData, isLoading } = useGetHomeShopsQuery(undefined, {
         skip: !visible
     });
-
+    const { data, isLoading: isLoadingSearch } = useSearchByQueryQuery(
+        { query: debouncedQuery, userId: 0 },
+        { skip: !debouncedQuery }
+    );
     const [selectedStoryShop, setSelectedStoryShop] = useState<Shop | null>(null);
     const router = useRouter();
     const shops = useMemo(() => homeShopsData?.data || [], [homeShopsData]);
 
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedQuery(searchQuery);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
     const handleViewShop = (shopId: string) => {
         router.push({
             pathname: "/[id]",
@@ -129,12 +141,13 @@ const ShopSearchModal = ({ visible, onClose }: Props) => {
 
                 {/* Main Scrollable Content */}
                 <FlatList
-                    data={filteredShops}
+                    data={data?.shops}
                     keyExtractor={(item: any) => item.shop_id.toString()}
                     ListHeaderComponent={() => (
                         <>
                             {!searchQuery && (
                                 <RenderSuggestedShops
+                                    color="#FFF"
                                     shops={shops || []}
                                     onPressStory={(shop) => setSelectedStoryShop(shop)}
                                 />

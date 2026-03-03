@@ -7,7 +7,6 @@ import {
     Dimensions,
     Modal,
     Pressable,
-    SafeAreaView,
     StatusBar,
     StyleSheet,
     Text,
@@ -15,6 +14,7 @@ import {
     View
 } from 'react-native';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const { width, height } = Dimensions.get('window');
 const STORY_DURATION = 5000; // 5 seconds per story
 
@@ -29,6 +29,8 @@ const ShopStoryViewer = ({ visible, shop, onClose, onViewShop }: Props) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const progress = useRef(new Animated.Value(0)).current;
     const [isPaused, setIsPaused] = useState(false);
+
+    const insets = useSafeAreaInsets();
 
     const storyImages = useMemo(() => {
         if (!shop) return [];
@@ -132,7 +134,7 @@ const ShopStoryViewer = ({ visible, shop, onClose, onViewShop }: Props) => {
                 </Pressable>
 
                 {/* Progress Indicators */}
-                <SafeAreaView style={styles.overlay}>
+                <View style={[styles.overlay, { paddingTop: insets.top }]}>
                     <View style={styles.progressContainer}>
                         {storyImages.map((_, index) => (
                             <View key={index} style={styles.progressBarBackground}>
@@ -172,10 +174,10 @@ const ShopStoryViewer = ({ visible, shop, onClose, onViewShop }: Props) => {
                             <X color="#FFF" size={24} />
                         </TouchableOpacity>
                     </View>
-                </SafeAreaView>
+                </View>
 
                 {/* Footer CTA */}
-                <SafeAreaView style={styles.footer}>
+                <View style={[styles.footer, { paddingBottom: insets.bottom }]}>
                     <TouchableOpacity
                         style={styles.ctaButton}
                         onPress={() => {
@@ -190,7 +192,7 @@ const ShopStoryViewer = ({ visible, shop, onClose, onViewShop }: Props) => {
                             style={{ transform: [{ rotate: '180deg' }] }}
                         />
                     </TouchableOpacity>
-                </SafeAreaView>
+                </View>
             </View>
         </Modal>
     );

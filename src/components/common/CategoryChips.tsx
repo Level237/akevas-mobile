@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Category } from '../types';
+import { Category } from '../../features/explore/types';
 
 type Props = {
     categories: Category[];

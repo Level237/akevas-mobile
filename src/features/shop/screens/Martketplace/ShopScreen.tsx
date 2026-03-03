@@ -1,4 +1,3 @@
-import HeaderTabs from '@/components/common/HeaderTabs';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from "react-native";
 import Animated, {
@@ -7,7 +6,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Shop, ShopCardCompact } from '../../components/ShopCardList';
+import HeaderShop from '../../components/shopDetail/HeaderShop';
 import ShopHeader from '../../components/shopDetail/ShopHeader';
+import ShopSearchModal from '../../components/ShopSearch/ShopSearchModal';
 
 
 import { useAppRefresh } from '@/hooks/useAppRefresh';
@@ -15,6 +16,7 @@ import { useGetAllShopsQuery } from '@/services/guardService';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { ActivityIndicator, Text } from "react-native";
+import ShopStoryViewer from '../../components/ShopSearch/ShopStoryViewer';
 
 export default function ShopScreen() {
     const scrollY = useSharedValue(0);
@@ -25,6 +27,8 @@ export default function ShopScreen() {
 
     const [allShops, setAllShops] = useState<Shop[]>([]);
     const [isFooterLoading, setIsFooterLoading] = useState(false);
+    const [selectedStoryShop, setSelectedStoryShop] = useState<Shop | null>(null);
+    const [searchVisible, setSearchVisible] = useState(false);
     const { data, isLoading: isFetching, isError, refetch } = useGetAllShopsQuery(page.toString());
     const { refreshControl, ProgressBar, DimOverlay } = useAppRefresh(refetch);
     console.log(page)
@@ -35,7 +39,7 @@ export default function ShopScreen() {
             } else {
                 const existingIds = new Set(allShops.map(shop => shop.shop_id));
 
-                const newUniqueShops = data.shopList.filter(shop => !existingIds.has(shop.shop_id));
+                const newUniqueShops = data.shopList.filter((shop: Shop) => !existingIds.has(shop.shop_id));
 
                 setAllShops((prevShops) => [...prevShops, ...newUniqueShops]);
 
@@ -90,6 +94,13 @@ export default function ShopScreen() {
         />
     ), [router]);
 
+    const handleViewShopFromStory = (shopId: string) => {
+        router.push({
+            pathname: "/[id]",
+            params: { id: shopId }
+        });
+    };
+
     if (isFetching && page === 1 && allShops.length === 0) {
         return (
             <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -109,8 +120,10 @@ export default function ShopScreen() {
     return (
         <View style={styles.container}>
             {/* Main Content List */}
-            <HeaderTabs title='Boutiques' />
+
             <ProgressBar />
+
+            <HeaderShop setSearchVisible={setSearchVisible} />
 
             <Animated.FlatList
                 data={allShops || []}
@@ -124,7 +137,12 @@ export default function ShopScreen() {
                     autoscrollToTopThreshold: 10
                 }}
                 scrollEventThrottle={16}
-                ListHeaderComponent={() => <ShopHeader scrollY={scrollY} />}
+                ListHeaderComponent={() => (
+                    <ShopHeader
+                        scrollY={scrollY}
+                        onPressStory={(shop) => setSelectedStoryShop(shop)}
+                    />
+                )}
                 renderItem={renderItem}
                 showsVerticalScrollIndicator={false}
                 ListFooterComponent={renderListFooter}
@@ -133,6 +151,19 @@ export default function ShopScreen() {
                 contentContainerStyle={{ paddingBottom: insets.bottom + 50 }}
             />
             <DimOverlay />
+
+            <ShopStoryViewer
+                visible={!!selectedStoryShop}
+                shop={selectedStoryShop}
+                onClose={() => setSelectedStoryShop(null)}
+
+                onViewShop={handleViewShopFromStory}
+            />
+
+            <ShopSearchModal
+                visible={searchVisible}
+                onClose={() => setSearchVisible(false)}
+            />
         </View>
     );
 }
