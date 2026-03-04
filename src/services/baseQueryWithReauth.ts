@@ -34,7 +34,8 @@ const baseQueryWithAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQuery
     // 4. Gérer l'erreur 401 (Token expiré)
     if (result.error && result.error.status === 401) {
         // Logique de logout ici
-        // await AsyncStorage.removeItem('userToken');
+        await SecureStore.deleteItemAsync('access_token');
+        await SecureStore.deleteItemAsync('refresh_token');
         // api.dispatch(logoutAction());
         console.log("Token expiré, déconnexion...");
     }

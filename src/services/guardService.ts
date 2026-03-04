@@ -49,6 +49,17 @@ export const guardService = createApi({
             invalidatesTags: ['guard'],
             //transformResponse: (response: { data: { message: string } }) => response.data.message,
         }),
+
+        login: builder.mutation({
+            query: (credentials) => ({
+                url: '/api/login/mobile', // Ton endpoint Laravel
+                method: 'POST',
+                body: credentials,
+            }),
+        }),
+        // Tu peux ajouter register, logout, etc. ici
+
+
         getCategoriesWithParentIdNull: builder.query({
             query: (genderId) => {
                 console.log(genderId);
@@ -212,6 +223,7 @@ export const {
     useGetCategoryByGenderQuery,
     useGetSubCategoriesQuery,
     useGetAllShopsQuery,
+    useLoginMutation,
     useSearchByQueryQuery,
     useGetHomeShopsQuery,
     useGetProfileShopQuery,

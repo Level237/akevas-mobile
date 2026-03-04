@@ -3,6 +3,7 @@ import {
     FileText,
     Globe,
     Info,
+    LogOut,
     Phone,
     ShieldCheck,
     User
@@ -11,21 +12,41 @@ import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import AccountHeader from '../../features/account/components/AccountHeader';
 import { AccountListItem, AccountSection } from '../../features/account/components/AccountListComponents';
-import QuickActionGrid from '../../features/account/components/QuickActionGrid';
+import GuestProfileView from '../../features/account/components/GuestProfileView';
+import ProfileHero from '../../features/account/components/ProfileHero';
+import SocialMetricsBar from '../../features/account/components/SocialMetricsBar';
+
+// Redux
+import { logout, selectIsAuthenticated } from '@/features/auth/authSlice';
+import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
+import { useRouter } from 'expo-router';
 
 export default function AccountScreen() {
     const insets = useSafeAreaInsets();
+    const dispatch = useAppDispatch();
+    const router = useRouter();
+    const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
     const handleLogout = () => {
-        console.log("Logged out");
+        dispatch(logout());
+        // Optionnellement naviguer vers l'accueil ou rester ici pour voir la vue Guest
+    };
+
+    const handleLogin = () => {
+        // Rediriger vers l'écran de login
+        // router.push('/(auth)/login'); 
+        console.log("Navigate to login");
+    };
+
+    const handleRegister = () => {
+        // Rediriger vers l'écran d'inscription
+        // router.push('/(auth)/register');
+        console.log("Navigate to register");
     };
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
-            <AccountHeader onLogout={handleLogout} />
-
+        <View style={styles.container}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={[
@@ -33,49 +54,76 @@ export default function AccountScreen() {
                     { paddingBottom: insets.bottom + 100 }
                 ]}
             >
-                {/* Stats / Quick Actions */}
-                <QuickActionGrid />
+                {isAuthenticated ? (
+                    <>
+                        {/* Immersive Social Hero for logged in users */}
+                        <ProfileHero
+                            onSettings={() => console.log("Settings")}
+                            onEditProfile={() => console.log("Edit Profile")}
+                        />
 
-                {/* Account Section */}
-                <AccountSection title="Compte">
-                    <AccountListItem
-                        icon={User}
-                        title="Informations Personnelles"
-                    />
-                    <AccountListItem
-                        icon={CreditCard}
-                        title="Documents de Paiement"
-                    />
-                </AccountSection>
+                        {/* Social Metrics */}
+                        <SocialMetricsBar />
 
-                {/* Settings Section */}
-                <AccountSection title="Paramètres">
-                    <AccountListItem
-                        icon={Globe}
-                        title="Langue"
-                        subtitle="Français"
-                    />
-                    <AccountListItem
-                        icon={FileText}
-                        title="Conditions d'utilisation"
-                    />
-                    <AccountListItem
-                        icon={ShieldCheck}
-                        title="Politique de Confidentialité"
-                    />
-                </AccountSection>
+                        {/* Account Section - Only for logged in */}
+                        <AccountSection title="Compte">
+                            <AccountListItem
+                                icon={User}
+                                title="Informations Personnelles"
+                            />
+                            <AccountListItem
+                                icon={CreditCard}
+                                title="Documents de Paiement"
+                            />
+                        </AccountSection>
 
-                {/* Support Section */}
-                <AccountSection title="Support">
-                    <AccountListItem
-                        icon={Info}
-                        title="À propos d'Akevas"
+                        <AccountSection title="Paramètres">
+                            <AccountListItem
+                                icon={Globe}
+                                title="Langue"
+                                subtitle="Français"
+                            />
+                            <AccountListItem
+                                icon={FileText}
+                                title="Conditions d'utilisation"
+                            />
+                            <AccountListItem
+                                icon={ShieldCheck}
+                                title="Politique de Confidentialité"
+                            />
+                        </AccountSection>
+
+                        {/* Support Section */}
+                        <AccountSection title="Support">
+                            <AccountListItem
+                                icon={Info}
+                                title="À propos d'Akevas"
+                            />
+                            <AccountListItem
+                                icon={Phone}
+                                title="Nous contacter"
+                            />
+                            {isAuthenticated && (
+                                <AccountListItem
+                                    icon={LogOut}
+                                    title="Se déconnecter"
+                                    onPress={handleLogout}
+                                    showChevron={false}
+                                />
+                            )}
+                        </AccountSection>
+                    </>
+                ) : (
+                    <GuestProfileView
+                        onLogin={handleLogin}
+                        onRegister={handleRegister}
                     />
-                    <AccountListItem
-                        icon={Phone}
-                        title="Nous contacter"
-                    />
-                </AccountSection>
+                )}
+
+                {/* Common Sections (Visible to both or restricted?) */}
+                {/* Usually Settings and Support remain visible */}
+
+
             </ScrollView>
         </View>
     );
@@ -84,9 +132,9 @@ export default function AccountScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB', // Light grey e-commerce background
+        backgroundColor: '#FFF',
     },
     scrollContent: {
-        paddingTop: 10,
+        paddingTop: 0,
     },
 });

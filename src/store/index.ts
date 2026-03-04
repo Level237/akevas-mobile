@@ -1,7 +1,7 @@
+import authReducer from '@/features/auth/authSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
-
 
 
 // Tes services API (RTK Query)
@@ -15,13 +15,14 @@ const rootReducer = combineReducers({
 
     [guardService.reducerPath]: guardService.reducer,
     [categorySlice.name]: categorySlice.reducer,
+    auth: authReducer
 });
 
 // 2. Configuration de la persistance
 const persistConfig = {
     key: 'root',
     storage: AsyncStorage, // Le stockage du téléphone
-    whitelist: ['auth', 'cart', 'delivery'], // ⚠️ IMPORTANT : Ne mets PAS tes services API ici ! 
+    whitelist: ['auth', 'cart'], // ⚠️ IMPORTANT : Ne mets PAS tes services API ici ! 
     // On sauvegarde seulement les données critiques (User connecté, contenu du panier).
 };
 
