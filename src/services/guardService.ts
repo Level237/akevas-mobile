@@ -50,6 +50,17 @@ export const guardService = createApi({
             //transformResponse: (response: { data: { message: string } }) => response.data.message,
         }),
 
+        checkIfPhoneExists: builder.mutation({
+            query: (formData) => ({
+                url: `/api/check/login/phone-number`,
+                method: "POST",
+
+                body: formData,
+            }),
+            invalidatesTags: ['guard'],
+            //transformResponse: (response: { data: { message: string } }) => response.data.message,
+        }),
+
         login: builder.mutation({
             query: (credentials) => ({
                 url: '/api/login/mobile', // Ton endpoint Laravel
@@ -218,6 +229,7 @@ export const {
     useGetTownsQuery,
     useGetQuartersQuery,
     useCheckIfEmailExistsMutation,
+    useCheckIfPhoneExistsMutation,
     useGetCategoriesWithParentIdNullQuery,
     useGetCategoriesWithParentIdQuery,
     useGetCategoryByGenderQuery,

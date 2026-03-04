@@ -35,8 +35,8 @@ export default function AccountScreen() {
 
     const handleLogin = () => {
         // Rediriger vers l'écran de login
-        // router.push('/(auth)/login'); 
-        console.log("Navigate to login");
+        router.push('/(auth)/login');
+
     };
 
     const handleRegister = () => {
