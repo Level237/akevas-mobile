@@ -9,9 +9,10 @@ type Props = {
     rating: number | null;
     reviewCount: number | null;
     shopName: string;
+    quantity: number;
 };
 
-const ProductInfo = ({ name, price, rating, reviewCount, shopName }: Props) => {
+const ProductInfo = ({ name, price, rating, reviewCount, shopName, quantity }: Props) => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -29,7 +30,7 @@ const ProductInfo = ({ name, price, rating, reviewCount, shopName }: Props) => {
             <View style={styles.priceRow}>
                 <Text style={styles.price}>{price} FCFA</Text>
                 <View style={styles.stockBadge}>
-                    <Text style={styles.stockText}>En stock</Text>
+                    <Text style={styles.stockText}>{quantity} En stock</Text>
                 </View>
             </View>
         </View>

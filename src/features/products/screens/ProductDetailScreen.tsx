@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ImageGallery from '../components/ProductDetail/ImageGallery';
 import ProductActionButton from '../components/ProductDetail/ProductActionButton';
 import ProductInfo from '../components/ProductDetail/ProductInfo';
+import ProductTabs from '../components/ProductDetail/ProductTabs';
 import VariationSelector from '../components/ProductDetail/VariationSelector';
 
 type Props = {
@@ -270,6 +271,7 @@ const ProductDetailScreen = ({ url }: Props) => {
                 <ProductInfo
                     name={product.product_name}
                     price={currentInfo.price}
+                    quantity={currentInfo.quantity}
                     rating={product.review_average}
                     reviewCount={product.reviewCount}
                     shopName={product.shop_key}
@@ -283,12 +285,12 @@ const ProductDetailScreen = ({ url }: Props) => {
 
 
 
-                <View style={styles.descriptionSection}>
-                    <Text style={styles.sectionTitle}>Description</Text>
-                    <Text style={styles.descriptionText}>
-                        {product.product_description}
-                    </Text>
-                </View>
+                <ProductTabs
+                    description={product.product_description}
+                    reviews={product.product_reviews}
+                    reviewCount={product.reviewCount}
+                    rating={product.review_average}
+                />
             </ScrollView>
 
             <ProductActionButton
