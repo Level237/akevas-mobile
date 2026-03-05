@@ -1,7 +1,9 @@
 import { images } from '@/constants/images';
-import { useCheckIfPhoneExistsMutation } from '@/services/guardService';
+import { useAppDispatch } from '@/hooks/hooks';
+import { useCheckIfPhoneExistsMutation, useLoginMutation } from '@/services/guardService';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import { ArrowLeft } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
@@ -15,6 +17,7 @@ import {
     View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { setCredentials } from '../authSlice';
 import LoginForm from '../forms/LoginForm';
 
 // Using a clean white UI inspired by WelcomeScreen
@@ -32,34 +35,40 @@ const { width } = Dimensions.get('window');
 
 const LoginScreen = () => {
     const insets = useSafeAreaInsets();
+    const dispatch = useAppDispatch();
     const [isLoading, setIsLoading] = useState(false);
     const [checkIfPhoneExists] = useCheckIfPhoneExistsMutation();
-    const handleLogin = (phone: string, pass: string) => {
+
+    const [login, { isLoading: isLoadingLogin }] = useLoginMutation()
+    const handleLogin = async (phone: string, pass: string) => {
         setIsLoading(true);
-        // Simulation d'une requête de connexion
-        setTimeout(() => {
-            setIsLoading(false);
-            console.log('Login success for', phone);
-            // Redirection après connexion réussie
-            // router.replace('/(home)');
-        }, 1500);
+
+        const userObject = { phone_number: phone, password: pass, role_id: 3 }
+        const res = await login(userObject)
+
+        if (res?.error) {
+            setIsLoading(false)
+            return "404"
+        } else {
+            await SecureStore.setItemAsync('access_token', res.data.data.access_token);
+            dispatch(setCredentials({ user: res.data.data.user }));
+
+            router.replace("/(home)")
+        }
+
+
+
     };
 
     const handleVerifyPhone = async (phone: string) => {
         setIsLoading(true);
-        const response = await checkIfPhoneExists(phone).unwrap();
-        console.log(response);
-
+        const response = await checkIfPhoneExists({ phone: phone }).unwrap();
         if (response.code === "404") {
-            setTimeout(() => {
-                setIsLoading(false);
-                return "404";
-            }, 1500);
+            setIsLoading(false);
+            return "404"
         } else {
-            setTimeout(() => {
-                setIsLoading(false);
-                return "200";
-            }, 1500);
+            setIsLoading(false);
+            return "200";
         }
 
     };

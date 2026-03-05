@@ -1,5 +1,4 @@
 
-import Cart from "@/components/common/Cart";
 import SearchResource from "@/components/common/Search";
 import { COLORS } from "@/constants/colors";
 import { router } from 'expo-router';
@@ -8,6 +7,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Logo from "./Logo";
+import { Profile } from "./Profile";
 
 
 const HomeHeader = () => {
@@ -41,7 +41,7 @@ const HomeHeader = () => {
                         </View>
                     </TouchableOpacity>
 
-                    <Cart />
+                    <Profile />
                 </View>
             </View>
         </View>

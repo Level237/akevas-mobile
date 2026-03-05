@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 type LoginFormProps = {
-    onSubmit: (phone: string, pass: string) => void;
+    onSubmit: (phone: string, pass: string) => Promise<any>;
     isLoading?: boolean;
     checkIfEmailExists: (phone: string) => Promise<any>;
 };
@@ -28,19 +28,26 @@ const LoginForm = ({ onSubmit, isLoading, checkIfEmailExists }: LoginFormProps) 
     const handleContinue = async () => {
         if (phone.length >= 8) {
             const response = await checkIfEmailExists(phone);
-            if (response?.code === "200") {
+            console.log(response)
+            if (response === "200") {
                 setStep(2);
             } else {
-                setError("Aucun numéro n'est associé à ce numéro.");
+                setError("Aucun compte n'est associé à ce numéro.");
             }
         }
 
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (phone && password) {
-            onSubmit(phone, password);
+            const response = await onSubmit(phone, password);
+
+            if (response == "404") {
+                setError("Mot de passe incorrect")
+
+            }
         }
+
     };
 
     return (
@@ -111,7 +118,10 @@ const LoginForm = ({ onSubmit, isLoading, checkIfEmailExists }: LoginFormProps) 
                                 placeholderTextColor="#9CA3AF"
                                 secureTextEntry={!isPasswordVisible}
                                 value={password}
-                                onChangeText={setPassword}
+                                onChangeText={(text) => {
+                                    setPassword(text);
+                                    setError("");
+                                }}
                                 onFocus={() => setIsPasswordFocused(true)}
                                 onBlur={() => setIsPasswordFocused(false)}
                                 autoCapitalize="none"
@@ -128,6 +138,7 @@ const LoginForm = ({ onSubmit, isLoading, checkIfEmailExists }: LoginFormProps) 
                                 )}
                             </TouchableOpacity>
                         </View>
+                        {error && <Text style={styles.errorText}>{error}</Text>}
                     </View>
 
                     <View style={styles.forgotPasswordContainer}>
