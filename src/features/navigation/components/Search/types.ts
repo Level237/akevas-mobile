@@ -1,6 +1,10 @@
+import { Product } from '@/types/product';
+import { Shop } from '@/types/seller';
+
 export type RecentSearch = {
     id: string;
-    keyword: string;
+    search_term: string;
+    created_at: string;
 };
 
 export type TrendingKeyword = {
@@ -9,8 +13,8 @@ export type TrendingKeyword = {
 };
 
 export type SearchSuggestion = {
-    id: string;
-    text: string;
+    shops: Shop[];
+    products: Product[];
 };
 
 export type SearchState = {
@@ -18,5 +22,5 @@ export type SearchState = {
     isSearching: boolean;
     recentSearches: RecentSearch[];
     trendingKeywords: TrendingKeyword[];
-    suggestions: SearchSuggestion[];
+    suggestions: SearchSuggestion | null;
 };

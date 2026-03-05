@@ -7,6 +7,7 @@ import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, R
 // Tes services API (RTK Query)
 
 import categorySlice from '@/features/navigation/store/categorySlice';
+import { authService } from '@/services/authService';
 import { guardService } from "@/services/guardService";
 
 
@@ -14,6 +15,7 @@ import { guardService } from "@/services/guardService";
 const rootReducer = combineReducers({
 
     [guardService.reducerPath]: guardService.reducer,
+    [authService.reducerPath]: authService.reducer,
     [categorySlice.name]: categorySlice.reducer,
     auth: authReducer
 });
@@ -43,6 +45,7 @@ export const store = configureStore({
         },
     }).concat(
         guardService.middleware,
+        authService.middleware,
     )
 });
 

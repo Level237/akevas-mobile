@@ -1,5 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import { COLORS } from '@/constants/colors';
+import { useGetHistorySearchQuery } from '@/services/authService';
+import { useSearchByQueryQuery } from '@/services/guardService';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -11,14 +15,8 @@ import RecentSearch from '../components/Search/RecentSearch';
 import SearchInput from '../components/Search/SearchInput';
 import SearchSuggestions from '../components/Search/SearchSuggestions';
 import TrendingSearch from '../components/Search/TrendingSearch';
-import { RecentSearch as RecentType, SearchSuggestion, TrendingKeyword } from '../components/Search/types';
+import { TrendingKeyword } from '../components/Search/types';
 
-// Mock Data
-const MOCK_RECENT_SEARCHES: RecentType[] = [
-    { id: '1', keyword: 'Chaussures de sport' },
-    { id: '2', keyword: 'Robes été' },
-    { id: '3', keyword: 'Sac à main cuir' },
-];
 
 const MOCK_TRENDING: TrendingKeyword[] = [
     { id: '1', keyword: 'iPhone 15' },
@@ -28,24 +26,28 @@ const MOCK_TRENDING: TrendingKeyword[] = [
     { id: '5', keyword: 'Gaming' },
 ];
 
-const MOCK_SUGGESTIONS: SearchSuggestion[] = [
-    { id: '1', text: 'Chaussures Nike' },
-    { id: '2', text: 'Chaussures Adidas' },
-    { id: '3', text: 'Chaussures de ville' },
-    { id: '4', text: 'Chaussures randonnée' },
-];
-
 const SearchScreen = () => {
     const insets = useSafeAreaInsets();
     const [query, setQuery] = useState('');
-    const [recentSearches, setRecentSearches] = useState<RecentType[]>(MOCK_RECENT_SEARCHES);
 
-    const filteredSuggestions = useMemo(() => {
-        if (!query) return [];
-        return MOCK_SUGGESTIONS.filter(s =>
-            s.text.toLowerCase().includes(query.toLowerCase())
-        );
+    const { data: history, isLoading: isLoadingSearch } = useGetHistorySearchQuery('auth')
+    const [recentSearches, setRecentSearches] = useState<any[]>(history || []);
+    const [debouncedQuery, setDebouncedQuery] = useState(query);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedQuery(query);
+        }, 800);
+
+        return () => {
+            clearTimeout(timer);
+        };
     }, [query]);
+
+    const { data, isLoading } = useSearchByQueryQuery(
+        { query: debouncedQuery, userId: 0 },
+        { skip: debouncedQuery === '' }
+    );
 
     const handleClearRecent = useCallback(() => {
         setRecentSearches([]);
@@ -53,7 +55,6 @@ const SearchScreen = () => {
 
     const handleSelectKeyword = useCallback((keyword: string) => {
         setQuery(keyword);
-        // Here we would normally trigger the actual search
     }, []);
 
     return (
@@ -80,10 +81,18 @@ const SearchScreen = () => {
                         />
                     </ScrollView>
                 ) : (
-                    <SearchSuggestions
-                        suggestions={filteredSuggestions}
-                        onSelect={handleSelectKeyword}
-                    />
+                    <View style={{ flex: 1 }}>
+                        {isLoading ? (
+                            <View style={styles.loadingContainer}>
+                                <ActivityIndicator size="large" color={COLORS.primary} />
+                            </View>
+                        ) : (
+                            <SearchSuggestions
+                                suggestions={data}
+                                onSelect={handleSelectKeyword}
+                            />
+                        )}
+                    </View>
                 )}
             </View>
         </KeyboardAvoidingView>
@@ -97,6 +106,11 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

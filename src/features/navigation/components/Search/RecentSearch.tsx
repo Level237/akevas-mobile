@@ -1,3 +1,4 @@
+import { formatDate } from '@/lib/formatDate';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -25,11 +26,17 @@ const RecentSearch = ({ searches, onSelect, onClearAll }: Props) => {
                     <TouchableOpacity
                         key={item.id}
                         style={styles.item}
-                        onPress={() => onSelect(item.keyword)}
+                        onPress={() => onSelect(item.search_term)}
+                        activeOpacity={0.7}
                     >
                         <Ionicons name="time-outline" size={18} color="#999" />
-                        <Text style={styles.itemText}>{item.keyword}</Text>
-                        <Ionicons name="chevron-forward" size={16} color="#DDD" />
+                        <Text style={styles.itemText} numberOfLines={1}>
+                            {item.search_term}
+                        </Text>
+                        <View style={styles.rightContent}>
+                            <Text style={styles.dateText}>{formatDate(item.created_at)}</Text>
+                            <Ionicons name="chevron-forward" size={16} color="#DDD" />
+                        </View>
                     </TouchableOpacity>
                 ))}
             </View>
@@ -59,16 +66,25 @@ const styles = StyleSheet.create({
     item: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: 14,
         paddingHorizontal: 10,
         borderBottomWidth: 1,
-        borderBottomColor: '#F9F9F9',
+        borderBottomColor: '#F3F4F6',
     },
     itemText: {
         flex: 1,
         fontSize: 15,
-        color: '#666',
+        color: '#4B5563',
         marginLeft: 12,
+    },
+    rightContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    dateText: {
+        fontSize: 12,
+        color: '#9CA3AF',
+        marginRight: 8,
     },
 });
 
