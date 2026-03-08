@@ -1,6 +1,7 @@
 export type Category = {
     id: string;
     label: string;
+    url: string;
 };
 
 export type ExploreProduct = {

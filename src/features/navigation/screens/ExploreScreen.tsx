@@ -6,15 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CategoryChips from '../../../components/common/CategoryChips';
 import ExploreHeader from '../components/explore/ExploreHeader';
 import ExploreProductCard from '../components/explore/ExploreProductCard';
-import { Category, ExploreProduct } from '../types';
-const CATEGORIES: Category[] = [
-    { id: '1', label: 'Tout' },
-    { id: '2', label: 'Mode' },
-    { id: '3', label: 'Tech' },
-    { id: '4', label: 'Maison' },
-    { id: '5', label: 'Sport' },
-    { id: '6', label: 'Beauté' },
-];
+import { ExploreProduct } from '../types';
+
 
 const MOCK_PRODUCTS: ExploreProduct[] = [
     { id: '1', title: 'Montre Luxe Akevas', price: 55000, imageUrl: require('@/assets/images/shop1.webp'), isFavorite: false },
@@ -29,9 +22,11 @@ const ExploreScreen = () => {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const [selectedCategoryId, setSelectedCategoryId] = useState('1');
+    const [selectedCategoryUrl, setSelectedCategoryUrl] = useState('');
     const [products, setProducts] = useState(MOCK_PRODUCTS);
     const [loading, setLoading] = useState(false);
     const [currentGenderId, setCurrentGenderId] = useState<number>(0)
+
     const {
         data: { data: categoriesParent } = {},
         isLoading
@@ -61,14 +56,19 @@ const ExploreScreen = () => {
 
     const categories = categoriesParent?.map((category: any) => ({
         id: category.id.toString(),
-        label: category.category_name
+        label: category.category_name,
+        url: category.category_url
     })) || [];
     const renderHeader = () => (
         <View style={styles.listHeader}>
             <CategoryChips
                 categories={categories}
+                selectedUrl={selectedCategoryUrl}
                 selectedId={selectedCategoryId}
-                onSelect={setSelectedCategoryId}
+                onSelect={(id, url) => {
+                    setSelectedCategoryId(id);
+                    setSelectedCategoryUrl(url);
+                }}
             />
         </View>
     );

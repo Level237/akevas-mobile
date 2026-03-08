@@ -5,10 +5,11 @@ import { Category } from '../../features/navigation/types';
 type Props = {
     categories: Category[];
     selectedId: string;
-    onSelect: (id: string) => void;
+    selectedUrl: string;
+    onSelect: (id: string, url: string) => void;
 };
 
-const CategoryChips = ({ categories, selectedId, onSelect }: Props) => {
+const CategoryChips = ({ categories, selectedId, selectedUrl, onSelect }: Props) => {
     return (
         <View style={styles.container}>
             <ScrollView
@@ -18,19 +19,22 @@ const CategoryChips = ({ categories, selectedId, onSelect }: Props) => {
             >
                 {categories.map((category) => {
                     const isSelected = category.id === selectedId;
+                    const selectUrl = category.url === selectedUrl;
                     return (
                         <TouchableOpacity
                             key={category.id}
                             style={[
                                 styles.chip,
-                                isSelected && styles.chipSelected
+                                isSelected && styles.chipSelected,
+                                selectUrl && styles.chipSelected
                             ]}
-                            onPress={() => onSelect(category.id)}
+                            onPress={() => onSelect(category.id, category.url)}
                             activeOpacity={0.8}
                         >
                             <Text style={[
                                 styles.label,
-                                isSelected && styles.labelSelected
+                                isSelected && styles.labelSelected,
+                                selectUrl && styles.labelSelected
                             ]}>
                                 {category.label}
                             </Text>
