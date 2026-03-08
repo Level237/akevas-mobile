@@ -1,4 +1,6 @@
-import { useGetCategoriesWithParentIdNullQuery } from '@/services/guardService';
+import { normalizeProduct } from '@/lib/normalizeProduct';
+import { useGetCategoriesWithParentIdNullQuery, useGetCategoryProductsByUrlQuery } from '@/services/guardService';
+import { Product } from '@/types/product';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, FlatList, StatusBar, StyleSheet, View } from 'react-native';
@@ -22,7 +24,7 @@ const ExploreScreen = () => {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const [selectedCategoryId, setSelectedCategoryId] = useState('1');
-    const [selectedCategoryUrl, setSelectedCategoryUrl] = useState('');
+    const [selectedCategoryUrl, setSelectedCategoryUrl] = useState('vetements');
     const [products, setProducts] = useState(MOCK_PRODUCTS);
     const [loading, setLoading] = useState(false);
     const [currentGenderId, setCurrentGenderId] = useState<number>(0)
@@ -36,6 +38,17 @@ const ExploreScreen = () => {
         refetchOnReconnect: true
     });
 
+    const { data: productCategory, isLoading: isLoadingProducts } = useGetCategoryProductsByUrlQuery({
+        url: selectedCategoryUrl as string,
+        page: 1,
+        min_price: 0,
+        max_price: 0,
+        colors: [],
+        attribut: [],
+    });
+
+    const normalizedProducts = productCategory?.productList?.map(normalizeProduct);
+    //console.log(categoryData)
     const handleBack = () => router.back();
 
     const handleToggleFavorite = (id: string) => {
@@ -44,11 +57,11 @@ const ExploreScreen = () => {
         ));
     };
 
-    const handleProductPress = (product: ExploreProduct) => {
+    const handleProductPress = (product: Product) => {
         // En "Push" (nouvelle page par-dessus)
         router.push({
             pathname: '/(navigation)/category',
-            params: { title: product.title }
+            params: { title: product.product_name }
         });
     };
 
@@ -99,7 +112,7 @@ const ExploreScreen = () => {
             <View style={styles.safeArea}>
                 <ExploreHeader onBack={handleBack} />
                 <FlatList
-                    data={products}
+                    data={normalizedProducts}
                     keyExtractor={(item) => item.id}
                     numColumns={2}
                     columnWrapperStyle={styles.columnWrapper}

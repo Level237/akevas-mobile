@@ -1,19 +1,37 @@
+import { Product } from '@/types/product';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { ExploreProduct } from '../types';
+
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 43) / 2;
 
 type Props = {
-    product: ExploreProduct;
-    onPress?: (product: ExploreProduct) => void;
+    product: Product;
+    onPress?: (product: Product) => void;
     onToggleFavorite?: (id: string) => void;
 };
 
 const ExploreProductCard = ({ product, onPress, onToggleFavorite }: Props) => {
+
+    const getColorSwatches = useCallback((product: any) => {
+        if (!product.variations?.length) return [];
+        const seen = new Set();
+        const colors = [];
+        for (const variation of product.variations) {
+            if (variation.color?.hex && !seen.has(variation.color.hex)) {
+                colors.push({
+                    name: variation.color.name,
+                    hex: variation.color.hex,
+                });
+                seen.add(variation.color.hex);
+            }
+            if (colors.length === 4) break;
+        }
+        return colors;
+    }, []);
     return (
         <TouchableOpacity
             style={styles.container}
@@ -22,30 +40,44 @@ const ExploreProductCard = ({ product, onPress, onToggleFavorite }: Props) => {
         >
             <View style={styles.imageContainer}>
                 <Image
-                    source={product.imageUrl}
+                    source={{ uri: product.product_profile }}
                     style={styles.image}
                     contentFit="cover"
                     transition={200}
                 />
+
+                {getColorSwatches(product).length > 0 && (
+                    <View style={styles.swatchesContainer}>
+                        {getColorSwatches(product).map((color, index) => (
+                            <View
+                                key={index}
+                                style={[
+                                    styles.swatch,
+                                    { backgroundColor: color.hex },
+                                ]}
+                            />
+                        ))}
+                    </View>
+                )}
                 <TouchableOpacity
                     style={styles.favoriteButton}
                     onPress={() => onToggleFavorite?.(product.id)}
                     activeOpacity={0.7}
                 >
                     <Ionicons
-                        name={product.isFavorite ? "heart" : "heart-outline"}
+                        name={"heart-outline"}
                         size={20}
-                        color={product.isFavorite ? "#E74C3C" : "#333"}
+                        color={"#333"}
                     />
                 </TouchableOpacity>
             </View>
 
             <View style={styles.info}>
                 <Text style={styles.title} numberOfLines={1}>
-                    {product.title}
+                    {product.product_name}
                 </Text>
                 <Text style={styles.price}>
-                    {product.price.toLocaleString()} Fcfa
+                    {product.product_price} Fcfa
                 </Text>
             </View>
         </TouchableOpacity>
@@ -64,6 +96,31 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 10,
         elevation: 2,
+    },
+    swatchesContainer: {
+        position: 'absolute',
+        bottom: 6,
+        right: 50,
+        transform: [{ translateX: -0.5 }],
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.68)',
+        paddingHorizontal: 4,
+        paddingVertical: 2,
+        borderRadius: 10,
+        gap: 4,
+    },
+    swatch: {
+        width: 14,
+        height: 14,
+        borderRadius: 7,
+        borderWidth: 1,
+        borderColor: '#FFF',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.3,
+        shadowRadius: 2,
     },
     imageContainer: {
         width: '100%',
