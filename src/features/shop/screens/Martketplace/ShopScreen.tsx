@@ -31,7 +31,7 @@ export default function ShopScreen() {
     const [searchVisible, setSearchVisible] = useState(false);
     const { data, isLoading: isFetching, isError, refetch } = useGetAllShopsQuery(page.toString());
     const { refreshControl, ProgressBar, DimOverlay } = useAppRefresh(refetch);
-    console.log(page)
+
     useEffect(() => {
         if (data?.shopList) {
             if (page === 1) {

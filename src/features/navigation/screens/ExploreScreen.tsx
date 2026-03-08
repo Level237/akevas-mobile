@@ -2,7 +2,7 @@ import { normalizeProduct } from '@/lib/normalizeProduct';
 import { useGetCategoriesWithParentIdNullQuery, useGetCategoryProductsByUrlQuery } from '@/services/guardService';
 import { Product } from '@/types/product';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StatusBar, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CategoryChips from '../../../components/common/CategoryChips';
@@ -25,10 +25,10 @@ const ExploreScreen = () => {
     const insets = useSafeAreaInsets();
     const [selectedCategoryId, setSelectedCategoryId] = useState('1');
     const [selectedCategoryUrl, setSelectedCategoryUrl] = useState('vetements');
-    const [products, setProducts] = useState(MOCK_PRODUCTS);
+    const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentGenderId, setCurrentGenderId] = useState<number>(0)
-
+    const [page, setPage] = useState(1);
     const {
         data: { data: categoriesParent } = {},
         isLoading
@@ -40,22 +40,40 @@ const ExploreScreen = () => {
 
     const { data: productCategory, isLoading: isLoadingProducts } = useGetCategoryProductsByUrlQuery({
         url: selectedCategoryUrl as string,
-        page: 1,
+        page: page,
         min_price: 0,
         max_price: 0,
         colors: [],
         attribut: [],
     });
-
-    const normalizedProducts = productCategory?.productList?.map(normalizeProduct);
+    console.log(selectedCategoryUrl)
+    const normalizedProducts = products?.map(normalizeProduct);
     //console.log(categoryData)
     const handleBack = () => router.back();
 
     const handleToggleFavorite = (id: string) => {
-        setProducts(prev => prev.map(p =>
-            p.id === id ? { ...p, isFavorite: !p.isFavorite } : p
-        ));
+        //setProducts(prev => prev.map(p =>
+        //p.id === id ? { ...p, isFavorite: !p.isFavorite } : p
+        //));
     };
+
+    useEffect(() => {
+        if (productCategory?.productList) {
+            if (page === 1) {
+                setProducts(productCategory.productList);
+            } else {
+                const existingIds = new Set(products.map(product => product.id));
+
+                const newUniqueShops = productCategory.productList.filter((product: Product) => !existingIds.has(product.id));
+
+                setProducts((prevShops) => [...prevShops, ...newUniqueShops]);
+
+                setTimeout(() => {
+                    setLoading(false);
+                }, 400);
+            }
+        }
+    }, [productCategory, page]);
 
     const handleProductPress = (product: Product) => {
         // En "Push" (nouvelle page par-dessus)
@@ -81,6 +99,7 @@ const ExploreScreen = () => {
                 onSelect={(id, url) => {
                     setSelectedCategoryId(id);
                     setSelectedCategoryUrl(url);
+                    setPage(1);
                 }}
             />
         </View>
@@ -96,14 +115,16 @@ const ExploreScreen = () => {
     };
 
     const handleLoadMore = () => {
-        if (loading) return;
+
+        if (isLoadingProducts || loading) return;
+        if (productCategory && productCategory.totalPagesResponse && page >= productCategory.totalPagesResponse) return;
+
         setLoading(true);
-        // Simulate infinite scroll loading
+
         setTimeout(() => {
-            const moreProducts = MOCK_PRODUCTS.map(p => ({ ...p, id: `${p.id}-${Date.now()}` }));
-            setProducts(prev => [...prev, ...moreProducts]);
-            setLoading(false);
-        }, 1500);
+            setPage((prev) => prev + 1);
+        }, 600);
+
     };
 
     return (

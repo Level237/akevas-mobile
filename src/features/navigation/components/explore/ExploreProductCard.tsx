@@ -1,6 +1,7 @@
 import { Product } from '@/types/product';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import React, { memo, useCallback } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -32,11 +33,16 @@ const ExploreProductCard = ({ product, onPress, onToggleFavorite }: Props) => {
         }
         return colors;
     }, []);
+
+    const router = useRouter()
     return (
         <TouchableOpacity
             style={styles.container}
             activeOpacity={0.9}
-            onPress={() => onPress?.(product)}
+            onPress={() => router.push({
+                pathname: "/product/[url]",
+                params: { url: product.product_url }
+            })}
         >
             <View style={styles.imageContainer}>
                 <Image
