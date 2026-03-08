@@ -1,3 +1,4 @@
+import { useGetCategoriesWithParentIdNullQuery } from '@/services/guardService';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, FlatList, StatusBar, StyleSheet, View } from 'react-native';
@@ -30,6 +31,15 @@ const ExploreScreen = () => {
     const [selectedCategoryId, setSelectedCategoryId] = useState('1');
     const [products, setProducts] = useState(MOCK_PRODUCTS);
     const [loading, setLoading] = useState(false);
+    const [currentGenderId, setCurrentGenderId] = useState<number>(0)
+    const {
+        data: { data: categoriesParent } = {},
+        isLoading
+    } = useGetCategoriesWithParentIdNullQuery(currentGenderId, {
+        refetchOnMountOrArgChange: false,
+        refetchOnFocus: false,
+        refetchOnReconnect: true
+    });
 
     const handleBack = () => router.back();
 
@@ -47,10 +57,16 @@ const ExploreScreen = () => {
         });
     };
 
+    if (isLoading) return <ActivityIndicator color="#E67E22" />
+
+    const categories = categoriesParent?.map((category: any) => ({
+        id: category.id.toString(),
+        label: category.category_name
+    })) || [];
     const renderHeader = () => (
         <View style={styles.listHeader}>
             <CategoryChips
-                categories={CATEGORIES}
+                categories={categories}
                 selectedId={selectedCategoryId}
                 onSelect={setSelectedCategoryId}
             />
