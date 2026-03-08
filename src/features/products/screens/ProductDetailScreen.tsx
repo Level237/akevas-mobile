@@ -206,7 +206,45 @@ const ProductDetailScreen = ({ url }: Props) => {
     };
 
 
-    const getSelectedAttribute = () => {
+    const getWholesaleSource = useCallback(() => {
+        if (product?.productWholeSales && product.productWholeSales.length > 0) {
+            return Array.from(product.productWholeSales as any[]);
+        }
+        const attr = getSelectedAttribute();
+        if (attr?.wholesale_prices && attr.wholesale_prices.length > 0) {
+            return Array.from(attr.wholesale_prices as any[]);
+        }
+        return [] as any[];
+    }, [product, selectedVariant, selectedAttribute]);
+
+    const getMinWholesaleQty = useCallback(() => {
+        const source = getWholesaleSource();
+        if (!source || source.length === 0) return null;
+        return source
+            .map((w: any) => Number(w.min_quantity))
+            .reduce((min: number, q: number) => (min === 0 ? q : Math.min(min, q)), 0);
+    }, [getWholesaleSource]);
+
+    const isWholesaleBlocked = useCallback(() => {
+        if (!product?.is_only_wholesale) return false;
+        const minQty = getMinWholesaleQty();
+        if (!minQty) return false;
+
+        const availableStock = currentInfo.quantity || 0;
+        if (availableStock < Number(minQty)) return true;
+
+        return quantity < Number(minQty);
+    }, [product, getMinWholesaleQty, quantity]);
+
+    useEffect(() => {
+        if (!product?.is_only_wholesale) return;
+        const minQty = getMinWholesaleQty();
+        if (minQty && quantity < Number(minQty)) {
+            setQuantity(Number(minQty));
+        }
+    }, [product, selectedVariant, selectedAttribute, getMinWholesaleQty]);
+
+    const getSelectedAttribute = useCallback(() => {
         if (selectedVariant?.attributes && selectedVariant.attributes.length > 0) {
             return (
                 selectedVariant.attributes.find((attr: any) => attr.value === selectedAttribute?.value) ||
@@ -214,7 +252,8 @@ const ProductDetailScreen = ({ url }: Props) => {
             );
         }
         return null;
-    };
+    }, [selectedVariant, selectedAttribute]);
+
     const navigateImage = (direction: 'next' | 'prev') => {
         const allImages = getAllImages();
         if (direction === 'next') {
@@ -271,10 +310,14 @@ const ProductDetailScreen = ({ url }: Props) => {
                 <ProductInfo
                     name={product.product_name}
                     price={currentInfo.price}
+                    originalPrice={currentInfo.originalPrice}
                     quantity={currentInfo.quantity}
                     rating={product.review_average}
                     reviewCount={product.reviewCount}
                     shopName={product.shop_key}
+                    isWholesaleOnly={product.is_only_wholesale}
+                    wholesaleTiers={getWholesaleSource()}
+                    activeWholesale={currentInfo.wholesaleInfo}
                 />
 
                 <VariationSelector
@@ -294,9 +337,13 @@ const ProductDetailScreen = ({ url }: Props) => {
             </ScrollView>
 
             <ProductActionButton
-                price={product.product_price}
+                price={currentInfo.price}
                 onBuyNow={handleBuyNow}
                 onAddToCart={handleAddToCart}
+                isDisabled={isWholesaleBlocked()}
+                quantity={quantity}
+                onQuantityChange={setQuantity}
+                minQuantity={product.is_only_wholesale ? (getMinWholesaleQty() || 1) : 1}
             />
         </View>
     );

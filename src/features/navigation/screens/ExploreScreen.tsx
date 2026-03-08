@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { ActivityIndicator, FlatList, StatusBar, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CategoryChips from '../../../components/common/CategoryChips';
-import ExploreHeader from '../components/ExploreHeader';
-import ExploreProductCard from '../components/ExploreProductCard';
+import ExploreHeader from '../components/explore/ExploreHeader';
+import ExploreProductCard from '../components/explore/ExploreProductCard';
 import { Category, ExploreProduct } from '../types';
 const CATEGORIES: Category[] = [
     { id: '1', label: 'Tout' },

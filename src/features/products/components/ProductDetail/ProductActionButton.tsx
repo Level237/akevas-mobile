@@ -8,31 +8,75 @@ type Props = {
     onBuyNow: () => void;
     onAddToCart: () => void;
     price: string;
+    isDisabled?: boolean;
+    quantity: number;
+    onQuantityChange: (qty: number) => void;
+    minQuantity?: number;
 };
 
-const ProductActionButton = ({ onBuyNow, onAddToCart, price }: Props) => {
+const ProductActionButton = ({
+    onBuyNow,
+    onAddToCart,
+    price,
+    isDisabled = false,
+    quantity,
+    onQuantityChange,
+    minQuantity = 1
+}: Props) => {
     const insets = useSafeAreaInsets();
+
+    const increment = () => onQuantityChange(quantity + 1);
+    const decrement = () => {
+        if (quantity > minQuantity) {
+            onQuantityChange(quantity - 1);
+        }
+    };
 
     return (
         <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 20) }]}>
-            <TouchableOpacity
-                style={styles.cartButton}
-                onPress={onAddToCart}
-                activeOpacity={0.7}
-            >
-                <Ionicons name="cart-outline" size={24} color="#333" />
-            </TouchableOpacity>
+            {/* Quantity Selector */}
+            <View style={styles.quantityContainer}>
+                <TouchableOpacity
+                    style={styles.qtyBtn}
+                    onPress={decrement}
+                    disabled={quantity <= minQuantity}
+                >
+                    <Ionicons
+                        name="remove"
+                        size={20}
+                        color={quantity <= minQuantity ? '#D1D5DB' : '#1A1A1A'}
+                    />
+                </TouchableOpacity>
+                <Text style={styles.qtyText}>{quantity}</Text>
+                <TouchableOpacity style={styles.qtyBtn} onPress={increment}>
+                    <Ionicons name="add" size={20} color="#1A1A1A" />
+                </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-                style={styles.buyButton}
-                onPress={onBuyNow}
-                activeOpacity={0.8}
-            >
-                <View style={styles.buyButtonContent}>
-                    <Text style={styles.buyButtonText}>Acheter maintenant</Text>
-                    <Ionicons name="chevron-forward" size={18} color="#FFF" />
-                </View>
-            </TouchableOpacity>
+            <View style={styles.actionsBox}>
+                <TouchableOpacity
+                    style={[styles.cartButton, isDisabled && styles.disabledBtn]}
+                    onPress={onAddToCart}
+                    disabled={isDisabled}
+                    activeOpacity={0.7}
+                >
+                    <Ionicons name="cart-outline" size={24} color={isDisabled ? '#9CA3AF' : '#333'} />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.buyButton, isDisabled && styles.disabledBuyBtn]}
+                    onPress={onBuyNow}
+                    disabled={isDisabled}
+                    activeOpacity={0.8}
+                >
+                    <View style={styles.buyButtonContent}>
+                        <Text style={styles.buyButtonText}>
+                            {isDisabled ? 'Quantité insuffisante' : 'Commander'}
+                        </Text>
+                        {!isDisabled && <Ionicons name="chevron-forward" size={18} color="#FFF" />}
+                    </View>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -44,36 +88,66 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         backgroundColor: '#FFF',
-        flexDirection: 'row',
-        paddingHorizontal: 20,
-        paddingTop: 15,
+        paddingHorizontal: 15,
+        paddingTop: 12,
         borderTopWidth: 1,
-        borderTopColor: '#F0F0F0',
-        alignItems: 'center',
-        gap: 15,
+        borderTopColor: '#F3F4F6',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
         elevation: 10,
+    },
+    quantityContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#F9FAFB',
+        borderRadius: 12,
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        marginBottom: 12,
+        alignSelf: 'center',
+        borderWidth: 1,
+        borderColor: '#F3F4F6',
+    },
+    qtyBtn: {
+        padding: 10,
+    },
+    qtyText: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#111827',
+        minWidth: 40,
+        textAlign: 'center',
+    },
+    actionsBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
     },
     cartButton: {
         width: 54,
         height: 54,
-        borderRadius: 27,
-        backgroundColor: '#F7F7F7',
+        borderRadius: 14,
+        backgroundColor: '#F3F4F6',
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#EEE',
+    },
+    disabledBtn: {
+        backgroundColor: '#F9FAFB',
+        opacity: 0.6,
     },
     buyButton: {
         flex: 1,
         height: 54,
         backgroundColor: COLORS.primary,
-        borderRadius: 27,
+        borderRadius: 14,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    disabledBuyBtn: {
+        backgroundColor: '#9CA3AF',
     },
     buyButtonContent: {
         flexDirection: 'row',
@@ -83,7 +157,8 @@ const styles = StyleSheet.create({
     buyButtonText: {
         color: '#FFF',
         fontSize: 16,
-        fontWeight: '700',
+        fontWeight: '800',
+        letterSpacing: 0.5,
     },
 });
 

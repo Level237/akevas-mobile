@@ -1,4 +1,4 @@
-import ExploreScreen from '@/features/explore/screens/ExploreScreen';
+import ExploreScreen from '@/features/navigation/screens/ExploreScreen';
 import React from 'react';
 
 export default function ExploreRoute() {
