@@ -12,6 +12,7 @@ import {
     View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import CheckoutDrawer from '../components/ProductDetail/CheckoutDrawer';
 import ImageGallery from '../components/ProductDetail/ImageGallery';
 import ProductActionButton from '../components/ProductDetail/ProductActionButton';
 import ProductInfo from '../components/ProductDetail/ProductInfo';
@@ -25,14 +26,21 @@ type Props = {
 const ProductDetailScreen = ({ url }: Props) => {
     const insets = useSafeAreaInsets();
     const router = useRouter();
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const { data: { data: product } = {}, isLoading, error } = useGetProductByUrlQuery(url);
     const [selectedVariant, setSelectedVariant] = useState<any>(null);
     const [quantity, setQuantity] = useState<number>(1);
     const [selectedImage, setSelectedImage] = useState<number>(0);
 
     const handleBuyNow = useCallback(() => {
-        console.log('Buy now:', product?.product_name);
-    }, [product]);
+        setIsDrawerOpen(true);
+    }, []);
+
+    const handleProceedCheckout = useCallback(() => {
+        setIsDrawerOpen(false);
+        // Add navigation logic to checkout page here
+        console.log('Proceed to checkout with quantity:', quantity);
+    }, [quantity]);
 
     const [selectedAttribute, setSelectedAttribute] = useState<any>(null);
 
@@ -344,6 +352,17 @@ const ProductDetailScreen = ({ url }: Props) => {
                 quantity={quantity}
                 onQuantityChange={setQuantity}
                 minQuantity={product.is_only_wholesale ? (getMinWholesaleQty() || 1) : 1}
+            />
+
+            <CheckoutDrawer
+                isVisible={isDrawerOpen}
+                onClose={() => setIsDrawerOpen(false)}
+                product={product}
+                currentInfo={currentInfo}
+                quantity={quantity}
+                onQuantityChange={setQuantity}
+                minQuantity={product.is_only_wholesale ? (getMinWholesaleQty() || 1) : 1}
+                onProceed={handleProceedCheckout}
             />
         </View>
     );

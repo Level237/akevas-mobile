@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#FFF',
         borderTopWidth: 8,
+        paddingBottom: 20,
         borderTopColor: '#F9FAFB',
     },
     tabHeader: {

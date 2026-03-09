@@ -25,33 +25,9 @@ const ProductActionButton = ({
 }: Props) => {
     const insets = useSafeAreaInsets();
 
-    const increment = () => onQuantityChange(quantity + 1);
-    const decrement = () => {
-        if (quantity > minQuantity) {
-            onQuantityChange(quantity - 1);
-        }
-    };
-
     return (
         <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 20) }]}>
-            {/* Quantity Selector */}
-            <View style={styles.quantityContainer}>
-                <TouchableOpacity
-                    style={styles.qtyBtn}
-                    onPress={decrement}
-                    disabled={quantity <= minQuantity}
-                >
-                    <Ionicons
-                        name="remove"
-                        size={20}
-                        color={quantity <= minQuantity ? '#D1D5DB' : '#1A1A1A'}
-                    />
-                </TouchableOpacity>
-                <Text style={styles.qtyText}>{quantity}</Text>
-                <TouchableOpacity style={styles.qtyBtn} onPress={increment}>
-                    <Ionicons name="add" size={20} color="#1A1A1A" />
-                </TouchableOpacity>
-            </View>
+            {/* Quantity Selector handled in modal now */}
 
             <View style={styles.actionsBox}>
                 <TouchableOpacity
@@ -98,29 +74,7 @@ const styles = StyleSheet.create({
         shadowRadius: 12,
         elevation: 10,
     },
-    quantityContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#F9FAFB',
-        borderRadius: 12,
-        paddingVertical: 4,
-        paddingHorizontal: 8,
-        marginBottom: 12,
-        alignSelf: 'center',
-        borderWidth: 1,
-        borderColor: '#F3F4F6',
-    },
-    qtyBtn: {
-        padding: 10,
-    },
-    qtyText: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#111827',
-        minWidth: 40,
-        textAlign: 'center',
-    },
+
     actionsBox: {
         flexDirection: 'row',
         alignItems: 'center',
