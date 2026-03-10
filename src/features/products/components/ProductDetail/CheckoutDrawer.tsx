@@ -1,6 +1,7 @@
 import { COLORS } from '@/constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import {
     Modal,
@@ -10,7 +11,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import Animated, { FadeIn, SlideInDown, SlideOutDown } from 'react-native-reanimated';
+import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type CheckoutInfo = {
@@ -64,7 +65,7 @@ const CheckoutDrawer = ({
             onQuantityChange(quantity - 1);
         }
     };
-
+    const router = useRouter();
     const displayImage = currentInfo.mainImage || product?.product_profile;
     const totalPrice = Number(currentInfo.price) * quantity;
 
@@ -72,6 +73,42 @@ const CheckoutDrawer = ({
 
     const handleBackdropPress = () => {
         onClose();
+    };
+
+    const handleGoToCheckout = () => {
+        // On crée l'objet de paramètres
+
+        const variationInfo = currentInfo.color ? {
+            colorId: currentInfo.color.id,
+            colorName: currentInfo.color.name,
+            attribute: currentInfo.attribute,
+            label: currentInfo.label,
+            attributeVariationId: currentInfo.attributeVariationId,
+            productVariationId: currentInfo.productVariationId,
+            price: totalPrice,
+            colorHex: currentInfo.color.hex,
+            variantName: currentInfo.variantName,
+            quantity: quantity
+        } : null;
+        const params = {
+            s: 0,
+            productId: product.id,
+            quantity: quantity,
+            price: Number(currentInfo.price) * quantity,
+            name: product.product_name,
+            residence: product.residence,
+            // Si variationParams était une chaîne accolée avant, mets-la ici
+            variationParams: variationInfo
+        };
+
+
+        router.push({
+            pathname: '/checkout',
+            params: {
+                ...params,
+                variationParams: JSON.stringify(variationInfo)
+            }
+        });
     };
 
     return (
@@ -86,14 +123,13 @@ const CheckoutDrawer = ({
                     style={StyleSheet.absoluteFill}
                     onPress={handleBackdropPress}
                 >
-                    <Animated.View
-                        entering={FadeIn.duration(200)}
+                    <View
                         style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
                     />
                 </Pressable>
 
                 <Animated.View
-                    entering={SlideInDown.springify().damping(20).stiffness(150)}
+                    entering={SlideInDown.springify().stiffness(1000)}
                     exiting={SlideOutDown}
                     style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 20) }]}
                 >
@@ -178,7 +214,7 @@ const CheckoutDrawer = ({
 
                         <TouchableOpacity
                             style={styles.proceedButton}
-                            onPress={onProceed}
+                            onPress={handleGoToCheckout}
                             activeOpacity={0.8}
                         >
                             <Text style={styles.proceedButtonText}>Procéder à l'achat</Text>

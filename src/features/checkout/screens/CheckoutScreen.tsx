@@ -1,0 +1,778 @@
+
+import { COLORS } from '@/constants/colors';
+import { useGetUserQuery } from '@/services/authService';
+import { useGetQuartersQuery } from '@/services/guardService';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { CheckCircle2, CreditCard, MapPin, Truck, User } from 'lucide-react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Image,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+type DeliveryOption = 'pickup' | 'localDelivery' | 'remotePickup' | 'remoteDelivery';
+
+const TAX_RATE = 0.03;
+
+const DELIVERY_FEES: Record<DeliveryOption, number> = {
+    pickup: 0,
+    localDelivery: 1500,
+    remotePickup: 2500,
+    remoteDelivery: 3500,
+};
+
+interface Props {
+    params: any;
+}
+
+const CheckoutScreen = ({ params }: Props) => {
+    const insets = useSafeAreaInsets();
+    const router = useRouter();
+    const { data: userData } = useGetUserQuery(undefined);
+    const { data: quartersData, isLoading: quartersLoading } = useGetQuartersQuery(undefined);
+
+    const [deliveryOption, setDeliveryOption] = useState<DeliveryOption>('pickup');
+    const [selectedQuarter, setSelectedQuarter] = useState<string>('');
+    const [addressDetails, setAddressDetails] = useState('');
+    const [firstName, setFirstName] = useState(userData?.firstName || '');
+    const [lastName, setLastName] = useState(userData?.lastName || '');
+    const [phone, setPhone] = useState(userData?.phone_number || '');
+    const [paymentPhone, setPaymentPhone] = useState(userData?.phone_number || '');
+    const [selectedPayment, setSelectedPayment] = useState<'cm.orange' | 'cm.mtn'>('cm.orange');
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    // Modal Quartier
+    const [isQuarterModalVisible, setIsQuarterModalVisible] = useState(false);
+    const [quarterSearch, setQuarterSearch] = useState('');
+
+    // Extraction des paramètres
+    const s = params.s;
+    const productId = params.productId;
+    const quantity = parseInt(params.quantity || '1');
+    const unitPrice = params.price ? parseInt(params.price) / quantity : 0;
+    const productName = params.name;
+    const residence = params.residence;
+    const variationInfo = params.variationParams ? JSON.parse(params.variationParams) : null;
+
+    useEffect(() => {
+        if (userData) {
+            if (!firstName) setFirstName(userData.firstName || '');
+            if (!lastName) setLastName(userData.lastName || '');
+            if (!phone) {
+                setPhone(userData.phone_number || '');
+                setPaymentPhone(userData.phone_number || '');
+            }
+        }
+    }, [userData]);
+
+    const subtotal = unitPrice * quantity;
+    const shippingFee = DELIVERY_FEES[deliveryOption];
+    const serviceFee = subtotal * TAX_RATE;
+    const total = subtotal + shippingFee + serviceFee;
+
+    const filteredQuarters = useMemo(() => {
+        if (!quartersData?.data) return [];
+        const productLocation = residence;
+        const otherLocation = productLocation === "Yaoundé" ? "Douala" : "Yaoundé";
+
+        const baseQuarters = quartersData.data.filter((q: any) => {
+            if (deliveryOption === 'remoteDelivery') {
+                return q.town_name === otherLocation;
+            }
+            return q.town_name === productLocation;
+        });
+
+        if (!quarterSearch) return baseQuarters;
+        return baseQuarters.filter((q: any) =>
+            q.quarter_name.toLowerCase().includes(quarterSearch.toLowerCase())
+        );
+    }, [quartersData, deliveryOption, residence, quarterSearch]);
+
+    const handlePayment = useCallback(() => {
+        if ((deliveryOption === 'localDelivery' || deliveryOption === 'remoteDelivery') && !selectedQuarter) {
+            Alert.alert('Erreur', 'Veuillez choisir un quartier de livraison');
+            return;
+        }
+        if (!paymentPhone || paymentPhone.length < 9) {
+            Alert.alert('Erreur', 'Veuillez entrer un numéro de téléphone de paiement valide');
+            return;
+        }
+        if (!firstName) {
+            Alert.alert('Erreur', 'Veuillez entrer votre prénom');
+            return;
+        }
+
+        setIsProcessing(true);
+
+        // Simuler la préparation des données pour le paiement
+        const orderData = {
+            s: '0',
+            productId,
+            quantity: quantity.toString(),
+            name: productName,
+            price: subtotal.toString(),
+            amount: Math.round(total).toString(),
+            hasVariation: variationInfo ? 'true' : 'false',
+            variations: variationInfo ? JSON.stringify(variationInfo) : null,
+            quarter: selectedQuarter,
+            phone: phone,
+            address: addressDetails,
+            shipping: shippingFee.toString(),
+            paymentMethod: selectedPayment,
+            paymentPhone: paymentPhone,
+        };
+
+        console.log('Finalizing order:', orderData);
+
+        // Redirection vers le flux de paiement (Simulation)
+        setTimeout(() => {
+            setIsProcessing(false);
+            Alert.alert('Succès', 'Votre commande a été initiée. Vous allez être redirigé vers le paiement.', [
+                { text: 'OK', onPress: () => router.push('/home') }
+            ]);
+        }, 1500);
+    }, [deliveryOption, selectedQuarter, paymentPhone, firstName, productId, quantity, productName, subtotal, total, variationInfo, phone, addressDetails, shippingFee, selectedPayment]);
+
+    const renderHeader = () => (
+        <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+                <Ionicons name="arrow-back" size={24} color="#1F2937" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Finaliser la commande</Text>
+            <View style={{ width: 40 }} />
+        </View>
+    );
+
+    const renderSection = (title: string, icon: React.ReactNode, children: React.ReactNode) => (
+        <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+                {icon}
+                <Text style={styles.sectionTitle}>{title}</Text>
+            </View>
+            <View style={styles.sectionContent}>
+                {children}
+            </View>
+        </View>
+    );
+
+    return (
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={styles.container}
+        >
+            {renderHeader()}
+            <ScrollView
+                contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
+                showsVerticalScrollIndicator={false}
+            >
+                {/* Résumé Produit Rapide */}
+                <View style={styles.productSummaryCard}>
+                    <Image
+                        source={{ uri: variationInfo?.mainImage || params.image }} // Assumant image passée ou dans variation
+                        style={styles.summaryImage}
+                    />
+                    <View style={styles.summaryDetails}>
+                        <Text style={styles.summaryName} numberOfLines={1}>{productName}</Text>
+                        <Text style={styles.summaryPrice}>{unitPrice.toLocaleString()} FCFA x {quantity}</Text>
+                        {variationInfo && (
+                            <Text style={styles.summaryVariant}>
+                                {variationInfo.colorName}{variationInfo.label ? `, ${variationInfo.label}` : ''}
+                            </Text>
+                        )}
+                    </View>
+                </View>
+
+                {/* Options de Livraison */}
+                {renderSection('Options de livraison', <Truck size={20} color={COLORS.primary} />, (
+                    <View style={styles.deliveryOptionsGrid}>
+                        {(['pickup', 'localDelivery', 'remotePickup', 'remoteDelivery'] as DeliveryOption[]).map((option) => (
+                            <TouchableOpacity
+                                key={option}
+                                style={[
+                                    styles.deliveryOptionItem,
+                                    deliveryOption === option && styles.activeOption
+                                ]}
+                                onPress={() => setDeliveryOption(option)}
+                            >
+                                <Text style={[styles.optionLabel, deliveryOption === option && styles.activeOptionLabel]}>
+                                    {option === 'pickup' && `Magasin (${residence})`}
+                                    {option === 'localDelivery' && 'Livraison Locale'}
+                                    {option === 'remotePickup' && `Expédition Magasin`}
+                                    {option === 'remoteDelivery' && 'Expédition Domicile'}
+                                </Text>
+                                <Text style={styles.optionFee}>
+                                    {DELIVERY_FEES[option] === 0 ? 'Gratuit' : `+${DELIVERY_FEES[option]} FCFA`}
+                                </Text>
+                                {deliveryOption === option && (
+                                    <View style={styles.checkBadge}>
+                                        <CheckCircle2 size={14} color="#FFF" />
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                ))}
+
+                {/* Détails Adresse si livraison */}
+                {(deliveryOption === 'localDelivery' || deliveryOption === 'remoteDelivery') && (
+                    renderSection('Détails de livraison', <MapPin size={20} color={COLORS.primary} />, (
+                        <View style={styles.form}>
+                            <Text style={styles.inputLabel}>Quartier</Text>
+                            <TouchableOpacity
+                                style={styles.selectInput}
+                                onPress={() => setIsQuarterModalVisible(true)}
+                            >
+                                <Text style={selectedQuarter ? styles.inputText : styles.placeholderText}>
+                                    {selectedQuarter || 'Choisir un quartier'}
+                                </Text>
+                                <Ionicons name="chevron-down" size={20} color="#9CA3AF" />
+                            </TouchableOpacity>
+
+                            <Text style={styles.inputLabel}>Adresse précise</Text>
+                            <TextInput
+                                style={styles.textInput}
+                                placeholder="Numéro de rue, repères..."
+                                value={addressDetails}
+                                onChangeText={setAddressDetails}
+                                multiline
+                            />
+                        </View>
+                    ))
+                )}
+
+                {/* Informations Client */}
+                {renderSection('Informations de contact', <User size={20} color={COLORS.primary} />, (
+                    <View style={styles.form}>
+                        <View style={styles.row}>
+                            <View style={{ flex: 1, marginRight: 8 }}>
+                                <Text style={styles.inputLabel}>Prénom</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    value={firstName}
+                                    onChangeText={setFirstName}
+                                />
+                            </View>
+                            <View style={{ flex: 1, marginLeft: 8 }}>
+                                <Text style={styles.inputLabel}>Nom</Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    value={lastName}
+                                    onChangeText={setLastName}
+                                />
+                            </View>
+                        </View>
+                        <Text style={styles.inputLabel}>Téléphone principal</Text>
+                        <TextInput
+                            style={styles.textInput}
+                            value={phone}
+                            onChangeText={setPhone}
+                            keyboardType="phone-pad"
+                        />
+                    </View>
+                ))}
+
+                {/* Paiement */}
+                {renderSection('Méthode de paiement', <CreditCard size={20} color={COLORS.primary} />, (
+                    <View style={styles.paymentContainer}>
+                        <View style={styles.paymentMethods}>
+                            <TouchableOpacity
+                                style={[styles.paymentBtn, selectedPayment === 'cm.orange' && styles.activePayment]}
+                                onPress={() => setSelectedPayment('cm.orange')}
+                            >
+                                <Image
+                                    source={require('@/assets/images/orange.png')} // S'assurer que les assets existent
+                                    style={styles.paymentIcon}
+                                    resizeMode="contain"
+                                />
+                                <Text style={styles.paymentLabel}>Orange Money</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.paymentBtn, selectedPayment === 'cm.mtn' && styles.activePayment]}
+                                onPress={() => setSelectedPayment('cm.mtn')}
+                            >
+                                <Image
+                                    source={require('@/assets/images/momo.png')}
+                                    style={styles.paymentIcon}
+                                    resizeMode="contain"
+                                />
+                                <Text style={styles.paymentLabel}>MTN MoMo</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <Text style={styles.inputLabel}>Numéro de paiement</Text>
+                        <TextInput
+                            style={styles.textInput}
+                            value={paymentPhone}
+                            onChangeText={setPaymentPhone}
+                            keyboardType="phone-pad"
+                            placeholder="6XXXXXXXX"
+                        />
+                    </View>
+                ))}
+
+                {/* Résumé des coûts */}
+                <View style={styles.costSummary}>
+                    <View style={styles.costRow}>
+                        <Text style={styles.costLabel}>Sous-total</Text>
+                        <Text style={styles.costValue}>{subtotal.toLocaleString()} FCFA</Text>
+                    </View>
+                    <View style={styles.costRow}>
+                        <Text style={styles.costLabel}>Livraison</Text>
+                        <Text style={[styles.costValue, shippingFee === 0 && { color: '#10B981' }]}>
+                            {shippingFee === 0 ? 'Gratuit' : `${shippingFee.toLocaleString()} FCFA`}
+                        </Text>
+                    </View>
+                    <View style={styles.costRow}>
+                        <Text style={styles.costLabel}>Frais de service (3%)</Text>
+                        <Text style={styles.costValue}>{Math.round(serviceFee).toLocaleString()} FCFA</Text>
+                    </View>
+                    <View style={[styles.costRow, styles.totalRow]}>
+                        <Text style={styles.totalLabel}>Total TTC</Text>
+                        <Text style={styles.totalValue}>{Math.round(total).toLocaleString()} FCFA</Text>
+                    </View>
+                </View>
+            </ScrollView>
+
+            {/* Sticky Footers */}
+            <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 20) }]}>
+                <TouchableOpacity
+                    style={[styles.payButton, isProcessing && styles.disabledButton]}
+                    onPress={handlePayment}
+                    disabled={isProcessing}
+                >
+                    {isProcessing ? (
+                        <ActivityIndicator color="#FFF" />
+                    ) : (
+                        <Text style={styles.payButtonText}>Payer {Math.round(total).toLocaleString()} FCFA</Text>
+                    )}
+                </TouchableOpacity>
+            </View>
+
+            {/* Modal de Sélection de Quartier */}
+            <Modal
+                visible={isQuarterModalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setIsQuarterModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { paddingTop: insets.top + 20 }]}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Choisir un quartier</Text>
+                            <TouchableOpacity
+                                onPress={() => setIsQuarterModalVisible(false)}
+                                style={styles.modalCloseBtn}
+                            >
+                                <Ionicons name="close" size={24} color="#1F2937" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.modalSearchContainer}>
+                            <Ionicons name="search" size={20} color="#9CA3AF" style={styles.searchIcon} />
+                            <TextInput
+                                style={styles.modalSearchInput}
+                                placeholder="Rechercher un quartier..."
+                                value={quarterSearch}
+                                onChangeText={setQuarterSearch}
+                                autoFocus
+                            />
+                        </View>
+
+                        <FlatList
+                            data={filteredQuarters}
+                            keyExtractor={(item) => item.id.toString()}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={styles.quarterItem}
+                                    onPress={() => {
+                                        setSelectedQuarter(item.quarter_name);
+                                        setIsQuarterModalVisible(false);
+                                        setQuarterSearch('');
+                                    }}
+                                >
+                                    <View style={styles.quarterInfo}>
+                                        <Text style={styles.quarterName}>{item.quarter_name}</Text>
+                                        <Text style={styles.townName}>{item.town_name}</Text>
+                                    </View>
+                                    {selectedQuarter === item.quarter_name && (
+                                        <Ionicons name="checkmark-circle" size={24} color={COLORS.primary} />
+                                    )}
+                                </TouchableOpacity>
+                            )}
+                            ListEmptyComponent={
+                                <View style={styles.emptyResults}>
+                                    <Text style={styles.emptyText}>Aucun quartier trouvé</Text>
+                                </View>
+                            }
+                            contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+                        />
+                    </View>
+                </View>
+            </Modal>
+        </KeyboardAvoidingView>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#F9FAFB',
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingTop: 60,
+        paddingBottom: 16,
+        backgroundColor: '#FFF',
+        borderBottomWidth: 1,
+        borderBottomColor: '#F3F4F6',
+    },
+    backBtn: {
+        padding: 8,
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#1F2937',
+    },
+    scrollContent: {
+        padding: 16,
+    },
+    productSummaryCard: {
+        flexDirection: 'row',
+        backgroundColor: '#FFF',
+        borderRadius: 16,
+        padding: 12,
+        marginBottom: 20,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2,
+    },
+    summaryImage: {
+        width: 60,
+        height: 60,
+        borderRadius: 12,
+        backgroundColor: '#F3F4F6',
+    },
+    summaryDetails: {
+        flex: 1,
+        marginLeft: 12,
+    },
+    summaryName: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#1F2937',
+    },
+    summaryPrice: {
+        fontSize: 14,
+        color: '#6B7280',
+        marginTop: 2,
+    },
+    summaryVariant: {
+        fontSize: 12,
+        color: COLORS.primary,
+        fontWeight: '500',
+        marginTop: 2,
+    },
+    section: {
+        marginBottom: 24,
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+        gap: 8,
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#374151',
+    },
+    sectionContent: {
+        backgroundColor: '#FFF',
+        borderRadius: 20,
+        padding: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
+    },
+    deliveryOptionsGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 12,
+    },
+    deliveryOptionItem: {
+        flex: 1,
+        minWidth: '45%',
+        padding: 16,
+        borderRadius: 16,
+        borderWidth: 1.5,
+        borderColor: '#F3F4F6',
+        backgroundColor: '#FAFBFC',
+        position: 'relative',
+    },
+    activeOption: {
+        borderColor: COLORS.primary,
+        backgroundColor: '#EEF2FF',
+    },
+    optionLabel: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#4B5563',
+        marginBottom: 4,
+    },
+    activeOptionLabel: {
+        color: COLORS.primary,
+    },
+    optionFee: {
+        fontSize: 11,
+        color: '#6B7280',
+    },
+    checkBadge: {
+        position: 'absolute',
+        top: -8,
+        right: -8,
+        backgroundColor: COLORS.primary,
+        width: 22,
+        height: 22,
+        borderRadius: 11,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: '#FFF',
+    },
+    form: {
+        gap: 12,
+    },
+    inputLabel: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#6B7280',
+        marginBottom: 4,
+    },
+    textInput: {
+        backgroundColor: '#F9FAFB',
+        borderRadius: 12,
+        padding: 16,
+        fontSize: 15,
+        color: '#1F2937',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+    },
+    selectInput: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#F9FAFB',
+        borderRadius: 12,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+    },
+    inputText: {
+        fontSize: 15,
+        color: '#1F2937',
+    },
+    placeholderText: {
+        fontSize: 15,
+        color: '#9CA3AF',
+    },
+    row: {
+        flexDirection: 'row',
+    },
+    paymentContainer: {
+        gap: 16,
+    },
+    paymentMethods: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    paymentBtn: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        padding: 12,
+        borderRadius: 14,
+        borderWidth: 1.5,
+        borderColor: '#F3F4F6',
+        backgroundColor: '#FAFBFC',
+    },
+    activePayment: {
+        borderColor: COLORS.primary,
+        backgroundColor: '#EEF2FF',
+    },
+    paymentIcon: {
+        width: 32,
+        height: 32,
+    },
+    paymentLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#4B5563',
+    },
+    costSummary: {
+        backgroundColor: '#FFF',
+        borderRadius: 20,
+        padding: 20,
+        marginTop: 8,
+        gap: 12,
+    },
+    costRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    costLabel: {
+        fontSize: 14,
+        color: '#6B7280',
+    },
+    costValue: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#1F2937',
+    },
+    totalRow: {
+        marginTop: 8,
+        paddingTop: 16,
+        borderTopWidth: 1,
+        borderTopColor: '#F3F4F6',
+    },
+    totalLabel: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#1F2937',
+    },
+    totalValue: {
+        fontSize: 20,
+        fontWeight: '900',
+        color: COLORS.primary,
+    },
+    footer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#FFF',
+        padding: 20,
+        borderTopWidth: 1,
+        borderTopColor: '#F3F4F6',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 10,
+    },
+    payButton: {
+        backgroundColor: COLORS.primary,
+        height: 56,
+        borderRadius: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    disabledButton: {
+        opacity: 0.6,
+    },
+    payButtonText: {
+        color: '#FFF',
+        fontSize: 17,
+        fontWeight: '800',
+    },
+    // Modal Styles
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        backgroundColor: '#FFF',
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        height: '80%',
+        paddingHorizontal: 20,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: '800',
+        color: '#1F2937',
+    },
+    modalCloseBtn: {
+        padding: 4,
+        backgroundColor: '#F3F4F6',
+        borderRadius: 20,
+    },
+    modalSearchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F3F4F6',
+        borderRadius: 12,
+        paddingHorizontal: 12,
+        marginBottom: 20,
+    },
+    searchIcon: {
+        marginRight: 8,
+    },
+    modalSearchInput: {
+        flex: 1,
+        paddingVertical: 12,
+        fontSize: 16,
+        color: '#1F2937',
+    },
+    quarterItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F3F4F6',
+    },
+    quarterInfo: {
+        flex: 1,
+    },
+    quarterName: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#1F2937',
+    },
+    townName: {
+        fontSize: 13,
+        color: '#6B7280',
+        marginTop: 2,
+    },
+    emptyResults: {
+        padding: 40,
+        alignItems: 'center',
+    },
+    emptyText: {
+        color: '#9CA3AF',
+        fontSize: 16,
+    },
+});
+
+export default CheckoutScreen;
