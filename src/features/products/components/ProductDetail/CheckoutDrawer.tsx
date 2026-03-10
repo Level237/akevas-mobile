@@ -94,20 +94,18 @@ const CheckoutDrawer = ({
             s: 0,
             productId: product.id,
             quantity: quantity,
+            mainImage: displayImage,
             price: Number(currentInfo.price) * quantity,
             name: product.product_name,
             residence: product.residence,
             // Si variationParams était une chaîne accolée avant, mets-la ici
-            variationParams: variationInfo
+            variationParams: JSON.stringify(variationInfo)
         };
 
 
         router.push({
             pathname: '/checkout',
-            params: {
-                ...params,
-                variationParams: JSON.stringify(variationInfo)
-            }
+            params
         });
     };
 

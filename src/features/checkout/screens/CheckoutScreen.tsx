@@ -67,6 +67,8 @@ const CheckoutScreen = ({ params }: Props) => {
     const residence = params.residence;
     const variationInfo = params.variationParams ? JSON.parse(params.variationParams) : null;
 
+
+    console.log(params)
     useEffect(() => {
         if (userData) {
             if (!firstName) setFirstName(userData.firstName || '');
@@ -181,16 +183,27 @@ const CheckoutScreen = ({ params }: Props) => {
                 {/* Résumé Produit Rapide */}
                 <View style={styles.productSummaryCard}>
                     <Image
-                        source={{ uri: variationInfo?.mainImage || params.image }} // Assumant image passée ou dans variation
+                        source={{ uri: params.mainImage }}
                         style={styles.summaryImage}
                     />
                     <View style={styles.summaryDetails}>
                         <Text style={styles.summaryName} numberOfLines={1}>{productName}</Text>
                         <Text style={styles.summaryPrice}>{unitPrice.toLocaleString()} FCFA x {quantity}</Text>
                         {variationInfo && (
-                            <Text style={styles.summaryVariant}>
-                                {variationInfo.colorName}{variationInfo.label ? `, ${variationInfo.label}` : ''}
-                            </Text>
+                            <View>
+
+                                <View style={styles.summaryVariant}>
+                                    <View
+                                        style={[
+                                            styles.colorDot,
+                                            { backgroundColor: variationInfo.colorHex },
+                                        ]}
+                                    />
+                                    <Text>
+                                        {variationInfo.colorName}{variationInfo.attribute ? ` - ${variationInfo.attribute}` : ''}
+                                    </Text>
+                                </View>
+                            </View>
                         )}
                     </View>
                 </View>
@@ -487,6 +500,9 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
     summaryVariant: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
         fontSize: 12,
         color: COLORS.primary,
         fontWeight: '500',
@@ -515,6 +531,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 10,
         elevation: 3,
+    },
+    colorDot: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
     },
     deliveryOptionsGrid: {
         flexDirection: 'row',
