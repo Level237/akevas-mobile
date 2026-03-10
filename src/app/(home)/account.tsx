@@ -8,6 +8,7 @@ import GuestProfileView from '../../features/account/components/GuestProfileView
 // Redux
 import { logout, selectCurrentUser, selectIsAuthenticated } from '@/features/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
+import { useLogoutMutation } from '@/services/authService';
 import { useRouter } from 'expo-router';
 
 export default function AccountScreen() {
@@ -16,10 +17,11 @@ export default function AccountScreen() {
     const router = useRouter();
     const isAuthenticated = useAppSelector(selectIsAuthenticated);
     const user = useAppSelector(selectCurrentUser);
-
-    const handleLogout = () => {
+    const [logoutUser] = useLogoutMutation();
+    const handleLogout = async () => {
         dispatch(logout());
-        // Optionnellement naviguer vers l'accueil ou rester ici pour voir la vue Guest
+        await logoutUser("Auth");
+        router.replace('/welcome');
     };
 
     const handleLogin = () => {

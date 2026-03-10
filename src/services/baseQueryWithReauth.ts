@@ -1,8 +1,7 @@
 import { BaseQueryFn, FetchArgs, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 import * as SecureStore from 'expo-secure-store';
-import { baseUrl } from './baseQuery'; // On réutilise la config de base
+import { baseUrl } from './baseQuery';
 
-// On crée un baseQuery custom qui gère le token
 const baseQueryWithAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
 
     // 1. Récupérer le token

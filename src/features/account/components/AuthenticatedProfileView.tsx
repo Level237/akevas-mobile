@@ -1,5 +1,6 @@
 import { User as UserType } from '@/features/auth/authSlice';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import {
     BarChart3,
     ChevronRight,
@@ -42,6 +43,7 @@ const QUICK_LINKS = [
         icon: Package,
         title: 'Commandes',
         subtitle: 'Suivi & colis',
+        link: '/orders',
         color: '#E67E22',
         bgColor: '#FFF7ED',
     },
@@ -89,8 +91,9 @@ const QUICK_LINKS = [
 
 const QuickLinkItem = React.memo(({ item }: { item: typeof QUICK_LINKS[0] }) => {
     const Icon = item.icon;
+    const router = useRouter()
     return (
-        <TouchableOpacity style={styles.quickLinkCard} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.quickLinkCard} onPress={() => router.push(item.link as any)} activeOpacity={0.7}>
             <View style={[styles.quickLinkIconContainer, { backgroundColor: item.bgColor }]}>
                 <Icon size={22} color={item.color} strokeWidth={2.5} />
             </View>

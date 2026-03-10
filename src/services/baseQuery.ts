@@ -1,6 +1,6 @@
 import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export const baseUrl = 'https://api.akevas.com';
+export const baseUrl = 'https://dev-api.akevas.com';
 
 export const baseQuery = fetchBaseQuery({
     baseUrl,

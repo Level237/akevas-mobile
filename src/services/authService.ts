@@ -14,6 +14,13 @@ export const authService = createApi({
             }),
             providesTags: ['Auth']
         }),
+        logout: builder.mutation({
+            query: () => ({
+                url: "/api/v1/logout",
+                method: "POST",
+            }),
+            invalidatesTags: ['Auth', 'User']
+        }),
         getUser: builder.query({
             query: () => ({
                 url: '/api/v1/user',
@@ -21,10 +28,16 @@ export const authService = createApi({
             }),
             providesTags: ['User']
         }),
+        getOrders: builder.query({
+            query: () => '/api/v1/list/orders',
+            providesTags: ['Auth'],
+        }),
     })
 })
 
 export const {
     useGetHistorySearchQuery,
+    useLogoutMutation,
+    useGetOrdersQuery,
     useGetUserQuery,
 } = authService
