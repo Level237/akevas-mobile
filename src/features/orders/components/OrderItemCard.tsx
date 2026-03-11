@@ -26,7 +26,7 @@ export const OrderItemCard = ({ order }: OrderItemCardProps) => {
     const priceFormatted = (order?.price || orderData?.total_amount || 0).toLocaleString();
 
     const handlePress = () => {
-        router.push(`/user/orders/${orderId}` as any); // Assuming this route exists
+        router.push(`/orders/${orderId}`);
     };
 
     return (

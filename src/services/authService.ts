@@ -32,6 +32,10 @@ export const authService = createApi({
             query: () => '/api/v1/list/orders',
             providesTags: ['Auth'],
         }),
+        getOrderDetail: builder.query({
+            query: (id) => `/api/v1/user/show/order/${id}`,
+            providesTags: ['Auth'],
+        }),
     })
 })
 
@@ -39,5 +43,6 @@ export const {
     useGetHistorySearchQuery,
     useLogoutMutation,
     useGetOrdersQuery,
+    useGetOrderDetailQuery,
     useGetUserQuery,
 } = authService

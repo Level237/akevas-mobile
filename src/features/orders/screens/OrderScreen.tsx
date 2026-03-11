@@ -73,7 +73,7 @@ const OrderScreen = () => {
 
     if (isLoading) {
         return (
-            <View style={[styles.safeArea, { paddingTop: insets.top }]}>
+            <View style={[styles.safeArea]}>
 
                 {renderHeader()}
                 <OrdersFilter

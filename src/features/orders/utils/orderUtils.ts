@@ -15,32 +15,44 @@ export const getOrderItems = (order: any) => {
             if (item && item.variation_attribute && item.variation_attribute.product_variation) {
                 const variation = item.variation_attribute.product_variation;
                 const attributeValue = item.variation_attribute.value;
+                const attributePrice = item.variation_attribute.price;
+
+                const price = variation.wholeSalePrice?.length !== 0
+                    ? parseFloat(variation.wholeSalePrice[0].wholesale_price)
+                    : parseFloat(attributePrice || 0);
 
                 allOrderItems.push({
                     id: item.id,
                     name: variation.product_name || 'Produit inconnu',
                     color: variation.color?.name || '',
+                    hex: variation.color?.hex || "",
                     size: attributeValue || '',
                     quantity: parseInt(item.variation_quantity) || 0,
-                    price: parseFloat(item.variation_price) || 0,
+                    price: price,
                     image: variation.images?.[0]?.path || '',
-                    total: (parseInt(item.variation_quantity) || 0) * (parseFloat(item.variation_price) || 0),
+                    total: (parseInt(item.variation_quantity) || 0) * price,
                     type: 'variation'
                 });
             }
             // Cas 2: variation_attribute est null mais product_variation existe directement
             else if (item && item.product_variation) {
                 const variation = item.product_variation;
+                const priceValue = variation.wholeSalePrice?.length !== 0
+                    ? variation.wholeSalePrice[0].wholesale_price
+                    : variation.price;
+
+                const price = parseFloat(priceValue || 0);
 
                 allOrderItems.push({
                     id: item.id,
                     name: variation.product_name || 'Produit inconnu',
                     color: variation.color?.name || '',
+                    hex: variation.color?.hex || "",
                     size: '',
                     quantity: parseInt(item.variation_quantity) || 0,
-                    price: parseFloat(item.variation_price) || 0,
+                    price: price,
                     image: variation.images?.[0]?.path || '',
-                    total: (parseInt(item.variation_quantity) || 0) * (parseFloat(item.variation_price) || 0),
+                    total: (parseInt(item.variation_quantity) || 0) * price,
                     type: 'variation'
                 });
             }
@@ -51,15 +63,16 @@ export const getOrderItems = (order: any) => {
     if (order.order_details && Array.isArray(order.order_details) && order.order_details.length > 0) {
         order.order_details.forEach((item: any) => {
             if (item && item.product) {
+                const price = parseFloat(item.product?.product_price || item.price || 0);
                 allOrderItems.push({
                     id: item.id,
                     name: item.product?.product_name || 'Produit inconnu',
                     color: '',
                     size: '',
                     quantity: parseInt(item.quantity) || 0,
-                    price: parseFloat(item.price) || 0,
+                    price: price,
                     image: item.product?.product_profile || '',
-                    total: (parseInt(item.quantity) || 0) * (parseFloat(item.price) || 0),
+                    total: (parseInt(item.quantity) || 0) * price,
                     type: 'simple'
                 });
             }
