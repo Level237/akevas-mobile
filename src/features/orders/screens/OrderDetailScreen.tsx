@@ -105,7 +105,7 @@ const OrderDetailScreen = ({ id }: { id: string }) => {
 
                         <TouchableOpacity
                             style={styles.receiptButton}
-                            onPress={() => {/* Navigation vers le reçu si applicable */ }}
+                            onPress={() => router.push(`/orders/ticket/${payment.transaction_ref}` as any)}
                         >
                             <Receipt size={20} color="#FFF" />
                             <Text style={styles.receiptButtonText}>Voir le Reçu</Text>

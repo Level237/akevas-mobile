@@ -36,6 +36,12 @@ export const authService = createApi({
             query: (id) => `/api/v1/user/show/order/${id}`,
             providesTags: ['Auth'],
         }),
+        showPaymentWithReference: builder.query({
+            query: (ref) => ({
+                url: `/api/v1/show/payment/${ref}`,
+                method: "GET"
+            })
+        }),
     })
 })
 
@@ -44,5 +50,6 @@ export const {
     useLogoutMutation,
     useGetOrdersQuery,
     useGetOrderDetailQuery,
+    useShowPaymentWithReferenceQuery,
     useGetUserQuery,
 } = authService
