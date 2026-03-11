@@ -14,7 +14,6 @@ import React, { useMemo } from 'react';
 import {
     ActivityIndicator,
     Image,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
@@ -60,7 +59,7 @@ const OrderDetailScreen = ({ id }: { id: string }) => {
 
     if (!currentOrder) {
         return (
-            <SafeAreaView style={styles.safeArea}>
+            <View style={styles.safeArea}>
                 <HeaderScreen title="Détail Commande" />
                 <View style={styles.errorContainer}>
                     <Package size={64} color="#9CA3AF" />
@@ -72,7 +71,7 @@ const OrderDetailScreen = ({ id }: { id: string }) => {
                         <Text style={styles.backButtonText}>Retour aux commandes</Text>
                     </TouchableOpacity>
                 </View>
-            </SafeAreaView>
+            </View>
         );
     }
 

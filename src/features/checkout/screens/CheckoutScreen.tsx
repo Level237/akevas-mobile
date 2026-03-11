@@ -67,8 +67,6 @@ const CheckoutScreen = ({ params }: Props) => {
     const residence = params.residence;
     const variationInfo = params.variationParams ? JSON.parse(params.variationParams) : null;
 
-
-    console.log(params)
     useEffect(() => {
         if (userData) {
             if (!firstName) setFirstName(userData.firstName || '');
