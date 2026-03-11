@@ -42,6 +42,29 @@ export const authService = createApi({
                 method: "GET"
             })
         }),
+        initPayin: builder.mutation({
+            query: (body) => ({
+                url: `/api/v1/payin`,
+                method: 'POST',
+                body: body
+            }),
+            invalidatesTags: ['Auth']
+        }),
+        verifyPayin: builder.mutation({
+            query: (formData) => ({
+                url: `/api/status/payin`,
+                method: 'POST',
+                body: formData
+            })
+        }),
+
+        controlPayment: builder.mutation({
+            query: (body) => ({
+                url: '/api/v1/control/payment',
+                method: 'POST',
+                body: body
+            })
+        }),
     })
 })
 
@@ -52,4 +75,7 @@ export const {
     useGetOrderDetailQuery,
     useShowPaymentWithReferenceQuery,
     useGetUserQuery,
+    useInitPayinMutation,
+    useVerifyPayinMutation,
+    useControlPaymentMutation,
 } = authService

@@ -137,13 +137,16 @@ const CheckoutScreen = ({ params }: Props) => {
 
         console.log('Finalizing order:', orderData);
 
-        // Redirection vers le flux de paiement (Simulation)
-        setTimeout(() => {
-            setIsProcessing(false);
-            Alert.alert('Succès', 'Votre commande a été initiée. Vous allez être redirigé vers le paiement.', [
-                { text: 'OK', onPress: () => router.push('/home') }
-            ]);
-        }, 1500);
+        console.log('Finalizing order:', orderData);
+
+        // Redirection vers le flux de paiement
+        router.push({
+            pathname: '/checkout/payment' as any,
+            params: {
+                orderData: JSON.stringify(orderData)
+            }
+        });
+        setIsProcessing(false);
     }, [deliveryOption, selectedQuarter, paymentPhone, firstName, productId, quantity, productName, subtotal, total, variationInfo, phone, addressDetails, shippingFee, selectedPayment]);
 
     const renderHeader = () => (
