@@ -193,13 +193,13 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
                 console.log(response)
                 if (!isUnmounted && response && response.data) {
                     if (response.data.status === 200) {
-                        console.log('good')
+
                         setPaymentStatus('success')
                         setIsControlPayment(false);
                         setIsGeneratingTicket(false);
                     } else if (response.data.status === 400) {
                         // On continue à contrôler
-                        console.log("nothing")
+
                         setIsControlPayment(true);
                         setIsGeneratingTicket(true);
                         setPaymentStatus('loading');
@@ -247,7 +247,7 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
         <View style={[styles.container, { backgroundColor: isOrange ? '#fff7ed' : '#fefce8' }]}>
             {/* Header */}
             <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-                <TouchableOpacity onPress={() => router.replace('/')} style={styles.closeBtn}>
+                <TouchableOpacity onPress={() => router.replace('/orders')} style={styles.closeBtn}>
                     <X size={24} color="#4b5563" />
                 </TouchableOpacity>
             </View>
@@ -328,7 +328,12 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
                                 {(paymentStatus === 'failed' || paymentStatus === 'low') && (
                                     <TouchableOpacity
                                         style={[styles.retryBtn, { backgroundColor: isOrange ? '#ff7900' : '#2563eb' }]}
-                                        onPress={() => setStep('start')}
+                                        onPress={() => {
+                                            setStep('start');
+                                            setPaymentStatus('initializing');
+                                            setMessage('');
+                                            setPaymentRef('');
+                                        }}
                                     >
                                         <Text style={styles.retryBtnText}>Réessayer</Text>
                                     </TouchableOpacity>
