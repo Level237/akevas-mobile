@@ -2,30 +2,27 @@ import { BaseQueryFn, FetchArgs, fetchBaseQuery, FetchBaseQueryError } from '@re
 import * as SecureStore from 'expo-secure-store';
 import { baseUrl } from './baseQuery';
 
+
+const rawBaseQuery = fetchBaseQuery({
+    baseUrl,
+    timeout: 45000,
+    prepareHeaders: async (headers) => {
+        let token = null;
+        try {
+            token = await SecureStore.getItemAsync('access_token');
+        } catch (e) {
+            console.log("Erreur lecture token");
+        }
+        if (token) {
+            headers.set('authorization', `Bearer ${token}`);
+        }
+        headers.set('Content-Type', 'application/json');
+        headers.set('Accept', 'application/json');
+        return headers;
+    },
+});
+
 const baseQueryWithAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
-
-    // 1. Récupérer le token
-    let token = null;
-    try {
-        token = await SecureStore.getItemAsync('access_token');
-    } catch (e) {
-        console.log("Erreur lecture token");
-    }
-
-    // 2. Préparer les headers avec le token
-    const rawBaseQuery = fetchBaseQuery({
-        baseUrl,
-        timeout: 10000,
-        prepareHeaders: (headers) => {
-            // Si on a un token, on l'ajoute
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            headers.set('Content-Type', 'application/json');
-            headers.set('Accept', 'application/json');
-            return headers;
-        },
-    });
 
     // 3. Exécuter la requête
     const result = await rawBaseQuery(args, api, extraOptions);

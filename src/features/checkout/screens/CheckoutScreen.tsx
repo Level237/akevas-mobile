@@ -117,7 +117,7 @@ const CheckoutScreen = ({ params }: Props) => {
 
         setIsProcessing(true);
 
-        // Simuler la préparation des données pour le paiement
+        // Simuler la préparation des données pour le paiement (matching web formDataObject)
         const orderData = {
             s: '0',
             productId,
@@ -126,13 +126,20 @@ const CheckoutScreen = ({ params }: Props) => {
             price: subtotal.toString(),
             amount: Math.round(total).toString(),
             hasVariation: variationInfo ? 'true' : 'false',
-            variations: variationInfo ? JSON.stringify(variationInfo) : null,
+            variations: variationInfo ? JSON.stringify({
+                productVariationId: variationInfo.productVariationId,
+                attributeVariationId: variationInfo.attributeVariationId,
+                colorName: variationInfo.colorName,
+                colorHex: variationInfo.colorHex,
+                attribute: variationInfo.attribute
+            }) : null,
             quarter: selectedQuarter,
             phone: phone,
             address: addressDetails,
             shipping: shippingFee.toString(),
             paymentMethod: selectedPayment,
             paymentPhone: paymentPhone,
+            isMultiCity: 'false', // Default for now
         };
 
         console.log('Finalizing order:', orderData);

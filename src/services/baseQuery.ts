@@ -4,7 +4,7 @@ export const baseUrl = 'https://dev-api.akevas.com';
 
 export const baseQuery = fetchBaseQuery({
     baseUrl,
-    timeout: 10000,
+    timeout: 45000,
     prepareHeaders: (headers) => {
         headers.set('Content-Type', 'application/json');
         headers.set('Accept', 'application/json');

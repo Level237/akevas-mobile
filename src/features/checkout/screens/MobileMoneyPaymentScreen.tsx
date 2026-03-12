@@ -39,8 +39,14 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
     const [verifyPayin] = useVerifyPayinMutation();
     const [controlPayment] = useControlPaymentMutation();
 
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const controlTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const delay = 1500;
+    let isActive = true;
+    let isActiveWebhook = false;
+
+    const timeoutRef = useRef<any>(null);
+    const controlTimeoutRef = useRef<any>(null);
+    const isPollingRef = useRef(false);
+    const isControlPollingRef = useRef(false);
     const rotateAnim = useRef(new Animated.Value(0)).current;
 
     const isOrange = orderData.paymentMethod === 'cm.orange';
@@ -68,21 +74,47 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
         setStep('processing');
         setPaymentStatus('initializing');
         try {
-            // Re-matching the expected payload from the model
-            const payload = {
-                ...orderData,
-                payinAmount: 10, // Model suggests amount is used
+            let variations = null;
+            if (orderData.variations) {
+                try {
+                    variations = typeof orderData.variations === 'string'
+                        ? JSON.parse(orderData.variations)
+                        : orderData.variations;
+                } catch (e) {
+                    console.error("Error parsing variations", e);
+                }
+            }
+
+            const formData: any = {
+                phone: orderData.phone,
+                payinAmount: "10",
+                paymentPhone: orderData.paymentPhone,
+                productId: orderData.productId,
+                s: orderData.s,
+                quantity: orderData.quantity,
+                methodChanel: orderData.paymentMethod,
+                amount: orderData.amount,
+                price: orderData.price,
+                quarter_delivery: orderData.quarter || null,
+                shipping: orderData.shipping,
+                address: orderData.address,
+                hasVariation: orderData.hasVariation,
+                isMultiCity: orderData.isMultiCity,
+                productVariationId: variations?.productVariationId || null,
+                attributeVariationId: variations?.attributeVariationId || null
             };
+            setStep('processing');
+            setPaymentStatus('initializing');
+            const response: any = await initPayment(formData).unwrap();
+            console.log("Init response:", response);
 
-            const response: any = await initPayment(payload).unwrap();
-
-            if (response.status === "success") {
+            if (response?.status && response.status === "success") {
                 setPaymentRef(response.reference);
                 setPaymentStatus('waiting');
                 setMessage(isOrange
                     ? "Confirmez votre transaction en composant #150*50#"
                     : "Confirmez votre transaction en composant *126#");
-            } else if (response.status === "low") {
+            } else if (response?.status && response.status === "low") {
                 setPaymentStatus('low');
                 setMessage("Votre solde est insuffisant.");
             } else {
@@ -90,7 +122,7 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
                 setMessage("L'initialisation a échoué. Veuillez réessayer.");
             }
         } catch (error) {
-            console.error('Init error:', error);
+            console.log(error)
             setPaymentStatus('failed');
             setMessage("Impossible d'initialiser le paiement.");
         }
@@ -101,21 +133,32 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
 
         try {
             const response: any = await verifyPayin({ transaction_ref: paymentRef }).unwrap();
-
-            if (response.data.status === 'SUCCESS') {
-                setPaymentStatus('loading');
+            console.log("Verify response:", response);
+            if (response.status === 'SUCCESS') {
+                isActive = false;
                 setIsGeneratingTicket(true);
+                setPaymentStatus('loading');
                 setTimeout(() => {
                     setIsControlPayment(true);
                 }, 1000);
-            } else if (response.data.status === 'CANCELED') {
+
+                clearTimeout(timeoutRef.current);
+            } else if (response.status === 'CANCELED') {
                 setPaymentStatus('failed');
-                setMessage("Paiement annulé.");
-            } else if (response.data.status === 'FAILED') {
+                isActive = false;
+                setMessage("Paiement annulé. Veuillez réessayer.");
+            } else if (response.status === 'FAILED') {
                 setPaymentStatus('failed');
-                setMessage("Paiement échoué.");
-            } else if (response.data.status === "PENDING") {
-                timeoutRef.current = setTimeout(pollStatus, 3000);
+                isActive = false;
+                setMessage("Paiement échoué Veuillez réessayer.");
+            } else if (response.status === "PENDING") {
+
+                if (!isActiveWebhook) {
+
+                    isActiveWebhook = true;
+                }
+
+                timeoutRef.current = setTimeout(pollStatus, delay);
             }
         } catch (error) {
             console.error('Verify error:', error);
@@ -125,37 +168,57 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
     };
 
     useEffect(() => {
-        if (paymentRef && paymentStatus === 'waiting') {
-            pollStatus();
-        }
-        return () => {
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        };
-    }, [paymentRef, paymentStatus]);
+        pollStatus();
+        // Continue polling if status is pending
 
-    const doControlPayment = async () => {
-        if (!isControlPayment) return;
+        return () => clearTimeout(timeoutRef.current); // nettoyage
+    }, [paymentRef]);
 
-        try {
-            const response: any = await controlPayment({ reference: paymentRef }).unwrap();
-            if (response.status === 200) {
-                setPaymentStatus('success');
-                setIsControlPayment(false);
-                setIsGeneratingTicket(false);
-            } else {
-                controlTimeoutRef.current = setTimeout(doControlPayment, 3000);
-            }
-        } catch (error) {
-            controlTimeoutRef.current = setTimeout(doControlPayment, 3000);
-        }
-    };
+
 
     useEffect(() => {
+        let controlTimeout: any;
+        let isUnmounted = false;
+        const doControlPayment = async () => {
+            // On reconstitue le formData comme pour le paiement
+            let controlFormData;
+
+            controlFormData = {
+                reference: paymentRef,
+            };
+
+
+            try {
+                const response = await controlPayment(controlFormData);
+                console.log(response)
+                if (!isUnmounted && response && response.data) {
+                    if (response.data.status === 200) {
+                        console.log('good')
+                        setPaymentStatus('success')
+                        setIsControlPayment(false);
+                        setIsGeneratingTicket(false);
+                    } else if (response.data.status === 400) {
+                        // On continue à contrôler
+                        console.log("nothing")
+                        setIsControlPayment(true);
+                        setIsGeneratingTicket(true);
+                        setPaymentStatus('loading');
+                        controlTimeout = setTimeout(doControlPayment, 3000);
+                    }
+                }
+            } catch (e) {
+                // En cas d'erreur, on continue à contrôler
+                if (!isUnmounted) {
+                    controlTimeout = setTimeout(doControlPayment, 3000);
+                }
+            }
+        };
         if (isControlPayment) {
             doControlPayment();
         }
         return () => {
-            if (controlTimeoutRef.current) clearTimeout(controlTimeoutRef.current);
+            isUnmounted = true;
+            if (controlTimeout) clearTimeout(controlTimeout);
         };
     }, [isControlPayment]);
 
@@ -169,7 +232,7 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
                     </Animated.View>
                 );
             case 'waiting':
-                return <Clock size={64} color={isOrange ? "#ff7900" : "#2563eb"} />;
+                return <Animated.View style={{ transform: [{ rotate: spin }] }}><Clock size={64} color={isOrange ? "#ff7900" : "#2563eb"} /></Animated.View>;
             case 'failed':
             case 'low':
                 return <AlertCircle size={64} color="#ef4444" />;
