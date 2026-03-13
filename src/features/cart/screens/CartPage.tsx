@@ -25,6 +25,7 @@ const CartPage = () => {
     const dispatch = useAppDispatch()
 
     const cartItems = useAppSelector(selectCartItems)
+
     const totalPrice = useAppSelector(selectCartTotalPrice);
     const isEmpty = cartItems.length === 0;
 
@@ -32,6 +33,7 @@ const CartPage = () => {
     const total = totalPrice + deliveryFee;
 
     const handleIncrease = (item: any) => {
+
         dispatch(updateQuantity({
             product: item.product,
             quantity: item.quantity + 1,
@@ -40,9 +42,11 @@ const CartPage = () => {
     };
 
     const handleDecrease = (item: any) => {
+        console.log("lelelelelelhdh")
+        console.log(item)
         if (item.quantity > 1) {
             dispatch(updateQuantity({
-                product: item.product,
+                product: item,
                 quantity: item.quantity - 1,
                 selectedVariation: item.selectedVariation
             }));
@@ -93,7 +97,7 @@ const CartPage = () => {
                             {cartItems.map(item => (
                                 <CartItem
                                     key={item.product.id}
-                                    item={item.product}
+                                    item={item}
                                     onIncrease={handleIncrease}
                                     onDecrease={handleDecrease}
                                     onRemove={handleRemoveItem}

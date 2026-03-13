@@ -46,7 +46,7 @@ const ExploreScreen = () => {
         colors: [],
         attribut: [],
     });
-    console.log(selectedCategoryUrl)
+
     const normalizedProducts = products?.map(normalizeProduct);
     //console.log(categoryData)
     const handleBack = () => router.back();

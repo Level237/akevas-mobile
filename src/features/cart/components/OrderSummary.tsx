@@ -15,14 +15,14 @@ const OrderSummary = ({ subtotal, deliveryFee, total, onCheckout }: Props) => {
 
             <View style={styles.row}>
                 <Text style={styles.label}>Sous-total</Text>
-                <Text style={styles.value}>{subtotal.toLocaleString()}.00 FCFA</Text>
+                <Text style={styles.value}>{subtotal}.00 FCFA</Text>
             </View>
 
             <View style={styles.divider} />
 
             <View style={[styles.row, styles.totalRow]}>
                 <Text style={styles.totalLabel}>Total</Text>
-                <Text style={styles.totalValue}>{total.toLocaleString()}.00 FCFA</Text>
+                <Text style={styles.totalValue}>{total}.00 FCFA</Text>
             </View>
 
             <TouchableOpacity

@@ -1,3 +1,4 @@
+import { normalizeProduct } from '@/lib/normalizeProduct';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React from 'react';
@@ -11,12 +12,16 @@ type Props = {
 };
 
 const CartItem = ({ item, onIncrease, onDecrease, onRemove }: Props) => {
+
+    const normalizedProduct = normalizeProduct(item.product);
+
+    console.log(item.quantity)
     return (
         <View style={styles.container}>
             {/* Product Image */}
             <View style={styles.imageContainer}>
                 <Image
-                    source={item.image}
+                    source={{ uri: normalizedProduct.product_profile }}
                     style={styles.image}
                     contentFit="cover"
                     transition={200}
@@ -27,10 +32,10 @@ const CartItem = ({ item, onIncrease, onDecrease, onRemove }: Props) => {
             <View style={styles.details}>
                 <View style={styles.headerRow}>
                     <Text style={styles.title} numberOfLines={2}>
-                        {item.title}
+                        {normalizedProduct.product_name}
                     </Text>
                     <TouchableOpacity
-                        onPress={() => onRemove(item.id)}
+                        onPress={() => onRemove(item.product.id)}
                         style={styles.removeButton}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
@@ -38,13 +43,13 @@ const CartItem = ({ item, onIncrease, onDecrease, onRemove }: Props) => {
                     </TouchableOpacity>
                 </View>
 
-                <Text style={styles.location}>Ville: {item.location}</Text>
+                <Text style={styles.location}>Ville: {item.product.residence}</Text>
 
                 <View style={styles.footerRow}>
                     {/* Quantity Selector */}
                     <View style={styles.quantitySelector}>
                         <TouchableOpacity
-                            onPress={() => onDecrease(item.id)}
+                            onPress={() => onDecrease(item)}
                             style={styles.quantityBtn}
                             activeOpacity={0.6}
                         >
@@ -54,7 +59,7 @@ const CartItem = ({ item, onIncrease, onDecrease, onRemove }: Props) => {
                         <Text style={styles.quantityText}>{item.quantity}</Text>
 
                         <TouchableOpacity
-                            onPress={() => onIncrease(item.id)}
+                            onPress={() => onIncrease(item)}
                             style={styles.quantityBtn}
                             activeOpacity={0.6}
                         >
@@ -62,7 +67,7 @@ const CartItem = ({ item, onIncrease, onDecrease, onRemove }: Props) => {
                         </TouchableOpacity>
                     </View>
 
-                    <Text style={styles.price}>{item.price.toLocaleString()} FCFA</Text>
+                    <Text style={styles.price}>{normalizedProduct.product_price} FCFA</Text>
                 </View>
             </View>
         </View>
@@ -154,5 +159,4 @@ const styles = StyleSheet.create({
         color: '#1A1A1A',
     },
 });
-
 export default CartItem;

@@ -32,6 +32,7 @@ const getItemPrice = (item: CartItem): number => {
             return parseFloat(item.selectedVariation.price);
         }
     }
+
     return parseFloat(item.product.product_price);
 };
 
@@ -47,6 +48,8 @@ const findCartItem = (cartItems: CartItem[], product: Product, selectedVariation
             return item.selectedVariation?.color.id === selectedVariation.color.id;
         }
         // Produit sans variation
+
+
         return item.product.id === product.id && !item.selectedVariation;
     });
 };
@@ -91,10 +94,6 @@ const cartSlice = createSlice({
             state.totalQuantity = totalQuantity;
             state.totalPrice = totalPrice;
 
-            // Sauvegarder dans localStorage
-            localStorage.setItem('totalQuantity', state.totalQuantity.toString());
-            localStorage.setItem('totalPrice', state.totalPrice.toFixed(2));
-            localStorage.setItem('cartItems', JSON.stringify(state.cartItems));
         },
 
         removeItem: (state, action) => {
@@ -112,9 +111,7 @@ const cartSlice = createSlice({
                 state.totalPrice = totalPrice;
 
                 // Sauvegarder dans localStorage
-                localStorage.setItem('totalQuantity', state.totalQuantity.toString());
-                localStorage.setItem('totalPrice', state.totalPrice.toFixed(2));
-                localStorage.setItem('cartItems', JSON.stringify(state.cartItems));
+
             }
         },
 
@@ -122,7 +119,8 @@ const cartSlice = createSlice({
             const { product, quantity, selectedVariation } = action.payload;
 
             const item = findCartItem(state.cartItems, product, selectedVariation);
-
+            console.log("item")
+            console.log(item)
             if (item) {
                 if (quantity <= 0) {
                     // Supprimer l'item si la quantité est 0 ou négative
@@ -137,17 +135,11 @@ const cartSlice = createSlice({
                 state.totalQuantity = totalQuantity;
                 state.totalPrice = totalPrice;
 
-                // Sauvegarder dans localStorage
-                localStorage.setItem('totalQuantity', state.totalQuantity.toString());
-                localStorage.setItem('totalPrice', state.totalPrice.toFixed(2));
-                localStorage.setItem('cartItems', JSON.stringify(state.cartItems));
+
             }
         },
 
         clearCart: (state) => {
-            localStorage.removeItem('cartItems');
-            localStorage.removeItem('totalQuantity');
-            localStorage.removeItem('totalPrice');
             state.cartItems = [];
             state.totalQuantity = 0;
             state.totalPrice = 0;

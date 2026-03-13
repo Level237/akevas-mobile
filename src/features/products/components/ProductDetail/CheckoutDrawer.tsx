@@ -40,6 +40,8 @@ type Props = {
     onQuantityChange: (qty: number) => void;
     minQuantity?: number;
     onProceed: () => void;
+    onAddToCart: (quantity: number) => void;
+    mode: 'buy' | 'cart';
 };
 
 const CheckoutDrawer = ({
@@ -51,6 +53,8 @@ const CheckoutDrawer = ({
     onQuantityChange,
     minQuantity = 1,
     onProceed,
+    onAddToCart,
+    mode,
 }: Props) => {
     const insets = useSafeAreaInsets();
 
@@ -75,38 +79,41 @@ const CheckoutDrawer = ({
         onClose();
     };
 
-    const handleGoToCheckout = () => {
-        // On crée l'objet de paramètres
+    const handleAction = () => {
+        if (mode === 'cart') {
+            onAddToCart(quantity);
+        } else {
+            // On crée l'objet de paramètres
+            const variationInfo = currentInfo.color ? {
+                colorId: currentInfo.color.id,
+                colorName: currentInfo.color.name,
+                attribute: currentInfo.attribute,
+                label: currentInfo.label,
+                attributeVariationId: currentInfo.attributeVariationId,
+                productVariationId: currentInfo.productVariationId,
+                price: totalPrice,
+                colorHex: currentInfo.color.hex,
+                variantName: currentInfo.variantName,
+                quantity: quantity
+            } : null;
+            const params = {
+                s: 0,
+                productId: product.id,
+                quantity: quantity,
+                mainImage: displayImage,
+                price: Number(currentInfo.price) * quantity,
+                name: product.product_name,
+                residence: product.residence,
+                // Si variationParams était une chaîne accolée avant, mets-la ici
+                variationParams: JSON.stringify(variationInfo)
+            };
 
-        const variationInfo = currentInfo.color ? {
-            colorId: currentInfo.color.id,
-            colorName: currentInfo.color.name,
-            attribute: currentInfo.attribute,
-            label: currentInfo.label,
-            attributeVariationId: currentInfo.attributeVariationId,
-            productVariationId: currentInfo.productVariationId,
-            price: totalPrice,
-            colorHex: currentInfo.color.hex,
-            variantName: currentInfo.variantName,
-            quantity: quantity
-        } : null;
-        const params = {
-            s: 0,
-            productId: product.id,
-            quantity: quantity,
-            mainImage: displayImage,
-            price: Number(currentInfo.price) * quantity,
-            name: product.product_name,
-            residence: product.residence,
-            // Si variationParams était une chaîne accolée avant, mets-la ici
-            variationParams: JSON.stringify(variationInfo)
-        };
-
-
-        router.push({
-            pathname: '/checkout',
-            params
-        });
+            router.push({
+                pathname: '/checkout',
+                params
+            });
+            onProceed();
+        }
     };
 
     return (
@@ -132,7 +139,9 @@ const CheckoutDrawer = ({
                     style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 20) }]}
                 >
                     <View style={styles.sheetHeader}>
-                        <Text style={styles.sheetTitle}>Finaliser l'achat</Text>
+                        <Text style={styles.sheetTitle}>
+                            {mode === 'cart' ? 'Ajouter au panier' : "Finaliser l'achat"}
+                        </Text>
                         <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
                             <Ionicons name="close" size={24} color="#6B7280" />
                         </TouchableOpacity>
@@ -212,10 +221,12 @@ const CheckoutDrawer = ({
 
                         <TouchableOpacity
                             style={styles.proceedButton}
-                            onPress={handleGoToCheckout}
+                            onPress={handleAction}
                             activeOpacity={0.8}
                         >
-                            <Text style={styles.proceedButtonText}>Procéder à l'achat</Text>
+                            <Text style={styles.proceedButtonText}>
+                                {mode === 'cart' ? 'Ajouter au panier' : "Procéder à l'achat"}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 </Animated.View>

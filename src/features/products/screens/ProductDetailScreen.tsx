@@ -1,5 +1,7 @@
 import { COLORS } from '@/constants/colors';
+import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
 import { useGetProductByUrlQuery } from '@/services/guardService';
+import { addItem, selectCartItems } from '@/store/CartSlice';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -12,6 +14,7 @@ import {
     View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import CheckoutDrawer from '../components/ProductDetail/CheckoutDrawer';
 import ImageGallery from '../components/ProductDetail/ImageGallery';
 import ProductActionButton from '../components/ProductDetail/ProductActionButton';
@@ -27,20 +30,29 @@ const ProductDetailScreen = ({ url }: Props) => {
     const insets = useSafeAreaInsets();
     const router = useRouter();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [drawerMode, setDrawerMode] = useState<'buy' | 'cart'>('buy');
     const { data: { data: product } = {}, isLoading, error } = useGetProductByUrlQuery(url);
     const [selectedVariant, setSelectedVariant] = useState<any>(null);
     const [quantity, setQuantity] = useState<number>(1);
     const [selectedImage, setSelectedImage] = useState<number>(0);
+    const dispatch = useAppDispatch();
+    const cartItems = useAppSelector(selectCartItems);
+
 
     const handleBuyNow = useCallback(() => {
+        setDrawerMode('buy');
+        setIsDrawerOpen(true);
+    }, []);
+
+    const handleAddToCartDrawer = useCallback(() => {
+        setDrawerMode('cart');
         setIsDrawerOpen(true);
     }, []);
 
     const handleProceedCheckout = useCallback(() => {
         setIsDrawerOpen(false);
-        // Add navigation logic to checkout page here
-        console.log('Proceed to checkout with quantity:', quantity);
-    }, [quantity]);
+        // Navigation already handled inside CheckoutDrawer for 'buy' mode
+    }, []);
 
     const [selectedAttribute, setSelectedAttribute] = useState<any>(null);
 
@@ -69,6 +81,16 @@ const ProductDetailScreen = ({ url }: Props) => {
 
     const allImages = getAllImages();
     const currentImage = allImages[selectedImage];
+    const getSelectedAttribute = useCallback(() => {
+        if (selectedVariant?.attributes && selectedVariant.attributes.length > 0) {
+            return (
+                selectedVariant.attributes.find((attr: any) => attr.value === selectedAttribute?.value) ||
+                selectedVariant.attributes[0]
+            );
+        }
+        return null;
+    }, [selectedVariant, selectedAttribute]);
+
     const getCurrentProductInfo = () => {
         if (product?.variations && product.variations.length > 0) {
             const currentVariant = selectedVariant || product.variations[0];
@@ -185,9 +207,35 @@ const ProductDetailScreen = ({ url }: Props) => {
         };
     };
 
-    const handleAddToCart = useCallback(() => {
-        console.log('Add to cart:', product?.product_name);
-    }, [product]);
+    const currentInfo = getCurrentProductInfo();
+
+    const handleAddToCart = useCallback((qty: number) => {
+        const variation = currentInfo.attributeVariationId || currentInfo.productVariationId ? {
+            id: currentInfo.productVariationId,
+            color: currentInfo.color,
+            price: currentInfo.price,
+            attributes: currentInfo.attributeVariationId ? {
+                id: currentInfo.attributeVariationId,
+                value: currentInfo.attribute,
+                quantity: currentInfo.quantity,
+                price: currentInfo.price
+            } : undefined
+        } : undefined;
+
+        dispatch(addItem({
+            product,
+            quantity: qty,
+            selectedVariation: variation
+        }));
+
+        setIsDrawerOpen(false);
+        Toast.show({
+            type: 'success',
+            text1: 'Ajouté au panier',
+            text2: `${qty} x ${product.product_name} ajouté avec succès.`,
+            position: 'top',
+        });
+    }, [product, currentInfo, dispatch]);
 
     const productImages = useMemo(() => {
         if (!product) return [];
@@ -252,16 +300,6 @@ const ProductDetailScreen = ({ url }: Props) => {
         }
     }, [product, selectedVariant, selectedAttribute, getMinWholesaleQty]);
 
-    const getSelectedAttribute = useCallback(() => {
-        if (selectedVariant?.attributes && selectedVariant.attributes.length > 0) {
-            return (
-                selectedVariant.attributes.find((attr: any) => attr.value === selectedAttribute?.value) ||
-                selectedVariant.attributes[0]
-            );
-        }
-        return null;
-    }, [selectedVariant, selectedAttribute]);
-
     const navigateImage = (direction: 'next' | 'prev') => {
         const allImages = getAllImages();
         if (direction === 'next') {
@@ -270,8 +308,6 @@ const ProductDetailScreen = ({ url }: Props) => {
             setSelectedImage((prev: number) => (prev === 0 ? allImages.length - 1 : prev - 1));
         }
     };
-
-    const currentInfo = getCurrentProductInfo();
 
     if (isLoading) {
         return (
@@ -347,7 +383,7 @@ const ProductDetailScreen = ({ url }: Props) => {
             <ProductActionButton
                 price={currentInfo.price}
                 onBuyNow={handleBuyNow}
-                onAddToCart={handleAddToCart}
+                onAddToCart={handleAddToCartDrawer}
                 isDisabled={isWholesaleBlocked()}
                 quantity={quantity}
                 onQuantityChange={setQuantity}
@@ -363,6 +399,8 @@ const ProductDetailScreen = ({ url }: Props) => {
                 onQuantityChange={setQuantity}
                 minQuantity={product.is_only_wholesale ? (getMinWholesaleQty() || 1) : 1}
                 onProceed={handleProceedCheckout}
+                onAddToCart={handleAddToCart}
+                mode={drawerMode}
             />
         </View>
     );
