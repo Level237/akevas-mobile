@@ -6,9 +6,9 @@ import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, R
 
 // Tes services API (RTK Query)
 
-import categorySlice from '@/features/navigation/store/categorySlice';
 import { authService } from '@/services/authService';
 import { guardService } from "@/services/guardService";
+import cartSlice from './CartSlice';
 
 
 // 1. On combine tous les reducers
@@ -16,7 +16,7 @@ const rootReducer = combineReducers({
 
     [guardService.reducerPath]: guardService.reducer,
     [authService.reducerPath]: authService.reducer,
-    [categorySlice.name]: categorySlice.reducer,
+    [cartSlice.name]: cartSlice.reducer,
     auth: authReducer
 });
 

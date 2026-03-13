@@ -1,87 +1,166 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// Structure d'un item dans le panier
-export interface CartItem {
-    id: number;          // ID du produit
-    shop_id: number;     // ID de la boutique (utile pour commander)
-    name: string;
-    price: number;
-    image: string;
+import { Product } from "@/types/product";
+import { createSlice } from "@reduxjs/toolkit";
+
+interface CartItem {
+    product: Product;
     quantity: number;
-    // Tu peux ajouter 'variant' (taille/couleur) ici si besoin
+    selectedVariation?: {
+        id: number;
+        color: {
+            id: number;
+            name: string;
+            hex: string;
+        };
+        price?: string;
+        attributes?: {
+            id: number;
+            value: string;
+            quantity: number;
+            price: string;
+        };
+    };
 }
 
-interface CartState {
-    items: CartItem[];
-}
-
-const initialState: CartState = {
-    items: [],
+// Fonctions utilitaires pour les calculs
+const getItemPrice = (item: CartItem): number => {
+    if (item.selectedVariation) {
+        if (item.selectedVariation.attributes?.price) {
+            return parseFloat(item.selectedVariation.attributes.price);
+        }
+        if (item.selectedVariation.price) {
+            return parseFloat(item.selectedVariation.price);
+        }
+    }
+    return parseFloat(item.product.product_price);
 };
 
-export const cartSlice = createSlice({
+const findCartItem = (cartItems: CartItem[], product: Product, selectedVariation?: any): CartItem | undefined => {
+    return cartItems.find(item => {
+        if (selectedVariation) {
+            // Si la variation a des attributs, comparer par couleur ET valeur d'attribut
+            if (selectedVariation.attributes && item.selectedVariation?.attributes) {
+                return item.selectedVariation.color.id === selectedVariation.color.id &&
+                    item.selectedVariation.attributes.value === selectedVariation.attributes.value;
+            }
+            // Sinon comparer seulement par couleur
+            return item.selectedVariation?.color.id === selectedVariation.color.id;
+        }
+        // Produit sans variation
+        return item.product.id === product.id && !item.selectedVariation;
+    });
+};
+
+const recalculateTotals = (cartItems: CartItem[]): { totalQuantity: number; totalPrice: number } => {
+    const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
+    const totalPrice = cartItems.reduce((total, item) => {
+        const price = getItemPrice(item);
+        return total + (price * item.quantity);
+    }, 0);
+
+    return { totalQuantity, totalPrice };
+};
+
+const cartSlice = createSlice({
     name: 'cart',
-    initialState,
+    initialState: {
+        cartItems: [],
+        totalQuantity: 0,
+        totalPrice: 0
+    },
     reducers: {
-        // Ajouter au panier
-        addToCart: (state, action: PayloadAction<Omit<CartItem, 'quantity'>>) => {
-            const existingItem = state.items.find((item) => item.id === action.payload.id);
+        addItem: (state, action) => {
+            const { product, quantity, selectedVariation } = action.payload;
+
+            const existingItem = findCartItem(state.cartItems, product, selectedVariation);
 
             if (existingItem) {
-                // Si le produit est déjà là, on augmente la quantité
-                existingItem.quantity += 1;
+                // Mettre à jour la quantité de l'item existant
+                existingItem.quantity += quantity;
             } else {
-                // Sinon on l'ajoute avec quantité 1
-                state.items.push({ ...action.payload, quantity: 1 });
+                // Ajouter un nouvel item
+                state.cartItems.push({
+                    product,
+                    quantity,
+                    selectedVariation: selectedVariation || undefined
+                });
+            }
+
+            // Recalculer les totaux pour éviter les erreurs
+            const { totalQuantity, totalPrice } = recalculateTotals(state.cartItems);
+            state.totalQuantity = totalQuantity;
+            state.totalPrice = totalPrice;
+
+            // Sauvegarder dans localStorage
+            localStorage.setItem('totalQuantity', state.totalQuantity.toString());
+            localStorage.setItem('totalPrice', state.totalPrice.toFixed(2));
+            localStorage.setItem('cartItems', JSON.stringify(state.cartItems));
+        },
+
+        removeItem: (state, action) => {
+            const { product, selectedVariation } = action.payload;
+
+            const itemToRemove = findCartItem(state.cartItems, product, selectedVariation);
+
+            if (itemToRemove) {
+                // Retirer l'item du panier
+                state.cartItems = state.cartItems.filter(cartItem => cartItem !== itemToRemove);
+
+                // Recalculer les totaux
+                const { totalQuantity, totalPrice } = recalculateTotals(state.cartItems);
+                state.totalQuantity = totalQuantity;
+                state.totalPrice = totalPrice;
+
+                // Sauvegarder dans localStorage
+                localStorage.setItem('totalQuantity', state.totalQuantity.toString());
+                localStorage.setItem('totalPrice', state.totalPrice.toFixed(2));
+                localStorage.setItem('cartItems', JSON.stringify(state.cartItems));
             }
         },
 
-        // Retirer du panier
-        removeFromCart: (state, action: PayloadAction<number>) => {
-            state.items = state.items.filter((item) => item.id !== action.payload);
-        },
+        updateQuantity: (state, action) => {
+            const { product, quantity, selectedVariation } = action.payload;
 
-        // Incrémenter quantité (+1)
-        incrementQuantity: (state, action: PayloadAction<number>) => {
-            const item = state.items.find((item) => item.id === action.payload);
-            if (item) {
-                item.quantity += 1;
-            }
-        },
+            const item = findCartItem(state.cartItems, product, selectedVariation);
 
-        // Décrémenter quantité (-1)
-        decrementQuantity: (state, action: PayloadAction<number>) => {
-            const item = state.items.find((item) => item.id === action.payload);
             if (item) {
-                if (item.quantity === 1) {
-                    // Si quantité 1, on retire l'item
-                    state.items = state.items.filter((i) => i.id !== action.payload);
+                if (quantity <= 0) {
+                    // Supprimer l'item si la quantité est 0 ou négative
+                    state.cartItems = state.cartItems.filter(cartItem => cartItem !== item);
                 } else {
-                    item.quantity -= 1;
+                    // Mettre à jour la quantité
+                    item.quantity = quantity;
                 }
+
+                // Recalculer les totaux
+                const { totalQuantity, totalPrice } = recalculateTotals(state.cartItems);
+                state.totalQuantity = totalQuantity;
+                state.totalPrice = totalPrice;
+
+                // Sauvegarder dans localStorage
+                localStorage.setItem('totalQuantity', state.totalQuantity.toString());
+                localStorage.setItem('totalPrice', state.totalPrice.toFixed(2));
+                localStorage.setItem('cartItems', JSON.stringify(state.cartItems));
             }
         },
 
-        // Vider le panier (après commande réussie)
         clearCart: (state) => {
-            state.items = [];
+            localStorage.removeItem('cartItems');
+            localStorage.removeItem('totalQuantity');
+            localStorage.removeItem('totalPrice');
+            state.cartItems = [];
+            state.totalQuantity = 0;
+            state.totalPrice = 0;
         },
-    },
+
+        // Nouvelle action pour synchroniser avec localStorage
+
+    }
 });
 
-export const { addToCart, removeFromCart, incrementQuantity, decrementQuantity, clearCart } = cartSlice.actions;
+export const { addItem, removeItem, clearCart, updateQuantity } = cartSlice.actions;
 
-// --- SELECTEURS (Calculs automatiques) ---
-
-// 1. Liste des items
-export const selectCartItems = (state: { cart: CartState }) => state.cart.items;
-
-// 2. Nombre total d'articles (pour le badge du header)
-export const selectCartTotalItems = (state: { cart: CartState }) =>
-    state.cart.items.reduce((total, item) => total + item.quantity, 0);
-
-// 3. Prix total du panier
-export const selectCartTotalPrice = (state: { cart: CartState }) =>
-    state.cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
-
-export default cartSlice.reducer;
+export const selectCartItems = (state: { cart: { cartItems: CartItem[] } }) => state.cart.cartItems;
+export const selectCartTotalQuantity = (state: { cart: { totalQuantity: number } }) => state.cart.totalQuantity;
+export const selectCartTotalPrice = (state: { cart: { totalPrice: number } }) => state.cart.totalPrice;
+export default cartSlice;

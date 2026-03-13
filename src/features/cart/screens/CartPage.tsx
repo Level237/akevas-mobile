@@ -1,7 +1,9 @@
 
 import HeaderTabs from '@/components/common/HeaderTabs';
-import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
+import { removeItem, selectCartItems, selectCartTotalPrice, updateQuantity } from '@/store/CartSlice';
+import React from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import CartItem from '../components/CartItem';
 import EmptyCart from '../components/EmptyCart';
 import OrderSummary from '../components/OrderSummary';
@@ -19,30 +21,54 @@ const MOCK_CART_ITEMS: CartItemType[] = [
 ];
 
 const CartPage = () => {
-    const [items, setItems] = useState<CartItemType[]>(MOCK_CART_ITEMS);
-    const isEmpty = items.length === 0;
 
-    const subtotal = useMemo(() =>
-        items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-        [items]);
+    const dispatch = useAppDispatch()
+
+    const cartItems = useAppSelector(selectCartItems)
+    const totalPrice = useAppSelector(selectCartTotalPrice);
+    const isEmpty = cartItems.length === 0;
 
     const deliveryFee = isEmpty ? 0 : 5000;
-    const total = subtotal + deliveryFee;
+    const total = totalPrice + deliveryFee;
 
-    const handleIncrease = (id: string) => {
-        setItems(curr => curr.map(item =>
-            item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-        ));
+    const handleIncrease = (item: any) => {
+        dispatch(updateQuantity({
+            product: item.product,
+            quantity: item.quantity + 1,
+            selectedVariation: item.selectedVariation
+        }));
     };
 
-    const handleDecrease = (id: string) => {
-        setItems(curr => curr.map(item =>
-            item.id === id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
-        ));
+    const handleDecrease = (item: any) => {
+        if (item.quantity > 1) {
+            dispatch(updateQuantity({
+                product: item.product,
+                quantity: item.quantity - 1,
+                selectedVariation: item.selectedVariation
+            }));
+        } else {
+            // Si quantité est 1, on demande confirmation pour supprimer
+            handleRemoveItem(item);
+        }
     };
 
-    const handleRemove = (id: string) => {
-        setItems(curr => curr.filter(item => item.id !== id));
+    const handleRemoveItem = (item: any) => {
+        Alert.alert(
+            "Supprimer l'article",
+            "Voulez-vous vraiment retirer cet article de votre panier ?",
+            [
+                { text: "Annuler", style: "cancel" },
+                {
+                    text: "Supprimer",
+                    style: "destructive",
+                    onPress: () => dispatch(removeItem({
+                        product: item.product,
+                        selectedVariation: item.selectedVariation
+                    }))
+                }
+            ]
+        );
+
     };
 
     const handleCheckout = () => {
@@ -64,13 +90,13 @@ const CartPage = () => {
                     >
                         {/* Cart Items List */}
                         <View style={styles.section}>
-                            {items.map(item => (
+                            {cartItems.map(item => (
                                 <CartItem
-                                    key={item.id}
-                                    item={item}
+                                    key={item.product.id}
+                                    item={item.product}
                                     onIncrease={handleIncrease}
                                     onDecrease={handleDecrease}
-                                    onRemove={handleRemove}
+                                    onRemove={handleRemoveItem}
                                 />
                             ))}
                         </View>
@@ -78,9 +104,9 @@ const CartPage = () => {
 
                     {/* Summary Footer */}
                     <OrderSummary
-                        subtotal={subtotal}
+                        subtotal={totalPrice}
                         deliveryFee={deliveryFee}
-                        total={total}
+                        total={totalPrice + deliveryFee}
                         onCheckout={handleCheckout}
                     />
                 </>
