@@ -12,6 +12,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
+
     const LoadingScreen = () => (
         <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={COLORS.primary} />
@@ -21,6 +22,7 @@ export default function RootLayout() {
         <Provider store={store}>
             <PersistGate loading={<LoadingScreen />} persistor={persistor}>
                 <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+
                     <Stack>
                         <Stack.Screen name="index" options={{ headerShown: false }} />
                         <Stack.Screen name="welcome" options={{ headerShown: false }} />
