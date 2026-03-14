@@ -2,6 +2,7 @@
 import HeaderTabs from '@/components/common/HeaderTabs';
 import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
 import { removeItem, selectCartItems, selectCartTotalPrice, updateQuantity } from '@/store/CartSlice';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import CartItem from '../components/CartItem';
@@ -14,6 +15,7 @@ const CartPage = () => {
 
     const dispatch = useAppDispatch()
 
+    const router = useRouter()
     const cartItems = useAppSelector(selectCartItems)
 
     const totalPrice = useAppSelector(selectCartTotalPrice);
@@ -67,6 +69,7 @@ const CartPage = () => {
 
     const handleCheckout = () => {
         console.log('Proceeding to checkout with total:', total);
+        router.push('/checkout');
     };
 
     return (

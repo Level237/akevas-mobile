@@ -1,5 +1,6 @@
 
 import { COLORS } from '@/constants/colors';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useGetUserQuery } from '@/services/authService';
 import { useGetQuartersQuery } from '@/services/guardService';
 import { Ionicons } from '@expo/vector-icons';
@@ -40,6 +41,7 @@ interface Props {
 
 const CheckoutScreen = ({ params }: Props) => {
     const insets = useSafeAreaInsets();
+    const isAuthenticated = useRequireAuth()
     const router = useRouter();
     const { data: userData } = useGetUserQuery(undefined);
     const { data: quartersData, isLoading: quartersLoading } = useGetQuartersQuery(undefined);
@@ -178,6 +180,7 @@ const CheckoutScreen = ({ params }: Props) => {
         </View>
     );
 
+    if (!isAuthenticated) return null;
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
