@@ -2,7 +2,7 @@ import { images } from '@/constants/images';
 import { useAppDispatch } from '@/hooks/hooks';
 import { useCheckIfPhoneExistsMutation, useLoginMutation } from '@/services/guardService';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { ArrowLeft } from 'lucide-react-native';
 import React, { useState } from 'react';
@@ -39,9 +39,16 @@ const LoginScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [checkIfPhoneExists] = useCheckIfPhoneExistsMutation();
 
+    const { redirect, productIds, s } = useLocalSearchParams();
+
     const [login, { isLoading: isLoadingLogin }] = useLoginMutation()
+
+
     const handleLogin = async (phone: string, pass: string) => {
         setIsLoading(true);
+        let destination = redirect || '/(home)';
+
+
 
         const userObject = { phone_number: phone, password: pass, role_id: 3 }
         const res = await login(userObject)
@@ -53,7 +60,17 @@ const LoginScreen = () => {
             await SecureStore.setItemAsync('access_token', res.data.data.access_token);
             dispatch(setCredentials({ user: res.data.data.user }));
 
-            router.replace("/(home)")
+            if (destination === "/checkout" && productIds) {
+                router.replace({
+                    pathname: '/checkout',
+                    params: {
+                        productIds: productIds,
+                        s: s
+                    }
+                })
+            } else {
+                router.replace("/(home)");
+            }
         }
 
 

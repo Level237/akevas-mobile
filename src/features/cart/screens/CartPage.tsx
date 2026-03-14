@@ -1,6 +1,7 @@
 
 import HeaderTabs from '@/components/common/HeaderTabs';
 import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
+import { useRedirectToLogin } from '@/hooks/useRedirectToLogin';
 import { removeItem, selectCartItems, selectCartTotalPrice, updateQuantity } from '@/store/CartSlice';
 import { useRouter } from 'expo-router';
 import React from 'react';
@@ -14,7 +15,7 @@ import OrderSummary from '../components/OrderSummary';
 const CartPage = () => {
 
     const dispatch = useAppDispatch()
-
+    const { redirectToLogin } = useRedirectToLogin();
     const router = useRouter()
     const cartItems = useAppSelector(selectCartItems)
 
@@ -68,7 +69,14 @@ const CartPage = () => {
     };
 
     const handleCheckout = () => {
-        console.log('Proceeding to checkout with total:', total);
+        if (cartItems.length === 0) return;
+
+        redirectToLogin({
+            redirectUrl: '/checkout',
+            // On mappe les IDs (adapté selon ta structure de donnée)
+            productIds: cartItems.map((item: any) => item.id),
+            s: "1"
+        });
         router.push('/checkout');
     };
 
