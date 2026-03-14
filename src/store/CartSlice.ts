@@ -67,7 +67,7 @@ const recalculateTotals = (cartItems: CartItem[]): { totalQuantity: number; tota
 const cartSlice = createSlice({
     name: 'cart',
     initialState: {
-        cartItems: [],
+        cartItems: [] as any[],
         totalQuantity: 0,
         totalPrice: 0
     },

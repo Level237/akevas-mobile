@@ -233,6 +233,8 @@ const ProductDetailScreen = ({ url }: Props) => {
             type: 'success',
             text1: 'Ajouté au panier',
             text2: `${qty} x ${product.product_name} ajouté avec succès.`,
+            visibilityTime: 2000,
+        autoHide: true,
             position: 'top',
         });
     }, [product, currentInfo, dispatch]);

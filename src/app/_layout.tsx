@@ -8,7 +8,9 @@ import { PersistGate } from 'redux-persist/integration/react';
 
 import { COLORS } from '@/constants/colors';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -34,6 +36,8 @@ export default function RootLayout() {
                         <Stack.Screen name="checkout" options={{ headerShown: false }} />
                         <Stack.Screen name="orders" options={{ headerShown: false }} />
                     </Stack>
+
+                    <Toast />
                     <StatusBar style="auto" />
                 </ThemeProvider>
             </PersistGate>

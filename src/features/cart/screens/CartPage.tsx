@@ -7,18 +7,8 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import CartItem from '../components/CartItem';
 import EmptyCart from '../components/EmptyCart';
 import OrderSummary from '../components/OrderSummary';
-import { CartItemType } from '../types';
 
-const MOCK_CART_ITEMS: CartItemType[] = [
-    {
-        id: '1',
-        title: 'Montre sorou versions orignal',
-        price: 55000,
-        image: require('@/assets/images/shop1.webp'),
-        location: 'Douala',
-        quantity: 1,
-    },
-];
+
 
 const CartPage = () => {
 
@@ -96,7 +86,7 @@ const CartPage = () => {
                         <View style={styles.section}>
                             {cartItems.map(item => (
                                 <CartItem
-                                    key={item.product.id}
+                                    key={item.product.id + item?.selectedVariation?.attributes?.id ? item?.selectedVariation?.attributes?.id : ''}
                                     item={item}
                                     onIncrease={handleIncrease}
                                     onDecrease={handleDecrease}

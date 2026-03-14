@@ -14,8 +14,14 @@ type Props = {
 const CartItem = ({ item, onIncrease, onDecrease, onRemove }: Props) => {
 
     const normalizedProduct = normalizeProduct(item.product);
+    const variation = item.selectedVariation;
 
-    console.log(item.quantity)
+    // Determine the correct unit price: priority to variation price
+    const unitPrice = variation?.price
+        ? parseFloat(variation.price)
+        : (variation?.attributes?.price
+            ? parseFloat(variation.attributes.price)
+            : parseFloat(normalizedProduct.product_price));
     return (
         <View style={styles.container}>
             {/* Product Image */}
@@ -39,9 +45,33 @@ const CartItem = ({ item, onIncrease, onDecrease, onRemove }: Props) => {
                         style={styles.removeButton}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
-                        <Ionicons name="close" size={20} color="#999" />
+                        <Ionicons name="close" size={20} color="#9CA3AF" />
                     </TouchableOpacity>
                 </View>
+
+                {/* Variations Display */}
+                {(variation?.color || variation?.attributes) && (
+                    <View style={styles.variationRow}>
+                        {variation?.color && (
+                            <View style={styles.variantBadge}>
+                                <View
+                                    style={[
+                                        styles.colorDot,
+                                        { backgroundColor: variation.color.hex || '#CCCCCC' }
+                                    ]}
+                                />
+                                <Text style={styles.variantText}>{variation.color.name}</Text>
+                            </View>
+                        )}
+                        {variation?.attributes && (
+                            <View style={styles.variantBadge}>
+                                <Text style={styles.variantText}>
+                                    {variation.attributes.value || variation.attributes.label}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+                )}
 
                 <Text style={styles.location}>Ville: {item.product.residence}</Text>
 
@@ -67,7 +97,7 @@ const CartItem = ({ item, onIncrease, onDecrease, onRemove }: Props) => {
                         </TouchableOpacity>
                     </View>
 
-                    <Text style={styles.price}>{normalizedProduct.product_price} FCFA</Text>
+                    <Text style={styles.price}>{unitPrice.toLocaleString()} FCFA</Text>
                 </View>
             </View>
         </View>
@@ -154,9 +184,37 @@ const styles = StyleSheet.create({
         minWidth: 16,
     },
     price: {
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: '800',
         color: '#1A1A1A',
+    },
+    variationRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        marginTop: 6,
+        marginBottom: 4,
+    },
+    variantBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F3F4F6',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+        gap: 6,
+    },
+    colorDot: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.1)',
+    },
+    variantText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#4B5563',
     },
 });
 export default CartItem;
