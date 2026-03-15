@@ -1,5 +1,6 @@
 
 import HeaderTabs from '@/components/common/HeaderTabs';
+import { selectIsAuthenticated } from '@/features/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
 import { useRedirectToLogin } from '@/hooks/useRedirectToLogin';
 import { removeItem, selectCartItems, selectCartTotalPrice, updateQuantity } from '@/store/CartSlice';
@@ -17,6 +18,7 @@ const CartPage = () => {
     const dispatch = useAppDispatch()
     const { redirectToLogin } = useRedirectToLogin();
     const router = useRouter()
+    const isAuthenticated = useAppSelector(selectIsAuthenticated);
     const cartItems = useAppSelector(selectCartItems)
 
     const totalPrice = useAppSelector(selectCartTotalPrice);
@@ -35,8 +37,7 @@ const CartPage = () => {
     };
 
     const handleDecrease = (item: any) => {
-        console.log("lelelelelelhdh")
-        console.log(item)
+
         if (item.quantity > 1) {
             dispatch(updateQuantity({
                 product: item,
@@ -71,13 +72,19 @@ const CartPage = () => {
     const handleCheckout = () => {
         if (cartItems.length === 0) return;
 
-        redirectToLogin({
-            redirectUrl: '/checkout',
-            // On mappe les IDs (adapté selon ta structure de donnée)
-            productIds: cartItems.map((item: any) => item.id),
-            s: "1"
-        });
-        router.push('/checkout');
+        if (!isAuthenticated) {
+            redirectToLogin({
+                redirectUrl: '/checkout',
+                s: "1"
+            });
+        } else {
+            router.push({
+                pathname: '/checkout',
+                params: {
+                    s: "1"
+                }
+            });
+        }
     };
 
     return (

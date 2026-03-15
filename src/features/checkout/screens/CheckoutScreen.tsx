@@ -1,8 +1,10 @@
 
 import { COLORS } from '@/constants/colors';
+import { useAppSelector } from '@/hooks/hooks';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useGetUserQuery } from '@/services/authService';
 import { useGetQuartersQuery } from '@/services/guardService';
+import { selectCartItems, selectCartTotalPrice } from '@/store/CartSlice';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { CheckCircle2, CreditCard, MapPin, Truck, User } from 'lucide-react-native';
@@ -45,7 +47,7 @@ const CheckoutScreen = ({ params }: Props) => {
     const router = useRouter();
     const { data: userData } = useGetUserQuery(undefined);
     const { data: quartersData, isLoading: quartersLoading } = useGetQuartersQuery(undefined);
-
+    const [selectedCity, setSelectedCity] = useState<string>('');
     const [deliveryOption, setDeliveryOption] = useState<DeliveryOption>('pickup');
     const [selectedQuarter, setSelectedQuarter] = useState<string>('');
     const [addressDetails, setAddressDetails] = useState('');
@@ -58,16 +60,38 @@ const CheckoutScreen = ({ params }: Props) => {
 
     // Modal Quartier
     const [isQuarterModalVisible, setIsQuarterModalVisible] = useState(false);
+    const [isCityModalVisible, setIsCityModalVisible] = useState(false);
     const [quarterSearch, setQuarterSearch] = useState('');
 
     // Extraction des paramètres
     const s = params.s;
+
     const productId = params.productId;
     const quantity = parseInt(params.quantity || '1');
     const unitPrice = params.price ? parseInt(params.price) / quantity : 0;
     const productName = params.name;
     const residence = params.residence;
     const variationInfo = params.variationParams ? JSON.parse(params.variationParams) : null;
+
+    const cartItems = useAppSelector(selectCartItems);
+    const cartTotalPrice = useAppSelector(selectCartTotalPrice);
+
+    const uniqueCities = useMemo(() => Array.from(
+        new Set(cartItems.map((item: any) => item.product.residence))
+    ), [cartItems]);
+
+    const isMultiCity = s === "1" && uniqueCities.length > 1;
+
+    const productLocation = useMemo(() =>
+        s === "1"
+            ? (uniqueCities.length === 1
+                ? uniqueCities[0]
+                : (selectedCity || '') // si plusieurs villes, on prend celle choisie
+            )
+            : residence
+        , [s, uniqueCities, selectedCity, residence]);
+
+    const otherLocation = productLocation === "Yaoundé" ? "Douala" : "Yaoundé";
 
     useEffect(() => {
         if (userData) {
@@ -80,28 +104,34 @@ const CheckoutScreen = ({ params }: Props) => {
         }
     }, [userData]);
 
-    const subtotal = unitPrice * quantity;
-    const shippingFee = DELIVERY_FEES[deliveryOption];
+    const subtotal = s === '1' ? cartTotalPrice : (unitPrice * quantity);
+    const shippingFee = useMemo(() => {
+        if (isMultiCity && deliveryOption === 'pickup') {
+            return 1500;
+        }
+        return DELIVERY_FEES[deliveryOption];
+    }, [isMultiCity, deliveryOption]);
     const serviceFee = subtotal * TAX_RATE;
     const total = subtotal + shippingFee + serviceFee;
 
     const filteredQuarters = useMemo(() => {
         if (!quartersData?.data) return [];
-        const productLocation = residence;
-        const otherLocation = productLocation === "Yaoundé" ? "Douala" : "Yaoundé";
 
         const baseQuarters = quartersData.data.filter((q: any) => {
             if (deliveryOption === 'remoteDelivery') {
+                // Multi-ville : quartiers de la ville choisie ou l'autre ville
+                if (isMultiCity) return q.town_name === selectedCity;
                 return q.town_name === otherLocation;
             }
-            return q.town_name === productLocation;
+            // localDelivery : quartiers de la ville de résidence ou choisie
+            return q.town_name === (isMultiCity ? (selectedCity || uniqueCities[0]) : productLocation);
         });
 
         if (!quarterSearch) return baseQuarters;
         return baseQuarters.filter((q: any) =>
             q.quarter_name.toLowerCase().includes(quarterSearch.toLowerCase())
         );
-    }, [quartersData, deliveryOption, residence, quarterSearch]);
+    }, [quartersData, deliveryOption, residence, isMultiCity, selectedCity, otherLocation, productLocation, uniqueCities, quarterSearch]);
 
     const handlePayment = useCallback(() => {
         if ((deliveryOption === 'localDelivery' || deliveryOption === 'remoteDelivery') && !selectedQuarter) {
@@ -119,29 +149,46 @@ const CheckoutScreen = ({ params }: Props) => {
 
         setIsProcessing(true);
 
-        // Simuler la préparation des données pour le paiement (matching web formDataObject)
+        // Logic from CheckoutPage.tsx for productsPayments
+        let productsPayments = [] as any;
+        if (s === '1') {
+            productsPayments = cartItems.map((item: any) => ({
+                product_id: item.product.id,
+                attributeVariationId: item.selectedVariation?.attributes?.id ?? null,
+                productVariationId: item.selectedVariation?.id ?? null,
+                quantity: item.quantity,
+                hasVariation: !!item.selectedVariation,
+                price: item.selectedVariation?.attributes?.price
+                    ? item.selectedVariation.attributes.price
+                    : (item.selectedVariation?.price || item.product.product_price),
+                name: item.product.product_name,
+            }));
+        }
+
         const orderData = {
-            s: '0',
+            s: s || '0',
             productId,
-            quantity: quantity.toString(),
-            name: productName,
+            quantity: s === '1' ? cartItems.reduce((sum, item) => sum + item.quantity, 0).toString() : quantity.toString(),
+            name: s === '1' ? 'Cart Checkout' : productName,
             price: subtotal.toString(),
             amount: Math.round(total).toString(),
-            hasVariation: variationInfo ? 'true' : 'false',
-            variations: variationInfo ? JSON.stringify({
+            hasVariation: s === '1' ? 'true' : (variationInfo ? 'true' : 'false'),
+            variations: s === '0' && variationInfo ? JSON.stringify({
                 productVariationId: variationInfo.productVariationId,
                 attributeVariationId: variationInfo.attributeVariationId,
                 colorName: variationInfo.colorName,
                 colorHex: variationInfo.colorHex,
                 attribute: variationInfo.attribute
             }) : null,
+            productsPayments: s === '1' ? JSON.stringify(productsPayments) : null,
             quarter: selectedQuarter,
             phone: phone,
             address: addressDetails,
             shipping: shippingFee.toString(),
             paymentMethod: selectedPayment,
             paymentPhone: paymentPhone,
-            isMultiCity: 'false', // Default for now
+            isMultiCity: isMultiCity ? 'true' : 'false',
+            delivery_info: isMultiCity ? (shippingFee === 1500 ? `Récupérer en magasin de ${selectedCity}` : `Expédition et livraison à domicile dans la ville de ${selectedCity}`) : null
         };
 
         console.log('Finalizing order:', orderData);
@@ -191,54 +238,122 @@ const CheckoutScreen = ({ params }: Props) => {
                 contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Résumé Produit Rapide */}
-                <View style={styles.productSummaryCard}>
-                    <Image
-                        source={{ uri: params.mainImage }}
-                        style={styles.summaryImage}
-                    />
-                    <View style={styles.summaryDetails}>
-                        <Text style={styles.summaryName} numberOfLines={1}>{productName}</Text>
-                        <Text style={styles.summaryPrice}>{unitPrice.toLocaleString()} FCFA x {quantity}</Text>
-                        {variationInfo && (
-                            <View>
+                {/* Multi-City Warning */}
+                {isMultiCity && (
+                    <View style={styles.warningCard}>
+                        <View style={styles.warningHeader}>
+                            <Ionicons name="warning" size={20} color="#EF4444" />
+                            <Text style={styles.warningTitle}>Produits dans différentes villes</Text>
+                        </View>
+                        <Text style={styles.warningText}>Les produits de votre panier ne sont pas tous situés dans la même ville.</Text>
+                        <TouchableOpacity
+                            style={styles.viewByCityBtn}
+                            onPress={() => setIsCityModalVisible(true)}
+                        >
+                            <Text style={styles.viewByCityBtnText}>Voir les produits par ville</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
 
-                                <View style={styles.summaryVariant}>
-                                    <View
-                                        style={[
-                                            styles.colorDot,
-                                            { backgroundColor: variationInfo.colorHex },
-                                        ]}
+                {/* City Selector if Multi-City */}
+                {isMultiCity && (
+                    renderSection('Ville de livraison', <MapPin size={20} color={COLORS.primary} />, (
+                        <View style={styles.form}>
+                            <Text style={styles.inputLabel}>Choisissez la ville de livraison :</Text>
+                            <TouchableOpacity
+                                style={styles.selectInput}
+                                onPress={() => setIsCityModalVisible(true)}
+                            >
+                                <Text style={selectedCity ? styles.inputText : styles.placeholderText}>
+                                    {selectedCity || 'Choisir une ville'}
+                                </Text>
+                                <Ionicons name="chevron-down" size={20} color="#9CA3AF" />
+                            </TouchableOpacity>
+                        </View>
+                    ))
+                )}
+
+                {/* Résumé des Produits */}
+                {renderSection('Résumé de la commande', <Ionicons name="basket" size={20} color={COLORS.primary} />, (
+                    <View style={styles.productList}>
+                        {s === '1' ? (
+                            cartItems.map((item: any, index) => (
+                                <View key={`${item.product.id}-${index}`} style={styles.productListItem}>
+                                    <Image
+                                        source={{ uri: item.product.product_profile }}
+                                        style={styles.smallProductImage}
                                     />
-                                    <Text>
-                                        {variationInfo.colorName}{variationInfo.attribute ? ` - ${variationInfo.attribute}` : ''}
-                                    </Text>
+                                    <View style={styles.productItemDetails}>
+                                        <Text style={styles.productItemName} numberOfLines={1}>{item.product.product_name}</Text>
+                                        <Text style={styles.productItemPrice}>
+                                            {(item.selectedVariation?.price || item.product.product_price).toLocaleString()} FCFA x {item.quantity}
+                                        </Text>
+                                        {item.selectedVariation && (
+                                            <View style={styles.row}>
+                                                <View
+                                                    style={[
+                                                        styles.colorDot,
+                                                        { backgroundColor: item.selectedVariation.color?.hex || '#CCC' },
+                                                        { marginRight: 4 }
+                                                    ]}
+                                                />
+                                                <Text style={styles.variantText}>
+                                                    {item.selectedVariation.color?.name}{item.selectedVariation.attributes?.value ? ` - ${item.selectedVariation.attributes.value}` : ''}
+                                                </Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                </View>
+                            ))
+                        ) : (
+                            <View style={styles.productListItem}>
+                                <Image
+                                    source={{ uri: params.mainImage }}
+                                    style={styles.smallProductImage}
+                                />
+                                <View style={styles.productItemDetails}>
+                                    <Text style={styles.productItemName} numberOfLines={1}>{productName}</Text>
+                                    <Text style={styles.productItemPrice}>{unitPrice.toLocaleString()} FCFA x {quantity}</Text>
+                                    {variationInfo && (
+                                        <View style={styles.row}>
+                                            <View
+                                                style={[
+                                                    styles.colorDot,
+                                                    { backgroundColor: variationInfo.colorHex || '#CCC' },
+                                                    { marginRight: 4 }
+                                                ]}
+                                            />
+                                            <Text style={styles.variantText}>
+                                                {variationInfo.colorName}{variationInfo.attribute ? ` - ${variationInfo.attribute}` : ''}
+                                            </Text>
+                                        </View>
+                                    )}
                                 </View>
                             </View>
                         )}
                     </View>
-                </View>
+                ))}
 
-                {/* Options de Livraison */}
-                {renderSection('Options de livraison', <Truck size={20} color={COLORS.primary} />, (
+                {/* Options de Livraison (Updated with logic) */}
+                {(!isMultiCity || (isMultiCity && selectedCity)) && renderSection('Options de livraison', <Truck size={20} color={COLORS.primary} />, (
                     <View style={styles.deliveryOptionsGrid}>
-                        {(['pickup', 'localDelivery', 'remotePickup', 'remoteDelivery'] as DeliveryOption[]).map((option) => (
+                        {(!isMultiCity ? ['pickup', 'localDelivery', 'remotePickup', 'remoteDelivery'] : ['pickup', 'remoteDelivery'] as DeliveryOption[]).map((option) => (
                             <TouchableOpacity
                                 key={option}
                                 style={[
                                     styles.deliveryOptionItem,
                                     deliveryOption === option && styles.activeOption
                                 ]}
-                                onPress={() => setDeliveryOption(option)}
+                                onPress={() => setDeliveryOption(option as DeliveryOption)}
                             >
                                 <Text style={[styles.optionLabel, deliveryOption === option && styles.activeOptionLabel]}>
-                                    {option === 'pickup' && `Magasin (${residence})`}
+                                    {option === 'pickup' && (isMultiCity ? `Magasin de ${selectedCity}` : `Magasin de ${residence}`)}
                                     {option === 'localDelivery' && 'Livraison Locale'}
                                     {option === 'remotePickup' && `Expédition Magasin`}
-                                    {option === 'remoteDelivery' && 'Expédition Domicile'}
+                                    {option === 'remoteDelivery' && (isMultiCity ? `Expédition ${selectedCity}` : `Expédition Domicile`)}
                                 </Text>
                                 <Text style={styles.optionFee}>
-                                    {DELIVERY_FEES[option] === 0 ? 'Gratuit' : `+${DELIVERY_FEES[option]} FCFA`}
+                                    {option === 'pickup' && isMultiCity ? '+1,500 FCFA' : (DELIVERY_FEES[option as DeliveryOption] === 0 ? 'Gratuit' : `+${DELIVERY_FEES[option as DeliveryOption].toLocaleString()} FCFA`)}
                                 </Text>
                                 {deliveryOption === option && (
                                     <View style={styles.checkBadge}>
@@ -385,6 +500,56 @@ const CheckoutScreen = ({ params }: Props) => {
                 </TouchableOpacity>
             </View>
 
+            {/* Modal de Sélection de Ville (Multi-city) */}
+            <Modal
+                visible={isCityModalVisible}
+                animationType="fade"
+                transparent={true}
+                onRequestClose={() => setIsCityModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.cityModalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Produits par ville</Text>
+                            <TouchableOpacity onPress={() => setIsCityModalVisible(false)} style={styles.modalCloseBtn}>
+                                <Ionicons name="close" size={24} color="#1F2937" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <ScrollView style={styles.cityList}>
+                            {uniqueCities.map(city => {
+                                const cityProducts = cartItems.filter((item: any) => item.product.residence === city);
+                                return (
+                                    <View key={city} style={styles.citySection}>
+                                        <TouchableOpacity
+                                            style={[styles.cityHeader, selectedCity === city && styles.activeCityHeader]}
+                                            onPress={() => {
+                                                setSelectedCity(city);
+                                                setIsCityModalVisible(false);
+                                            }}
+                                        >
+                                            <Text style={styles.cityName}>{city}</Text>
+                                            {selectedCity === city && <Ionicons name="checkmark-circle" size={20} color={COLORS.primary} />}
+                                        </TouchableOpacity>
+                                        <View style={styles.cityProducts}>
+                                            {cityProducts.map((item: any, idx: number) => (
+                                                <View key={idx} style={styles.cityProductItem}>
+                                                    <Image source={{ uri: item.product.product_profile }} style={styles.tinyImage} />
+                                                    <View>
+                                                        <Text style={styles.tinyName}>{item.product.product_name}</Text>
+                                                        <Text style={styles.tinyQty}>Qté: {item.quantity}</Text>
+                                                    </View>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    </View>
+                                );
+                            })}
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
+
             {/* Modal de Sélection de Quartier */}
             <Modal
                 visible={isQuarterModalVisible}
@@ -446,7 +611,7 @@ const CheckoutScreen = ({ params }: Props) => {
                     </View>
                 </View>
             </Modal>
-        </KeyboardAvoidingView>
+        </KeyboardAvoidingView >
     );
 };
 
@@ -806,6 +971,129 @@ const styles = StyleSheet.create({
     emptyText: {
         color: '#9CA3AF',
         fontSize: 16,
+    },
+    // Style refinements for multi-city
+    warningCard: {
+        backgroundColor: '#FEF2F2',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: '#FEE2E2',
+    },
+    warningHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 8,
+    },
+    warningTitle: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#991B1B',
+    },
+    warningText: {
+        fontSize: 13,
+        color: '#B91C1C',
+        lineHeight: 18,
+        marginBottom: 12,
+    },
+    viewByCityBtn: {
+        backgroundColor: '#EF4444',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 10,
+        alignSelf: 'flex-start',
+    },
+    viewByCityBtnText: {
+        color: '#FFF',
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    productList: {
+        gap: 12,
+    },
+    productListItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F3F4F6',
+    },
+    smallProductImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 10,
+        backgroundColor: '#F3F4F6',
+    },
+    productItemDetails: {
+        flex: 1,
+        marginLeft: 12,
+    },
+    productItemName: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#1F2937',
+    },
+    productItemPrice: {
+        fontSize: 13,
+        color: '#6B7280',
+    },
+    cityModalContent: {
+        backgroundColor: '#FFF',
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        height: '60%',
+        padding: 24,
+    },
+    cityList: {
+        marginTop: 10,
+    },
+    citySection: {
+        marginBottom: 20,
+    },
+    cityHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        backgroundColor: '#F9FAFB',
+        borderRadius: 12,
+        marginBottom: 8,
+    },
+    activeCityHeader: {
+        backgroundColor: '#EEF2FF',
+        borderColor: COLORS.primary,
+        borderWidth: 1,
+    },
+    cityName: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#374151',
+    },
+    cityProducts: {
+        paddingLeft: 12,
+        gap: 8,
+    },
+    cityProductItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    tinyImage: {
+        width: 32,
+        height: 32,
+        borderRadius: 6,
+    },
+    tinyName: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: '#4B5563',
+    },
+    tinyQty: {
+        fontSize: 11,
+        color: '#9CA3AF',
     },
 });
 

@@ -39,7 +39,7 @@ const LoginScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [checkIfPhoneExists] = useCheckIfPhoneExistsMutation();
 
-    const { redirect, productIds, s } = useLocalSearchParams();
+    const { redirect, s } = useLocalSearchParams();
 
     const [login, { isLoading: isLoadingLogin }] = useLoginMutation()
 
@@ -60,11 +60,10 @@ const LoginScreen = () => {
             await SecureStore.setItemAsync('access_token', res.data.data.access_token);
             dispatch(setCredentials({ user: res.data.data.user }));
 
-            if (destination === "/checkout" && productIds) {
+            if (destination === "/checkout") {
                 router.replace({
                     pathname: '/checkout',
                     params: {
-                        productIds: productIds,
                         s: s
                     }
                 })
