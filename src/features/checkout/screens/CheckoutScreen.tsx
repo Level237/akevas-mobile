@@ -2,6 +2,7 @@
 import { COLORS } from '@/constants/colors';
 import { useAppSelector } from '@/hooks/hooks';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { normalizeProduct } from '@/lib/normalizeProduct';
 import { useGetUserQuery } from '@/services/authService';
 import { useGetQuartersQuery } from '@/services/guardService';
 import { selectCartItems, selectCartTotalPrice } from '@/store/CartSlice';
@@ -277,34 +278,43 @@ const CheckoutScreen = ({ params }: Props) => {
                 {renderSection('Résumé de la commande', <Ionicons name="basket" size={20} color={COLORS.primary} />, (
                     <View style={styles.productList}>
                         {s === '1' ? (
-                            cartItems.map((item: any, index) => (
-                                <View key={`${item.product.id}-${index}`} style={styles.productListItem}>
-                                    <Image
-                                        source={{ uri: item.product.product_profile }}
-                                        style={styles.smallProductImage}
-                                    />
-                                    <View style={styles.productItemDetails}>
-                                        <Text style={styles.productItemName} numberOfLines={1}>{item.product.product_name}</Text>
-                                        <Text style={styles.productItemPrice}>
-                                            {(item.selectedVariation?.price || item.product.product_price).toLocaleString()} FCFA x {item.quantity}
-                                        </Text>
-                                        {item.selectedVariation && (
-                                            <View style={styles.row}>
-                                                <View
-                                                    style={[
-                                                        styles.colorDot,
-                                                        { backgroundColor: item.selectedVariation.color?.hex || '#CCC' },
-                                                        { marginRight: 4 }
-                                                    ]}
-                                                />
-                                                <Text style={styles.variantText}>
-                                                    {item.selectedVariation.color?.name}{item.selectedVariation.attributes?.value ? ` - ${item.selectedVariation.attributes.value}` : ''}
-                                                </Text>
-                                            </View>
-                                        )}
+                            cartItems.map((item: any, index) => {
+
+                                const normalizedProduct = normalizeProduct(item.product);
+                                return (
+
+
+                                    <View key={`${item.product.id}-${index}`} style={styles.productListItem}>
+                                        <Image
+                                            source={{ uri: normalizedProduct.product_profile }}
+                                            style={styles.smallProductImage}
+                                        />
+                                        <View style={styles.productItemDetails}>
+                                            <Text style={styles.productItemName} numberOfLines={1}>{normalizedProduct.product_name}</Text>
+                                            <Text style={styles.productItemPrice}>
+                                                {(item.selectedVariation?.price || item.product.product_price).toLocaleString()} FCFA x {item.quantity}
+                                            </Text>
+                                            {item.selectedVariation && (
+                                                <View style={styles.row}>
+                                                    <View
+                                                        style={[
+                                                            styles.colorDot,
+                                                            { backgroundColor: item.selectedVariation.color?.hex || '#CCC' },
+                                                            { marginRight: 4 }
+                                                        ]}
+                                                    />
+                                                    <Text style={styles.variantText}>
+                                                        {item.selectedVariation.color?.name}{item.selectedVariation.attributes?.value ? ` - ${item.selectedVariation.attributes.value}` : ''}
+                                                    </Text>
+                                                </View>
+                                            )}
+                                        </View>
                                     </View>
-                                </View>
-                            ))
+                                )
+
+                            }
+
+                            )
                         ) : (
                             <View style={styles.productListItem}>
                                 <Image
@@ -532,15 +542,19 @@ const CheckoutScreen = ({ params }: Props) => {
                                             {selectedCity === city && <Ionicons name="checkmark-circle" size={20} color={COLORS.primary} />}
                                         </TouchableOpacity>
                                         <View style={styles.cityProducts}>
-                                            {cityProducts.map((item: any, idx: number) => (
-                                                <View key={idx} style={styles.cityProductItem}>
-                                                    <Image source={{ uri: item.product.product_profile }} style={styles.tinyImage} />
-                                                    <View>
-                                                        <Text style={styles.tinyName}>{item.product.product_name}</Text>
-                                                        <Text style={styles.tinyQty}>Qté: {item.quantity}</Text>
+                                            {cityProducts.map((item: any, idx: number) => {
+                                                const normalizedProduct = normalizeProduct(item.product);
+                                                return (
+                                                    <View key={idx} style={styles.cityProductItem}>
+                                                        <Image source={{ uri: normalizedProduct.product_profile }} style={styles.tinyImage} />
+                                                        <View>
+                                                            <Text style={styles.tinyName}>{normalizedProduct.product_name}</Text>
+                                                            <Text style={styles.tinyQty}>Qté: {item.quantity}</Text>
+                                                        </View>
                                                     </View>
-                                                </View>
-                                            ))}
+                                                )
+
+                                            })}
                                         </View>
                                     </View>
                                 );
@@ -682,10 +696,15 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: COLORS.primary,
         fontWeight: '500',
-        marginTop: 2,
+
     },
     section: {
         marginBottom: 24,
+    },
+    variantText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#4B5563',
     },
     sectionHeader: {
         flexDirection: 'row',
@@ -798,6 +817,8 @@ const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
+        alignItems: "center",
+        gap: 8,
     },
     paymentContainer: {
         gap: 16,
