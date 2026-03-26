@@ -14,7 +14,7 @@ type Props = {
 const CartItem = ({ item, onIncrease, onDecrease, onRemove }: Props) => {
 
     const normalizedProduct = normalizeProduct(item.product);
-    const variation = item.selectedVariation;
+    const variation = item.selectedVariatio
 
     // Determine the correct unit price: priority to variation price
     const unitPrice = variation?.price

@@ -134,6 +134,18 @@ const CheckoutScreen = ({ params }: Props) => {
         );
     }, [quartersData, deliveryOption, residence, isMultiCity, selectedCity, otherLocation, productLocation, uniqueCities, quarterSearch]);
 
+
+    const getPrice = (item: any) => {
+        if (item.selectedVariation?.attributes?.price) {
+            return item.selectedVariation?.attributes?.price;
+        }
+        if (item.selectedVariation && item.selectedVariation.isColorOnly) {
+            return item.selectedVariation?.price;
+        }
+        else {
+            return item.product.product_price
+        }
+    }
     const handlePayment = useCallback(() => {
         if ((deliveryOption === 'localDelivery' || deliveryOption === 'remoteDelivery') && !selectedQuarter) {
             Alert.alert('Erreur', 'Veuillez choisir un quartier de livraison');
@@ -159,9 +171,7 @@ const CheckoutScreen = ({ params }: Props) => {
                 productVariationId: item.selectedVariation?.id ?? null,
                 quantity: item.quantity,
                 hasVariation: !!item.selectedVariation,
-                price: item.selectedVariation?.attributes?.price
-                    ? item.selectedVariation.attributes.price
-                    : (item.selectedVariation?.price || item.product.product_price),
+                price: getPrice(item),
                 name: item.product.product_name,
             }));
         }
@@ -791,7 +801,7 @@ const styles = StyleSheet.create({
     textInput: {
         backgroundColor: '#F9FAFB',
         borderRadius: 12,
-        padding: 16,
+        padding: 11,
         fontSize: 15,
         color: '#1F2937',
         borderWidth: 1,

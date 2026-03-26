@@ -18,6 +18,8 @@ type Props = {
 };
 
 const FeaturedShops = ({ shops, refetchControl }: Props) => {
+
+
     const scrollX = useSharedValue(0);
     const [activeIndex, setActiveIndex] = useState(0);
     const SCREEN_PADDING = 20;

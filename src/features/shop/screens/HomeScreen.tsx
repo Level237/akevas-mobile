@@ -30,6 +30,8 @@ export default function HomeScreen() {
         refetchOnFocus: true,
         refetchOnMountOrArgChange: 30
     })
+
+    console.log(shopsError)
     const { refreshControl, ProgressBar } = useAppRefresh(refetch);
 
     // Shared value for scroll position
