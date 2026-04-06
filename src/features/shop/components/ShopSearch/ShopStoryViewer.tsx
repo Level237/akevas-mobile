@@ -1,11 +1,15 @@
+import { COLORS } from '@/constants/colors';
 import { Shop } from '@/types/seller';
 import { Image } from 'expo-image';
-import { ChevronLeft, X } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ChevronRight, X } from 'lucide-react-native';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
     Animated,
     Dimensions,
+    KeyboardAvoidingView,
     Modal,
+    Platform,
     Pressable,
     StatusBar,
     StyleSheet,
@@ -13,10 +17,10 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const { width, height } = Dimensions.get('window');
-const STORY_DURATION = 5000; // 5 seconds per story
+const STORY_DURATION = 5000;
 
 type Props = {
     visible: boolean;
@@ -29,6 +33,7 @@ const ShopStoryViewer = ({ visible, shop, onClose, onViewShop }: Props) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const progress = useRef(new Animated.Value(0)).current;
     const [isPaused, setIsPaused] = useState(false);
+    const [replyText, setReplyText] = useState('');
 
     const insets = useSafeAreaInsets();
 
@@ -57,7 +62,7 @@ const ShopStoryViewer = ({ visible, shop, onClose, onViewShop }: Props) => {
             duration: STORY_DURATION,
             useNativeDriver: false,
         }).start(({ finished }) => {
-            if (finished) {
+            if (finished && !isPaused) {
                 nextStory();
             }
         });
@@ -86,7 +91,9 @@ const ShopStoryViewer = ({ visible, shop, onClose, onViewShop }: Props) => {
 
     const handlePressOut = () => {
         setIsPaused(false);
-        const remainingTime = STORY_DURATION * (1 - (progress as any)._value);
+        const currentProgress = (progress as any)._value;
+        const remainingTime = STORY_DURATION * (1 - currentProgress);
+
         Animated.timing(progress, {
             toValue: 1,
             duration: remainingTime,
@@ -113,28 +120,41 @@ const ShopStoryViewer = ({ visible, shop, onClose, onViewShop }: Props) => {
         <Modal
             visible={visible}
             transparent={false}
-            animationType="fade"
+            animationType="slide"
             onRequestClose={onClose}
         >
-            <StatusBar hidden />
-            <View style={styles.container}>
-                {/* Story Image */}
-                <Pressable
-                    onPress={handleTap}
-                    onLongPress={handlePressIn}
-                    onPressOut={handlePressOut}
-                    style={styles.pressableArea}
-                >
+            <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                style={styles.container}
+            >
+                {/* Background Image */}
+                <View style={styles.imageContainer}>
                     <Image
                         source={storyImages[currentIndex]}
                         style={styles.image}
                         contentFit="cover"
-                        transition={300}
+                        transition={400}
                     />
-                </Pressable>
+                </View>
 
-                {/* Progress Indicators */}
-                <View style={[styles.overlay, { paddingTop: insets.top }]}>
+                {/* Top Gradient Overlay */}
+                <LinearGradient
+                    colors={['rgba(0,0,0,0.6)', 'transparent']}
+                    style={[styles.topGradient, { height: insets.top + 100 }]}
+                />
+
+                {/* Interactive Tapping Areas */}
+                <Pressable
+                    onPress={handleTap}
+                    onLongPress={handlePressIn}
+                    onPressOut={handlePressOut}
+                    style={StyleSheet.absoluteFill}
+                />
+
+                {/* UI Overlay Content */}
+                <View style={[styles.mainOverlay, { paddingTop: insets.top + 10 }]}>
+                    {/* Progress Bars */}
                     <View style={styles.progressContainer}>
                         {storyImages.map((_, index) => (
                             <View key={index} style={styles.progressBarBackground}>
@@ -142,15 +162,14 @@ const ShopStoryViewer = ({ visible, shop, onClose, onViewShop }: Props) => {
                                     style={[
                                         styles.progressBarForeground,
                                         {
-                                            width:
-                                                index === currentIndex
-                                                    ? progress.interpolate({
-                                                        inputRange: [0, 1],
-                                                        outputRange: ['0%', '100%'],
-                                                    })
-                                                    : index < currentIndex
-                                                        ? '100%'
-                                                        : '0%',
+                                            width: index === currentIndex
+                                                ? progress.interpolate({
+                                                    inputRange: [0, 1],
+                                                    outputRange: ['0%', '100%'],
+                                                })
+                                                : index < currentIndex
+                                                    ? '100%'
+                                                    : '0%',
                                         },
                                     ]}
                                 />
@@ -158,42 +177,54 @@ const ShopStoryViewer = ({ visible, shop, onClose, onViewShop }: Props) => {
                         ))}
                     </View>
 
-                    {/* Header Info */}
+                    {/* Header: Shop Info */}
                     <View style={styles.header}>
-                        <View style={styles.shopInfo}>
-                            <Image
-                                source={shop.shop_profile}
-                                style={styles.miniAvatar}
-                            />
-                            <View>
-                                <Text style={styles.shopName}>{shop.shop_name}</Text>
-                                <Text style={styles.shopLocation}>{shop.town || 'Akevas Market'}</Text>
+                        <View style={styles.shopSection}>
+                            <View style={styles.avatarBorder}>
+                                <Image
+                                    source={shop.shop_profile}
+                                    style={styles.miniAvatar}
+                                />
+                            </View>
+                            <View style={styles.shopText}>
+                                <Text style={styles.shopName} numberOfLines={1}>{shop.shop_name}</Text>
+                                <Text style={styles.shopTime}>En direct • {shop.town || 'Akevas'}</Text>
                             </View>
                         </View>
-                        <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                            <X color="#FFF" size={24} />
+                        <TouchableOpacity
+                            onPress={onClose}
+                            style={styles.closeBtn}
+                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        >
+                            <X color="#FFF" size={28} strokeWidth={2.5} />
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                {/* Footer CTA */}
-                <View style={[styles.footer, { paddingBottom: insets.bottom }]}>
+                {/* Bottom Section */}
+                <View style={[styles.bottomContainer, { paddingBottom: Math.max(insets.bottom, 20) }]}>
+                    <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.8)']}
+                        style={StyleSheet.absoluteFill}
+                    />
+
+                    {/* View Shop Link */}
                     <TouchableOpacity
-                        style={styles.ctaButton}
+                        style={styles.viewShopBtn}
                         onPress={() => {
                             onClose();
                             onViewShop(shop.shop_id || '');
                         }}
                     >
-                        <Text style={styles.ctaText}>Voir la boutique</Text>
-                        <ChevronLeft
-                            color="#FFF"
-                            size={20}
-                            style={{ transform: [{ rotate: '180deg' }] }}
-                        />
+                        <View style={styles.viewShopContent}>
+                            <Text style={styles.viewShopText}>Voir la boutique</Text>
+                            <ChevronRight color="white" size={18} />
+                        </View>
                     </TouchableOpacity>
+
+
                 </View>
-            </View>
+            </KeyboardAvoidingView>
         </Modal>
     );
 };
@@ -203,32 +234,37 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#000',
     },
-    pressableArea: {
+    imageContainer: {
         flex: 1,
     },
     image: {
         width: width,
         height: height,
     },
-    overlay: {
+    topGradient: {
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
-        paddingTop: 10,
+    },
+    mainOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
     },
     progressContainer: {
         flexDirection: 'row',
-        paddingHorizontal: 10,
-        gap: 5,
-        height: 3,
-        marginTop: 10,
+        paddingHorizontal: 8,
+        gap: 4,
+        height: 2.5,
+        marginTop: 5,
     },
     progressBarBackground: {
         flex: 1,
         height: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.3)',
-        borderRadius: 2,
+        backgroundColor: 'rgba(255, 255, 255, 0.25)',
+        borderRadius: 10,
         overflow: 'hidden',
     },
     progressBarForeground: {
@@ -242,63 +278,94 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         marginTop: 15,
     },
-    shopInfo: {
+    shopSection: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: 10,
+    },
+    avatarBorder: {
+        padding: 2,
+        borderRadius: 22,
+        borderWidth: 1.5,
+        borderColor: '#E67E22',
+        backgroundColor: 'transparent',
     },
     miniAvatar: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.5)',
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+    },
+    shopText: {
+        gap: 1,
     },
     shopName: {
         color: '#FFF',
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '700',
-        textShadowColor: 'rgba(0, 0, 0, 0.75)',
-        textShadowOffset: { width: -1, height: 1 },
-        textShadowRadius: 10,
+        maxWidth: width * 0.5,
     },
-    shopLocation: {
-        color: 'rgba(255,255,255,0.8)',
+    shopTime: {
+        color: 'rgba(255,255,255,0.7)',
         fontSize: 12,
-        textShadowColor: 'rgba(0, 0, 0, 0.75)',
-        textShadowOffset: { width: -1, height: 1 },
-        textShadowRadius: 10,
+        fontWeight: '500',
     },
     closeBtn: {
-        padding: 5,
+        padding: 4,
     },
-    footer: {
+    bottomContainer: {
         position: 'absolute',
-        bottom: 30,
+        bottom: 0,
         left: 0,
         right: 0,
-        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingTop: 40,
     },
-    ctaButton: {
+    viewShopBtn: {
+        alignSelf: 'center',
+        marginBottom: 20,
+    },
+    viewShopContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(230, 126, 34, 0.9)', // Akevas Orange with opacity
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 30,
-        gap: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 10,
+        gap: 4,
+        backgroundColor: COLORS.primary,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        borderWidth: 0.5,
+        borderColor: 'rgba(255,255,255,0.3)',
     },
-    ctaText: {
+    viewShopText: {
         color: '#FFF',
-        fontSize: 16,
+        fontSize: 13,
         fontWeight: '700',
+    },
+    interactionBar: {
+        flexDirection: 'row',
         alignItems: 'center',
+        gap: 16,
+    },
+    replyContainer: {
+        flex: 1,
+        height: 44,
+        borderRadius: 22,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.4)',
+        backgroundColor: 'transparent',
+        paddingHorizontal: 16,
         justifyContent: 'center',
+    },
+    replyInput: {
+        color: '#FFF',
+        fontSize: 14,
+    },
+    actionButtons: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
+    },
+    actionIcon: {
+        padding: 2,
     },
 });
 

@@ -1,9 +1,11 @@
 import { COLORS } from '@/constants/colors';
+import { useGetCategoriesQuery } from '@/services/guardService';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
+    ActivityIndicator,
     Dimensions,
     StyleSheet,
     Text,
@@ -29,7 +31,7 @@ const CATEGORIES = [
 ];
 
 type CategoryCardProps = {
-    item: typeof CATEGORIES[0];
+    item: any;
     isSelected: boolean;
     onPress: () => void;
     index: number;
@@ -56,7 +58,7 @@ const CategoryCard = ({ item, isSelected, onPress, index }: CategoryCardProps) =
                     styles.cardText,
                     isSelected && styles.cardTextSelected
                 ]}>
-                    {item.name}
+                    {item.category_name}
                 </Text>
             </TouchableOpacity>
         </View>
@@ -73,6 +75,8 @@ export default function PreferencesScreen() {
         );
     };
 
+    const { data: categories, isLoading } = useGetCategoriesQuery("guard");
+    console.log(categories?.categories);
     const handleAddNow = () => {
         if (customCategory.trim()) {
             // Functional logic for adding custom category would go here
@@ -114,15 +118,19 @@ export default function PreferencesScreen() {
 
                 {/* Category Grid */}
                 <View style={styles.grid}>
-                    {CATEGORIES.map((item, index) => (
-                        <CategoryCard
-                            key={item.id}
-                            item={item}
-                            index={index}
-                            isSelected={selectedIds.includes(item.id)}
-                            onPress={() => toggleCategory(item.id)}
-                        />
-                    ))}
+                    {isLoading ? (
+                        <ActivityIndicator style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} size="large" color={COLORS.primary} />
+                    ) : (
+                        categories?.categories?.map((item: any, index: number) => (
+                            <CategoryCard
+                                key={item.id}
+                                item={item}
+                                index={index}
+                                isSelected={selectedIds.includes(item.id)}
+                                onPress={() => toggleCategory(item.id)}
+                            />
+                        ))
+                    )}
                 </View>
 
 

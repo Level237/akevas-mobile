@@ -57,7 +57,21 @@ export const authService = createApi({
                 body: formData
             })
         }),
-
+        getListShopReviews: builder.query({
+            query: (shopId) => ({
+                url: `/api/list/reviews/shop/${shopId}`,
+                method: 'GET'
+            }),
+            providesTags: ['Auth'],
+        }),
+        addShopReview: builder.mutation({
+            query: (body) => ({
+                url: `/api/v1/user/add/review/shop`,
+                method: 'POST',
+                body: body
+            }),
+            invalidatesTags: ['Auth']
+        }),
         controlPayment: builder.mutation({
             query: (body) => ({
                 url: '/api/v1/control/payment',
@@ -75,6 +89,8 @@ export const {
     useGetOrderDetailQuery,
     useShowPaymentWithReferenceQuery,
     useGetUserQuery,
+    useGetListShopReviewsQuery,
+    useAddShopReviewMutation,
     useInitPayinMutation,
     useVerifyPayinMutation,
     useControlPaymentMutation,

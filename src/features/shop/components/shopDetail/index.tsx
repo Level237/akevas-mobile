@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import React, { useMemo, useState } from 'react';
 import { SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ShopDetailHeader from './ShopDetailHeader';
+import ShopReviews from './ShopReviews';
 import ShopTabs from './ShopTabs';
 import { ShopDetailData } from './types';
 
@@ -93,15 +94,15 @@ const ShopDetailFeature = ({ shopData }: any) => {
                 }
 
                 // Affichage des autres onglets
+                if (activeTab === 'Avis') {
+                    return <ShopReviews shopId={shopData.shop_id} shopData={shopData} />;
+                }
+
                 return (
                     <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>
-                            {activeTab === 'À propos' ? 'À propos de nous' : 'Avis clients'}
-                        </Text>
+                        <Text style={styles.sectionTitle}>À propos de nous</Text>
                         <Text style={styles.sectionText}>
-                            {activeTab === 'À propos'
-                                ? shopData.shop_description
-                                : 'Aucun avis pour le moment.'}
+                            {shopData.shop_description || 'Aucune description disponible.'}
                         </Text>
                     </View>
                 );
