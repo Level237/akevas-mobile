@@ -50,7 +50,8 @@ const QUICK_LINKS = [
     {
         id: 'transactions',
         icon: Receipt,
-        title: 'Mes Reçus',
+        title: 'Paiements',
+        link: '/orders/payment',
         subtitle: 'Historique',
         color: '#3B82F6',
         bgColor: '#EFF6FF',
