@@ -41,7 +41,7 @@ const CartItem = ({ item, onIncrease, onDecrease, onRemove }: Props) => {
                         {normalizedProduct.product_name}
                     </Text>
                     <TouchableOpacity
-                        onPress={() => onRemove(item.product.id)}
+                        onPress={() => onRemove(item)}
                         style={styles.removeButton}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >

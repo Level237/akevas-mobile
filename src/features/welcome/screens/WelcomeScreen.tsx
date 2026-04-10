@@ -31,7 +31,7 @@ export default function WelcomeScreen() {
 
     const handleLogin = () => {
         // Navigate to login (to be implemented)
-        console.log('Navigate to login');
+        router.push('/login');
     };
 
     const handleRegister = () => {
