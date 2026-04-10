@@ -1,8 +1,9 @@
+import HomeHeader from "@/components/common/HomeHeader";
 import { COLORS } from "@/constants/colors";
 import { useAppRefresh } from '@/hooks/useAppRefresh';
 import { useGetHomeShopsQuery } from "@/services/guardService";
 import React from 'react';
-import { StatusBar, StyleSheet, Text, View } from "react-native";
+import { StatusBar, StyleSheet, View } from "react-native";
 import Animated, {
     Extrapolation,
     interpolate,
@@ -12,17 +13,12 @@ import Animated, {
     withTiming
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import HomeHeader from "../../../components/common/HomeHeader";
 import FeaturedShops from "../components/FeaturedShops";
 import GenderHeader from "../components/GenderPanel";
 import HomeHero from "../components/HomeHero";
+import PremiumProductsCarousel from "../components/PremiumProductsCarousel";
 
-const dummyShops = [
-    { id: 1, name: 'chia-2y30as', image: require('@/assets/images/shop1.webp'), isPremium: true },
-    { id: 2, name: 'lari-i0b9c', image: require('@/assets/images/shop2.webp'), isPremium: true },
-    { id: 3, name: 'Shop 3', image: require('@/assets/images/shop3.webp'), isPremium: false },
-    { id: 4, name: 'Shop 4', image: require('@/assets/images/shop4.webp'), isPremium: true },
-];
+
 
 export default function HomeScreen() {
     const insets = useSafeAreaInsets();
@@ -75,7 +71,7 @@ export default function HomeScreen() {
 
 
 
-    return (
+    return ( 
         <View style={styles.container}>
             {/* Fixed Top Header (Safe Area handled inside) */}
 
@@ -102,11 +98,12 @@ export default function HomeScreen() {
                     <View style={styles.heroWrapper}>
                         <HomeHero />
                         <FeaturedShops refetchControl={refreshControl} shops={shopsData} />
+                        <PremiumProductsCarousel />
                     </View>
                 )}
                 renderItem={({ item }) => (
-                    <View style={styles.item}>
-                        <Text style={[styles.itemText, { color: '#333' }]}>{item.title}</Text>
+                    <View>
+
                     </View>
                 )}
             />
