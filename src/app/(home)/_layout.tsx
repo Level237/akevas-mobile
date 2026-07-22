@@ -2,11 +2,9 @@ import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { COLORS } from '@/constants/colors';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Tabs } from 'expo-router';
+import { DarkTheme, DefaultTheme, Tabs, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Heart, ShoppingCart, Store, User } from "lucide-react-native";
-import React from 'react';
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();

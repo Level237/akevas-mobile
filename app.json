@@ -19,6 +19,7 @@
     },
     "android": {
       "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#E6F4FE"
       },
       "permissions": [
@@ -48,7 +49,12 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-font",
+      "expo-image",
+      "expo-sharing",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -1,5 +1,5 @@
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
