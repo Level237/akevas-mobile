@@ -2,7 +2,6 @@ import HomeHeader from "@/components/common/HomeHeader";
 import { COLORS } from "@/constants/colors";
 import { useAppRefresh } from '@/hooks/useAppRefresh';
 import { useGetHomeShopsQuery } from "@/services/guardService";
-import React from 'react';
 import { StatusBar, StyleSheet, View } from "react-native";
 import Animated, {
     Extrapolation,
@@ -71,12 +70,12 @@ export default function HomeScreen() {
 
 
 
-    return ( 
+    return (
         <View style={styles.container}>
             {/* Fixed Top Header (Safe Area handled inside) */}
 
             <HomeHeader />
-            <StatusBar barStyle="dark-content" />
+            <StatusBar backgroundColor={"white"} barStyle={"dark-content"} />
             {/* Animated Secondary Header (Gender) */}
             <GenderHeader animatedStyle={animatedHeaderStyle} />
             <ProgressBar />

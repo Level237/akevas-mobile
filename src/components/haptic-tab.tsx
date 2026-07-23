@@ -5,7 +5,6 @@ import { Pressable } from 'react-native'; // ← 'Platform' retiré car inutile 
 export function HapticTab(props: BottomTabBarButtonProps) {
   return (
     <Pressable
-      {...props}
       onPressIn={(ev) => {
         if (process.env.EXPO_OS === 'ios') {
           // Feedback haptique léger lors de l'appui (iOS uniquement)

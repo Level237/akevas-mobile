@@ -18,9 +18,11 @@ export default function TabLayout() {
             <Tabs
                 screenOptions={{
                     tabBarActiveTintColor: COLORS.primary,
+                    tabBarInactiveTintColor: '#555555',
                     tabBarButton: HapticTab,
                     tabBarStyle: {
                         backgroundColor: '#FFFFFF', // 👈 C'est ici que tu changes le background
+
                         borderTopWidth: 0,           // Pour enlever le trait gris du haut
                         elevation: 10,               // Ombre sur Android
                         shadowColor: '#000',         // Ombre sur iOS
