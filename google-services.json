@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "709899824230",
+    "firebase_url": "https://react-native-course-d0a2f-default-rtdb.firebaseio.com",
+    "project_id": "react-native-course-d0a2f",
+    "storage_bucket": "react-native-course-d0a2f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:709899824230:android:06e5ebe82fd110179511a7",
+        "android_client_info": {
+          "package_name": "com.akevas.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkvTLFN_a6x4_MvK3CWvR16W__x6d6lF8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
