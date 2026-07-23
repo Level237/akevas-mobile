@@ -2,3 +2,5 @@ nodeLinker: hoisted
 minimumReleaseAgeExclude:
   - "@expo/*"
   - "@radix-ui/*"
+allowBuilds:
+  unrs-resolver: true

@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:709899824230:android:06e5ebe82fd110179511a7",
+        "mobilesdk_app_id": "1:709899824230:android:cde5f8e451ee9e219511a7",
         "android_client_info": {
-          "package_name": "com.akevas.app"
+          "package_name": "com.level.akevas"
         }
       },
       "oauth_client": [],
