@@ -18,7 +18,7 @@
       }
     },
     "android": {
-      "googleServicesFile": "process.env.GOOGLE_SERVICES_JSON_BASE64",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#E6F4FE"
