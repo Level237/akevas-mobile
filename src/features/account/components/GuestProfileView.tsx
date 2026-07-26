@@ -1,211 +1,144 @@
-import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Heart, LogIn, ShieldCheck, ShoppingBag, TrendingUp, UserPlus } from 'lucide-react-native';
-import React, { useEffect } from 'react';
+import { COLORS } from '@/constants/colors';
+import { router } from 'expo-router';
 import {
-    Animated,
-    Dimensions,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+    BookOpen,
+    ChevronRight,
+    FileText,
+    HelpCircle,
+    Info,
+    Lock,
+    Settings,
+    Shield,
+    Store,
+    User
+} from 'lucide-react-native';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-const { width } = Dimensions.get('window');
 
 type GuestProfileViewProps = {
     onLogin?: () => void;
     onRegister?: () => void;
 };
 
-const VALUE_PROPS = [
-    {
-        id: 'boutiques',
-        icon: ShoppingBag,
-        title: 'Boutiques Uniques',
-        description: 'Découvrez des créateurs et boutiques sélectionnées pour vous.',
-        color: '#E67E22',
-        bgColor: '#FFF7ED',
-    },
-    {
-        id: 'favoris',
-        icon: Heart,
-        title: 'Vos Favoris',
-        description: 'Sauvegardez vos articles et créez votre wishlist idéale.',
-        color: '#EC4899',
-        bgColor: '#FDF2F8',
-    },
-    {
-        id: 'securite',
-        icon: ShieldCheck,
-        title: 'Achat Sécurisé',
-        description: 'Paiement 100% protégé et suivi de commande en direct.',
-        color: '#10B981',
-        bgColor: '#ECFDF5',
-    },
-    {
-        id: 'tendances',
-        icon: TrendingUp,
-        title: 'Tendances',
-        description: "Restez à l'affût des dernières nouveautés mode.",
-        color: '#8B5CF6',
-        bgColor: '#F5F3FF',
-    },
-];
+type MenuItemProps = {
+    icon: React.ElementType;
+    title: string;
+    subtitle?: string;
+    onPress?: () => void;
+    isLocked?: boolean; // Pour indiquer qu'il faut être connecté
+    isLast?: boolean;
+};
+
+const MenuItem = ({ icon: Icon, title, subtitle, onPress, isLocked, isLast }: MenuItemProps) => (
+    <TouchableOpacity
+        style={[styles.menuItem, !isLast && styles.menuItemBorder]}
+        onPress={onPress}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={title}
+    >
+        <View style={styles.menuItemLeft}>
+            <View style={styles.iconContainer}>
+                <Icon size={20} color={isLocked ? "#9CA3AF" : COLORS.primary} />
+                {isLocked && <Lock size={12} color="#9CA3AF" style={styles.lockIcon} />}
+            </View>
+            <View>
+                <Text style={[styles.menuItemText, isLocked && { color: '#9CA3AF' }]}>{title}</Text>
+                {subtitle && <Text style={styles.menuItemSubtitle}>{subtitle}</Text>}
+            </View>
+        </View>
+        <ChevronRight size={20} color="#D1D5DB" />
+    </TouchableOpacity>
+);
 
 const GuestProfileView = ({ onLogin, onRegister }: GuestProfileViewProps) => {
     const insets = useSafeAreaInsets();
-    const fadeAnim = new Animated.Value(0);
-    const slideAnim = new Animated.Value(30);
 
-    useEffect(() => {
-        Animated.parallel([
-            Animated.timing(fadeAnim, {
-                toValue: 1,
-                duration: 800,
-                useNativeDriver: true,
-            }),
-            Animated.timing(slideAnim, {
-                toValue: 0,
-                duration: 800,
-                useNativeDriver: true,
-            }),
-        ]).start();
-    }, []);
+    const handleNavigate = (route: string) => {
+        // Si l'action nécessite une connexion, on redirige vers le login
+        // Sinon, on navigue normalement
+        router.push(route as any);
+    };
 
     return (
         <View style={styles.container}>
+            {/* ✅ HEADER ROBUSTE : Centrage parfait garanti par flex: 1 */}
+
+
             <ScrollView
-                style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 140 }}
-                bounces={false}
+                contentContainerStyle={styles.scrollContent}
+                bounces={true}
             >
-                {/* Hero Section */}
-                <View style={styles.heroSection}>
-                    <Image
-                        source="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1000"
-                        style={styles.heroImage}
-                        contentFit="cover"
-                        transition={500}
-                    />
-                    <LinearGradient
-                        colors={['transparent', 'rgba(0,0,0,0.4)', '#111827']}
-                        style={styles.heroGradient}
-                    />
+                {/* Profile Card */}
+                <View style={styles.profileCardBg}>
+                    <View style={styles.decorationCircle1} />
+                    <View style={styles.decorationCircle2} />
 
-                    <Animated.View
-                        style={[
-                            styles.heroContent,
-                            {
-                                opacity: fadeAnim,
-                                transform: [{ translateY: slideAnim }],
-                            },
-                        ]}
-                    >
-                        <View style={styles.badgeContainer}>
-                            <Text style={styles.badgeText}>Marketplace Premium</Text>
+                    <View style={styles.profileCardInner}>
+                        <View style={styles.profileInfo}>
+                            <View style={styles.avatarContainer}>
+                                <User size={20} color="#6B7280" />
+                            </View>
+                            <View>
+                                <Text style={styles.guestName}>Visiteur</Text>
+                                <Text style={styles.guestSub}>Connectez-vous pour une meilleure experience</Text>
+                            </View>
                         </View>
-                        <Text style={styles.title}>L'univers de vos boutiques préférées</Text>
-                        <Text style={styles.subtitle}>
-                            Rejoignez la communauté Akevas pour une expérience shopping personnalisée.
-                        </Text>
-                    </Animated.View>
-                </View>
-
-                {/* Value Props Horizontal List */}
-                <View style={styles.valuePropsContainer}>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.valuePropsScroll}
-                        snapToInterval={width * 0.7 + 16}
-                        decelerationRate="fast"
-                    >
-                        {VALUE_PROPS.map((prop, index) => {
-                            const Icon = prop.icon;
-                            return (
-                                <Animated.View
-                                    key={prop.id}
-                                    style={[
-                                        styles.valueCard,
-                                        {
-                                            opacity: fadeAnim,
-                                            transform: [{ translateY: slideAnim }],
-                                        },
-                                    ]}
-                                >
-                                    <View
-                                        style={[
-                                            styles.iconContainer,
-                                            { backgroundColor: prop.bgColor },
-                                        ]}
-                                    >
-                                        <Icon size={24} color={prop.color} strokeWidth={2.5} />
-                                    </View>
-                                    <Text style={styles.cardTitle}>{prop.title}</Text>
-                                    <Text style={styles.cardDesc}>{prop.description}</Text>
-                                </Animated.View>
-                            );
-                        })}
-                    </ScrollView>
-                </View>
-
-                {/* Additional Info Section if needed */}
-                <Animated.View
-                    style={[
-                        styles.infoSection,
-                        { opacity: fadeAnim }
-                    ]}
-                >
-                    <Text style={styles.infoTitle}>Pourquoi créer un compte ?</Text>
-                    <View style={styles.infoList}>
-                        <View style={styles.infoRow}>
-                            <View style={styles.dot} />
-                            <Text style={styles.infoText}>Gérez vos commandes facilement</Text>
-                        </View>
-                        <View style={styles.infoRow}>
-                            <View style={styles.dot} />
-                            <Text style={styles.infoText}>Profitez de promotions exclusives</Text>
-                        </View>
-                        <View style={styles.infoRow}>
-                            <View style={styles.dot} />
-                            <Text style={styles.infoText}>Contactez les vendeurs directement</Text>
-                        </View>
+                        <TouchableOpacity
+                            style={styles.loginButton}
+                            activeOpacity={0.8}
+                            onPress={onLogin || (() => router.push('/(auth)/login'))}
+                        >
+                            <Text style={styles.loginButtonText}>Se connecter</Text>
+                        </TouchableOpacity>
                     </View>
-                </Animated.View>
-
-            </ScrollView>
-
-            {/* Bottom Actions fixed */}
-            <View style={[styles.bottomActions, { paddingBottom: Math.max(insets.bottom, 24) }]}>
-                <LinearGradient
-                    colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.9)', '#FFFFFF']}
-                    style={StyleSheet.absoluteFillObject}
-                    pointerEvents="none"
-                />
-                <View style={styles.actionsContent}>
-                    <TouchableOpacity
-                        style={styles.registerButton}
-                        activeOpacity={0.85}
-                        onPress={onRegister}
-                    >
-                        <UserPlus size={20} color="#FFF" style={styles.buttonIcon} />
-                        <Text style={styles.registerButtonText}>Créer mon compte</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.loginButton}
-                        activeOpacity={0.7}
-                        onPress={onLogin}
-                    >
-                        <LogIn size={20} color="#111827" style={styles.buttonIcon} />
-                        <Text style={styles.loginButtonText}>Se Connecter</Text>
-                    </TouchableOpacity>
                 </View>
-            </View>
+
+                {/* Section: Préférences (Locked for guests) */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Personnalisation</Text>
+                    <View style={styles.sectionContent}>
+                        <MenuItem
+                            icon={Settings}
+                            title="Mes préférences"
+                            subtitle="Définissez vos centres d'intérêt"
+                            isLocked={true}
+                            onPress={() => router.push('/preferences')}
+                            isLast
+                        />
+                    </View>
+                </View>
+
+                {/* Section: Découvrir Akevas */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Découvrir Akevas</Text>
+                    <View style={styles.sectionContent}>
+                        <MenuItem icon={Info} title="À propos de nous" onPress={() => handleNavigate('/about')} />
+                        <MenuItem icon={BookOpen} title="Comment ça marche ?" onPress={() => handleNavigate('/how-it-works')} />
+                        <MenuItem icon={Store} title="Devenir vendeur" onPress={() => handleNavigate('/(auth)/register?role=seller')} isLast />
+                    </View>
+                </View>
+
+                {/* Section: Assistance */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Assistance</Text>
+                    <View style={styles.sectionContent}>
+                        <MenuItem icon={HelpCircle} title="Centre d'aide & FAQ" onPress={() => handleNavigate('/help')} />
+                        <MenuItem icon={User} title="Nous contacter" onPress={() => handleNavigate('/contact')} isLast />
+                    </View>
+                </View>
+
+                {/* Section: Légal & Sécurité */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Légal & Données</Text>
+                    <View style={styles.sectionContent}>
+                        <MenuItem icon={Shield} title="Politique de confidentialité" onPress={() => handleNavigate('/privacy')} />
+                        <MenuItem icon={FileText} title="Conditions générales" onPress={() => handleNavigate('/terms')} isLast />
+                    </View>
+                </View>
+            </ScrollView>
         </View>
     );
 };
@@ -213,184 +146,158 @@ const GuestProfileView = ({ onLogin, onRegister }: GuestProfileViewProps) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#FAFAFA', // Fond légèrement grisé pour faire ressortir les cartes blanches
     },
-    scrollView: {
+    // --- HEADER ---
+
+
+    // --- SCROLL ---
+    scrollContent: {
+        paddingHorizontal: 20,
+        paddingBottom: 40,
+    },
+    // --- PROFILE CARD ---
+    profileCardBg: {
+        backgroundColor: COLORS.primary,
+        borderRadius: 24,
+        padding: 2, // Petite bordure intérieure
+        marginTop: 16,
+        marginBottom: 24,
+        overflow: 'hidden',
+        position: 'relative',
+    },
+    decorationCircle1: {
+        position: 'absolute',
+        top: -30,
+        right: -20,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+    },
+    decorationCircle2: {
+        position: 'absolute',
+        bottom: -20,
+        left: -20,
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+    },
+    profileCardInner: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 22,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    profileInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
         flex: 1,
     },
-    heroSection: {
-        height: 480,
-        position: 'relative',
-        justifyContent: 'flex-end',
-        paddingHorizontal: 24,
-        paddingBottom: 60,
+    avatarContainer: {
+        width: 30,
+        height: 30,
+        borderRadius: 24,
+        backgroundColor: '#F3F4F6',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
     },
-    heroImage: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    heroGradient: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    heroContent: {
-        zIndex: 10,
-    },
-    badgeContainer: {
-        alignSelf: 'flex-start',
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-        marginBottom: 16,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.3)',
-    },
-    badgeText: {
-        color: '#FFF',
-        fontSize: 12,
+    guestName: {
+        fontSize: 15,
         fontWeight: '700',
+        color: '#111827',
+    },
+    guestSub: {
+        fontSize: 12,
+        width: "54%",
+        color: '#6B7280',
+        marginTop: 2,
+    },
+    loginButton: {
+        backgroundColor: COLORS.primary,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 12,
+    },
+    loginButtonText: {
+        color: '#FFFFFF',
+        fontSize: 14,
+        fontWeight: '700',
+    },
+    // --- SECTIONS ---
+    section: {
+        marginBottom: 24,
+    },
+    sectionTitle: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#6B7280',
+        marginBottom: 8,
+        marginLeft: 4,
         textTransform: 'uppercase',
         letterSpacing: 0.5,
     },
-    title: {
-        fontSize: 36,
-        fontWeight: '900',
-        color: '#FFF',
-        marginBottom: 12,
-        letterSpacing: -1,
-        lineHeight: 42,
-    },
-    subtitle: {
-        fontSize: 16,
-        color: 'rgba(255,255,255,0.85)',
-        lineHeight: 24,
-        fontWeight: '500',
-        paddingRight: 20,
-    },
-    valuePropsContainer: {
-        marginTop: -30,
-        zIndex: 20,
-    },
-    valuePropsScroll: {
-        paddingHorizontal: 16,
-        paddingBottom: 20,
-    },
-    valueCard: {
-        width: width * 0.7,
-        backgroundColor: '#FFF',
-        borderRadius: 24,
-        padding: 24,
-        marginHorizontal: 8,
+    sectionContent: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        paddingVertical: 4,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.08,
-        shadowRadius: 20,
-        elevation: 8,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    menuItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+    },
+    menuItemBorder: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#F3F4F6',
+    },
+    menuItemLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
     },
     iconContainer: {
-        width: 50,
-        height: 50,
-        borderRadius: 16,
+        position: 'relative',
+        width: 32,
+        height: 32,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
-    },
-    cardTitle: {
-        fontSize: 18,
-        fontWeight: '800',
-        color: '#111827',
-        marginBottom: 8,
-    },
-    cardDesc: {
-        fontSize: 14,
-        color: '#6B7280',
-        lineHeight: 20,
-        fontWeight: '500',
-    },
-    infoSection: {
-        paddingHorizontal: 24,
-        marginTop: 20,
-        marginBottom: 40,
-    },
-    infoTitle: {
-        fontSize: 20,
-        fontWeight: '800',
-        color: '#111827',
-        marginBottom: 16,
-    },
-    infoList: {
-        backgroundColor: '#FFF',
-        borderRadius: 20,
-        padding: 20,
-        borderWidth: 1,
-        borderColor: '#F3F4F6',
-    },
-    infoRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    dot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: '#E67E22',
         marginRight: 12,
     },
-    infoText: {
-        fontSize: 15,
-        color: '#4B5563',
-        fontWeight: '500',
-    },
-    bottomActions: {
+    lockIcon: {
         position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        paddingHorizontal: 24,
-        paddingTop: 40,
-        zIndex: 50,
+        bottom: -2,
+        right: -4,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 10,
+        padding: 1,
     },
-    actionsContent: {
-        zIndex: 51,
-        gap: 12,
-    },
-    registerButton: {
-        backgroundColor: '#E67E22',
-        flexDirection: 'row',
-        height: 56,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#E67E22',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.35,
-        shadowRadius: 12,
-        elevation: 8,
-    },
-    registerButtonText: {
-        fontSize: 17,
-        fontWeight: '800',
-        color: '#FFF',
-    },
-    loginButton: {
-        backgroundColor: '#FFF',
-        flexDirection: 'row',
-        height: 56,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1.5,
-        borderColor: '#E5E7EB',
-    },
-    loginButtonText: {
-        fontSize: 17,
-        fontWeight: '700',
+    menuItemText: {
+        fontSize: 15,
         color: '#111827',
+        fontWeight: '600',
     },
-    buttonIcon: {
-        marginRight: 10,
+    menuItemSubtitle: {
+        fontSize: 12,
+        color: '#9CA3AF',
+        marginTop: 2,
     },
 });
 
 export default React.memo(GuestProfileView);
-

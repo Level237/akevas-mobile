@@ -20,16 +20,7 @@ const { width } = Dimensions.get('window');
 
 
 
-const CATEGORIES = [
-    { id: '1', name: 'Vêtements', icon: 'shirt-outline' },
-    { id: '2', name: 'Chaussures', icon: 'walk-outline' },
-    { id: '3', name: 'Bijoux', icon: 'diamond-outline' },
-    { id: '4', name: 'Soins & Beauté', icon: 'sparkles-outline' },
-    { id: '5', name: 'Sport', icon: 'basketball-outline' },
-    { id: '6', name: 'Accessoires', icon: 'watch-outline' },
-    { id: '7', name: 'Parfums', icon: 'flask-outline' },
-    { id: '8', name: 'Électronique', icon: 'laptop-outline' },
-];
+
 
 type CategoryCardProps = {
     item: any;
@@ -84,6 +75,15 @@ export default function PreferencesScreen() {
     console.log(categories?.categories);
     const handleAddNow = async () => {
 
+
+
+        await SecureStore.setItemAsync(
+            'USER_PREFERENCES',
+            JSON.stringify(selectedIds)
+        );
+
+        await SecureStore.setItemAsync('ONBOARDING_COMPLETED', 'true');
+
         const token = await SecureStore.getItemAsync('EXPO_PUSH_TOKEN');
         if (customCategory.trim()) {
             // Functional logic for adding custom category would go here
@@ -106,6 +106,11 @@ export default function PreferencesScreen() {
         router.replace('/(home)');
     };
 
+    const handleSkip = async () => {
+        // Même si l'utilisateur skip, on marque l'onboarding comme fait
+        await SecureStore.setItemAsync('ONBOARDING_COMPLETED', 'true');
+        router.replace('/(home)');
+    };
     const handleBack = () => {
         router.back();
     };
@@ -120,7 +125,7 @@ export default function PreferencesScreen() {
                     <Ionicons name="arrow-back" size={24} color={COLORS.text} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Mes Préférences</Text>
-                <TouchableOpacity onPress={() => router.replace('/(tabs)')}>
+                <TouchableOpacity onPress={handleSkip}>
                     <Text style={styles.skipText}>Passer</Text>
                 </TouchableOpacity>
             </View>

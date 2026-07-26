@@ -1,10 +1,11 @@
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
-import { Pressable } from 'react-native'; // ← 'Platform' retiré car inutile ici
+import { Pressable } from 'react-native';
 
-export function HapticTab(props: BottomTabBarButtonProps) {
+export function HapticTab(props: BottomTabBarButtonProps & { [key: string]: any }) {
   return (
     <Pressable
+      {...props}
       onPressIn={(ev) => {
         if (process.env.EXPO_OS === 'ios') {
           // Feedback haptique léger lors de l'appui (iOS uniquement)

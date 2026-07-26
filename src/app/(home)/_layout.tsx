@@ -19,7 +19,7 @@ export default function TabLayout() {
                 screenOptions={{
                     tabBarActiveTintColor: COLORS.primary,
                     tabBarInactiveTintColor: '#555555',
-                    tabBarButton: HapticTab,
+                    tabBarButton: (props) => <HapticTab {...props} />,
                     tabBarStyle: {
                         backgroundColor: '#FFFFFF', // 👈 C'est ici que tu changes le background
 
@@ -43,6 +43,7 @@ export default function TabLayout() {
                 />
                 <Tabs.Screen
                     name="shop"
+
                     options={{
                         title: 'Boutiques',
                         headerShown: false,
