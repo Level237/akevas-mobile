@@ -1,9 +1,10 @@
 import { COLORS } from '@/constants/colors';
-import { useGetCategoriesQuery } from '@/services/guardService';
+import { useGetCategoriesQuery, useTriggerWelcomeNotificationMutation } from '@/services/guardService';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
     ActivityIndicator,
     Dimensions,
@@ -69,6 +70,10 @@ export default function PreferencesScreen() {
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [customCategory, setCustomCategory] = useState('');
     const insets = useSafeAreaInsets();
+
+    // 🆕 Initialisation de la mutation
+    const [triggerWelcome, { isLoading: isNotifLoading }] = useTriggerWelcomeNotificationMutation();
+
     const toggleCategory = (id: string) => {
         setSelectedIds(prev =>
             prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
@@ -77,13 +82,28 @@ export default function PreferencesScreen() {
 
     const { data: categories, isLoading } = useGetCategoriesQuery("guard");
     console.log(categories?.categories);
-    const handleAddNow = () => {
+    const handleAddNow = async () => {
+
+        const token = await SecureStore.getItemAsync('EXPO_PUSH_TOKEN');
         if (customCategory.trim()) {
             // Functional logic for adding custom category would go here
             setCustomCategory('');
-        } else {
-            router.replace('/(home)');
         }
+
+        // 🚀 DÉCLENCHEMENT DE LA NOTIFICATION AVEC UN DÉCALAGE DE 10 SECONDES
+        setTimeout(async () => {
+            try {
+                await triggerWelcome({
+                    expo_push_token: token,
+                    selected_categories: selectedIds
+                }).unwrap();
+                console.log('✅ Notification de bienvenue déclenchée avec succès après 10s');
+            } catch (error) {
+                console.error('⚠️ Échec du déclenchement de la notification (non bloquant):', error);
+            }
+        }, 10000);
+
+        router.replace('/(home)');
     };
 
     const handleBack = () => {
@@ -140,13 +160,18 @@ export default function PreferencesScreen() {
 
 
                     <TouchableOpacity
-                        style={styles.addButton}
+                        style={[styles.addButton, isNotifLoading && { opacity: 0.7 }]}
                         onPress={handleAddNow}
                         activeOpacity={0.8}
+                        disabled={isNotifLoading}
                     >
-                        <Text style={styles.addButtonText}>
-                            {selectedIds.length >= 5 ? 'Continuer' : 'Continuer'}
-                        </Text>
+                        {isNotifLoading ? (
+                            <ActivityIndicator color="#ffffff" />
+                        ) : (
+                            <Text style={styles.addButtonText}>
+                                {selectedIds.length >= 5 ? 'Continuer' : 'Continuer'}
+                            </Text>
+                        )}
                     </TouchableOpacity>
                 </View>
             </View>

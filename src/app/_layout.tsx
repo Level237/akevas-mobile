@@ -1,6 +1,7 @@
 import { persistor, store } from '@/store';
-import * as Notifications from 'expo-notifications'; // ← Ajouté
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import * as Notifications from 'expo-notifications';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import 'react-native-reanimated';
@@ -9,50 +10,137 @@ import { PersistGate } from 'redux-persist/integration/react';
 
 import { COLORS } from '@/constants/colors';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-// ← Ajouté (ajuste le chemin si besoin)
-
 import { registerForPushNotificationsAsync } from '@/utils/notification';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
+import { setupNotificationCategories } from '@/utils/notificationCategories';
 import Toast from 'react-native-toast-message';
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
-
-    // ← États et Réfs pour les notifications
     const [expoPushToken, setExpoPushToken] = useState('');
+
     const notificationListener = useRef<Notifications.Subscription>();
     const responseListener = useRef<Notifications.Subscription>();
 
+    // 🚀 FONCTION DÉDIÉE POUR GÉRER LE ROUTING (Plus propre et débogable)
+    const handleNotificationRouting = (response: Notifications.NotificationResponse) => {
+        const content = response.notification.request.content;
+        const actionIdentifier = response.actionIdentifier;
+        
+        let data = content.data || {};
+        const dataString = (content as any).dataString || data?.dataString;
+        if (dataString) {
+            try {
+                data = { ...data, ...JSON.parse(dataString) };
+            } catch (e) {
+                console.error('❌ Erreur parsing', e);
+            }
+        }
+
+        console.log('📦 Données:', data);
+        console.log('🎯 Action:', actionIdentifier);
+
+        // Délai pour s'assurer que l'UI est prête
+        setTimeout(() => {
+            try {
+                // Priorité 1 : Action spécifique (iOS buttons)
+                if (actionIdentifier === 'view_shops') {
+                    router.replace('/(home)/shop');
+                    return;
+                }
+                
+                // Priorité 2 : Route dans les données
+                if (data?.route) {
+                    console.log('️ Navigation vers:', data.route);
+                    router.replace(data.route as any);
+                    return;
+                }
+                
+                // Priorité 3 : Type de notification
+                if (data?.type === 'welcome_marketplace') {
+                    router.replace('/(home)/shop');
+                    return;
+                }
+                
+                if (data?.type === 'new_order' && data?.orderId) {
+                    router.replace(`/orders/${data.orderId}`);
+                    return;
+                }
+                
+                // Fallback
+                router.replace('/');
+                
+            } catch (error) {
+                console.error('❌ Erreur navigation:', error);
+                router.replace('/');
+            }
+        }, 500);
+    };
+
     useEffect(() => {
-        // 1. Initialiser les notifications au démarrage
-        registerForPushNotificationsAsync().then(token => {
+        // Initialiser les catégories de notification
+        setupNotificationCategories();
+
+        // 1. Initialiser les notifications
+        registerForPushNotificationsAsync().then(async (token) => {
             if (token) {
                 setExpoPushToken(token);
-                console.log('🔑 Push Token prêt:', token);
-
-                // TODO: Ici, tu pourras sauvegarder ce token dans ton store Redux 
-                // ou l'envoyer à ton backend décentralisé lié au profil utilisateur.
+                await SecureStore.setItemAsync('EXPO_PUSH_TOKEN', token);
             }
         });
 
-        // 2. Écouter les notifications reçues QUAND l'app est ouverte (premier plan)
+        // 2. Écouter les notifications en premier plan
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-            console.log('🔔 Notification reçue (foreground):', notification);
-            // Tu peux déclencher un Toast ou une mise à jour d'UI ici si tu veux
+            console.log('🔔 Notification reçue (foreground):', notification.request.content.title);
         });
 
-        // 3. Écouter quand l'utilisateur CLIQUE sur une notification (arrière-plan ou fermé)
+        // 3. Écouter les clics sur les notifications (App en arrière-plan)
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-            console.log('👆 Utilisateur a cliqué sur la notification:', response);
+            const actionIdentifier = response.actionIdentifier;
+            const content = response.notification.request.content;
+            
+            console.log('👆 Action cliquée:', actionIdentifier);
+            console.log('📦 Données:', content.data);
 
-            // EXEMPLE pour ton e-commerce :
-            // const data = response.notification.request.content.data;
-            // if (data.type === 'new_order') {
-            //     router.push(`/orders/${data.orderId}`);
-            // }
+            // Gestion des actions iOS
+            if (Platform.OS === 'ios') {
+                if (actionIdentifier === 'view_shops') {
+                    console.log('✅ Action: Voir les boutiques');
+                    setTimeout(() => router.replace('/(home)/shop'), 500);
+                    return;
+                }
+                if (actionIdentifier === 'explore_later') {
+                    console.log('ℹ️ Action: Explorer plus tard');
+                    // Ne rien faire, juste fermer la notification
+                    return;
+                }
+                if (actionIdentifier === 'view_order') {
+                    const orderId = content.data?.orderId;
+                    if (orderId) {
+                        setTimeout(() => router.replace(`/orders/${orderId}`), 500);
+                    }
+                    return;
+                }
+            }
+
+            // Pour Android et le clic normal sur la notification
+            handleNotificationRouting(response);
         });
 
-        // 4. Nettoyage des écouteurs quand le composant est démonté
+        // 4. 🚀 GESTION DU COLD START (App totalement fermée)
+        // C'est LA pièce manquante qui règle 90% des problèmes de deep linking
+        Notifications.getLastNotificationResponseAsync().then(response => {
+            if (response) {
+                console.log('🚀 App ouverte via une notification (Cold Start)');
+                // On attend un peu plus longtemps car l'app vient de démarrer
+                setTimeout(() => {
+                    handleNotificationRouting(response);
+                }, 1000);
+            }
+        });
+
+        // ⚠️ CORRECTION CRITIQUE : Tableau de dépendances VIDE []
+        // Le listener doit être enregistré UNE SEULE FOIS au montage du composant.
         return () => {
             if (notificationListener.current) {
                 Notifications.removeNotificationSubscription(notificationListener.current);
@@ -61,7 +149,7 @@ export default function RootLayout() {
                 Notifications.removeNotificationSubscription(responseListener.current);
             }
         };
-    }, []);
+    }, []); // <-- J'ai retiré navigationState?.key d'ici !
 
     const LoadingScreen = () => (
         <View style={styles.loadingContainer}>
@@ -73,8 +161,6 @@ export default function RootLayout() {
         <Provider store={store}>
             <PersistGate loading={<LoadingScreen />} persistor={persistor}>
                 <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-
-                    {/* Optimisation : screenOptions appliqué à tous les enfants */}
                     <Stack screenOptions={{ headerShown: false }}>
                         <Stack.Screen name="index" />
                         <Stack.Screen name="welcome" />
@@ -100,6 +186,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: COLORS.background || '#ffffff', // Ajout d'un fallback au cas où
+        backgroundColor: COLORS.background || '#ffffff',
     },
 });

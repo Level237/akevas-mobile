@@ -40,6 +40,14 @@ export const guardService = createApi({
             query: (id) => `/api/shop/${id}`,
             providesTags: ['guard'],
         }),
+
+        triggerWelcomeNotification: builder.mutation({
+            query: (payload) => ({
+                url: '/api/notifications/welcome',
+                method: 'POST',
+                body: payload, // On peut envoyer les catégories choisies pour info
+            }),
+        }),
         checkIfEmailExists: builder.mutation({
             query: (formData) => ({
                 url: `/api/check/email-and-phone-number`,
@@ -260,6 +268,7 @@ export const {
     useGetCategoriesWithParentIdQuery,
     useGetCategoryByGenderQuery,
     useGetSubCategoriesQuery,
+    useTriggerWelcomeNotificationMutation,
     useGetAllShopsQuery,
     useLoginMutation,
     useSearchByQueryQuery,
