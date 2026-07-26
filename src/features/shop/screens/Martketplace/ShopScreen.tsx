@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import Animated, {
     useAnimatedScrollHandler,
     useSharedValue
@@ -8,7 +8,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Shop, ShopCardCompact } from '../../components/ShopCardList';
 import HeaderShop from '../../components/shopDetail/HeaderShop';
 import ShopHeader from '../../components/shopDetail/ShopHeader';
+import ShopCardCompactSkeleton from '../../components/ShopCardList/ShopCardCompactSkeleton';
 import ShopSearchModal from '../../components/ShopSearch/ShopSearchModal';
+import ShopStorySkeleton from '../../components/ShopSearch/ShopStorySkeleton';
 
 
 import { useAppRefresh } from '@/hooks/useAppRefresh';
@@ -64,12 +66,12 @@ export default function ShopScreen() {
     };
 
     const renderListFooter = () => {
-        if (!isFooterLoading) return null;
+        if (!isFooterLoading) return <View style={{ height: 20 }} />;
 
         return (
-            <View style={styles.footerLoader}>
-                <ActivityIndicator size="small" color="#E67E22" />
-                <Text style={styles.footerText}>Chargement...</Text>
+            <View style={{ paddingBottom: 20 }}>
+                <ShopCardCompactSkeleton />
+                <ShopCardCompactSkeleton />
             </View>
         );
     };
@@ -103,8 +105,30 @@ export default function ShopScreen() {
 
     if (isFetching && page === 1 && allShops.length === 0) {
         return (
-            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-                <ActivityIndicator size="large" color="#E67E22" />
+            <View style={styles.container}>
+                <HeaderShop setSearchVisible={setSearchVisible} />
+                <ScrollView contentContainerStyle={{ paddingTop: 20 }}>
+                    {/* Story Skeletons */}
+                    <View style={{ marginBottom: 24 }}>
+                        <Text style={{ fontSize: 16, fontWeight: '700', marginBottom: 16, paddingHorizontal: 20, color: '#000' }}>
+                            Suggestions pour vous
+                        </Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }}>
+                            <ShopStorySkeleton />
+                            <ShopStorySkeleton />
+                            <ShopStorySkeleton />
+                            <ShopStorySkeleton />
+                            <ShopStorySkeleton />
+                        </ScrollView>
+                    </View>
+
+                    {/* Shop Card Skeletons */}
+                    <ShopCardCompactSkeleton />
+                    <ShopCardCompactSkeleton />
+                    <ShopCardCompactSkeleton />
+                    <ShopCardCompactSkeleton />
+                    <ShopCardCompactSkeleton />
+                </ScrollView>
             </View>
         );
     }
