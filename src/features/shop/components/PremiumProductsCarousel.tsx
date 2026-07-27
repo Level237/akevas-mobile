@@ -1,7 +1,8 @@
 import PremiumProductCard from '@/components/PremiumProductCard';
+import { normalizeProduct } from '@/lib/normalizeProduct';
 import { useGetHomeProductsQuery } from '@/services/guardService';
 import { Ionicons } from '@expo/vector-icons';
-import React, { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const PremiumProductsCarousel = () => {
@@ -11,7 +12,7 @@ const PremiumProductsCarousel = () => {
     // Extract products safely depending on actual backend response shape
     // Assuming `{ data: [...] }` since many of your queries map this way
     const products = responseData?.data || [];
-
+    const normalizedProducts = useMemo(() => products?.map(normalizeProduct), [products]);
     const renderItem = useCallback(({ item }: any) => <PremiumProductCard product={item} />, []);
 
     const keyExtractor = useCallback((item: any) => item.id?.toString() || Math.random().toString(), []);
@@ -35,7 +36,7 @@ const PremiumProductsCarousel = () => {
             </View>
 
             <FlatList
-                data={products}
+                data={normalizedProducts}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
                 horizontal
