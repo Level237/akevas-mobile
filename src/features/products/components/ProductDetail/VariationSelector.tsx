@@ -109,12 +109,12 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     sectionTitle: {
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '700',
         color: '#1A1A1A',
         marginBottom: 12,
         textTransform: 'uppercase',
-        letterSpacing: 0.5,
+        letterSpacing: 0.2,
     },
     scrollContent: {
         gap: 12,

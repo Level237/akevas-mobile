@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
         color: '#717171',
     },
     name: {
-        fontSize: 22,
+        fontSize: 19,
         fontWeight: '800',
         color: '#1A1A1A',
         lineHeight: 28,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
     },
     price: {
-        fontSize: 28,
+        fontSize: 21,
         fontWeight: '900',
         color: '#1A1A1A',
     },

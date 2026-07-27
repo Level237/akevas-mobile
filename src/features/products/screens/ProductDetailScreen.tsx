@@ -18,6 +18,7 @@ import Toast from 'react-native-toast-message';
 import CheckoutDrawer from '../components/ProductDetail/CheckoutDrawer';
 import ImageGallery from '../components/ProductDetail/ImageGallery';
 import ProductActionButton from '../components/ProductDetail/ProductActionButton';
+import ProductDetailSkeleton from '../components/ProductDetail/ProductDetailSkeleton';
 import ProductInfo from '../components/ProductDetail/ProductInfo';
 import ProductTabs from '../components/ProductDetail/ProductTabs';
 import VariationSelector from '../components/ProductDetail/VariationSelector';
@@ -312,11 +313,7 @@ const ProductDetailScreen = ({ url }: Props) => {
     };
 
     if (isLoading) {
-        return (
-            <View style={styles.center}>
-                <ActivityIndicator size="large" color="#6366F1" />
-            </View>
-        );
+        return <ProductDetailSkeleton />;
     }
 
     if (error || !product) {
