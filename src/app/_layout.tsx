@@ -14,6 +14,7 @@ import { registerForPushNotificationsAsync } from '@/utils/notification';
 import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import { setupNotificationCategories } from '@/utils/notificationCategories';
 import Toast from 'react-native-toast-message';
+import { toastConfig } from '@/components/common/toastConfig';
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -173,7 +174,7 @@ export default function RootLayout() {
                         <Stack.Screen name="orders" />
                     </Stack>
 
-                    <Toast />
+                    <Toast config={toastConfig} position="bottom" bottomOffset={80} />
                     <StatusBar style="auto" />
                 </ThemeProvider>
             </PersistGate>

@@ -2,11 +2,9 @@ import { COLORS } from '@/constants/colors';
 import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
 import { useGetProductByUrlQuery } from '@/services/guardService';
 import { addItem, selectCartItems } from '@/store/CartSlice';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-    ActivityIndicator,
     ScrollView,
     StyleSheet,
     Text,
@@ -18,6 +16,7 @@ import Toast from 'react-native-toast-message';
 import CheckoutDrawer from '../components/ProductDetail/CheckoutDrawer';
 import ImageGallery from '../components/ProductDetail/ImageGallery';
 import ProductActionButton from '../components/ProductDetail/ProductActionButton';
+import ProductDetailHeader from '../components/ProductDetail/ProductDetailHeader';
 import ProductDetailSkeleton from '../components/ProductDetail/ProductDetailSkeleton';
 import ProductInfo from '../components/ProductDetail/ProductInfo';
 import ProductTabs from '../components/ProductDetail/ProductTabs';
@@ -235,8 +234,8 @@ const ProductDetailScreen = ({ url }: Props) => {
             text1: 'Ajouté au panier',
             text2: `${qty} x ${product.product_name} ajouté avec succès.`,
             visibilityTime: 2000,
-        autoHide: true,
-            position: 'top',
+            autoHide: true,
+            position: 'bottom',
         });
     }, [product, currentInfo, dispatch]);
 
@@ -330,19 +329,7 @@ const ProductDetailScreen = ({ url }: Props) => {
     return (
         <View style={styles.container}>
             {/* Header Sticky Placeholder */}
-            <View style={[styles.header, { paddingTop: insets.top }]}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.headerIcon}>
-                    <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
-                </TouchableOpacity>
-                <View style={styles.headerActions}>
-                    <TouchableOpacity style={styles.headerIcon}>
-                        <Ionicons name="share-outline" size={22} color="#1A1A1A" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.headerIcon}>
-                        <Ionicons name="heart-outline" size={22} color="#1A1A1A" />
-                    </TouchableOpacity>
-                </View>
-            </View>
+            <ProductDetailHeader product={product} />
 
             <ScrollView
                 showsVerticalScrollIndicator={false}

@@ -1,26 +1,16 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
+import { removeFavorite, selectFavoriteItems } from '@/store/FavoriteSlice';
+import { addItem } from '@/store/CartSlice';
+import { Product } from '@/types/product';
 import EmptyWishlist from '../components/EmptyWishlist';
 import HeaderWishlist from '../components/HeaderWishlist';
 import RecommendationItem from '../components/RecommendationItem';
 import WishlistGrid from '../components/WishlistGrid';
-import { RecommendationItemType, WishlistItemType } from '../types';
-
-const MOCK_WISH_ITEMS: WishlistItemType[] = [
-    {
-        id: '1',
-        title: 'Montre Luxe Akevas',
-        price: 55000,
-        imageUrl: require('@/assets/images/shop1.webp'),
-    },
-    {
-        id: '2',
-        title: 'Sac de sport Premium',
-        price: 32000,
-        imageUrl: require('@/assets/images/shop1.webp'),
-    },
-];
+import { RecommendationItemType } from '../types';
 
 const MOCK_RECOMMENDATIONS: RecommendationItemType[] = [
     { id: 'r1', title: 'Chaussures Sport', price: 25000, imageUrl: require('@/assets/images/shop1.webp') },
@@ -32,22 +22,48 @@ const MOCK_RECOMMENDATIONS: RecommendationItemType[] = [
 
 const WishlistScreen = () => {
     const router = useRouter();
-    const [items, setItems] = useState<WishlistItemType[]>(MOCK_WISH_ITEMS);
+    const dispatch = useAppDispatch();
+    const items = useAppSelector(selectFavoriteItems);
     const [recommendations] = useState<RecommendationItemType[]>(MOCK_RECOMMENDATIONS);
 
     const isEmpty = items.length === 0;
     const showRecommendations = isEmpty || items.length <= 3;
 
-    const handleRemove = (id: string) => {
-        setItems(curr => curr.filter(item => item.id !== id));
+    const handleRemove = (product: Product) => {
+        dispatch(removeFavorite(product));
+        Toast.show({
+            type: 'info',
+            text1: 'Retiré des favoris',
+            text2: `${product.product_name} a été retiré.`,
+            visibilityTime: 2000,
+            autoHide: true,
+            position: 'bottom',
+        });
     };
 
     const handleAddToCart = (item: any) => {
-        console.log('Added to cart:', item.title);
+        // Gérer à la fois les vrais produits et les recommandations mockées
+        const product = item.product_name ? item : { 
+            ...item, 
+            id: item.id,
+            product_name: item.title, 
+            product_price: item.price,
+            product_profile: item.imageUrl 
+        };
+        
+        dispatch(addItem({ product, quantity: 1 }));
+        Toast.show({
+            type: 'success',
+            text1: 'Ajouté au panier',
+            text2: `${product.product_name} ajouté avec succès.`,
+            visibilityTime: 2000,
+            autoHide: true,
+            position: 'bottom',
+        });
     };
 
     const handleToggleFavorite = (item: RecommendationItemType) => {
-        setItems(curr => [...curr, { ...item, id: `fav-${item.id}` }]);
+        // This is a placeholder for logic to convert recommendation to a product and add to favorites
     };
 
     const handleProductPress = (product: any) => {

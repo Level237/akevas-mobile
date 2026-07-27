@@ -14,10 +14,11 @@ type Props = {
 
 const ShopCard = ({ id, name, image, isPremium }: Props) => {
     const router = useRouter()
+
     return (
         <TouchableOpacity activeOpacity={1} onPress={() => { router.push({ pathname: "/[id]", params: { id: id } }); }} style={styles.container}>
             <Image
-                source={image}
+                source={{ uri: image }}
                 contentFit="cover"
                 transition={500}
                 style={styles.image}
@@ -50,7 +51,8 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     image: {
-        ...StyleSheet.absoluteFillObject,
+        width: '100%',
+        height: "100%",
     },
     gradient: {
         position: 'absolute',

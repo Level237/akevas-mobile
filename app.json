@@ -13,6 +13,9 @@
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.akevas.app",
+      "associatedDomains": [
+        "applinks:akevas.com"
+      ],
       "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": [

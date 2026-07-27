@@ -9,6 +9,7 @@ import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, R
 import { authService } from '@/services/authService';
 import { guardService } from "@/services/guardService";
 import cartSlice from './CartSlice';
+import favoriteSlice from './FavoriteSlice';
 
 
 // 1. On combine tous les reducers
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
     [guardService.reducerPath]: guardService.reducer,
     [authService.reducerPath]: authService.reducer,
     [cartSlice.name]: cartSlice.reducer,
+    [favoriteSlice.name]: favoriteSlice.reducer,
     auth: authReducer
 });
 
@@ -24,8 +26,8 @@ const rootReducer = combineReducers({
 const persistConfig = {
     key: 'root',
     storage: AsyncStorage, // Le stockage du téléphone
-    whitelist: ['auth', 'cart'], // ⚠️ IMPORTANT : Ne mets PAS tes services API ici ! 
-    // On sauvegarde seulement les données critiques (User connecté, contenu du panier).
+    whitelist: ['auth', 'cart', 'favorite'], // ⚠️ IMPORTANT : Ne mets PAS tes services API ici ! 
+    // On sauvegarde seulement les données critiques (User connecté, contenu du panier, favoris).
 };
 
 // 3. On crée le reducer persistant

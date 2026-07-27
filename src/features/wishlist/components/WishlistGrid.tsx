@@ -1,14 +1,14 @@
 import React from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { WishlistItemType } from '../types';
+import { Product } from '@/types/product';
 import WishlistItem from './WishlistItem';
 
 type Props = {
-    items: WishlistItemType[];
-    onRemove: (id: string) => void;
-    onAddToCart: (item: WishlistItemType) => void;
-    ListHeaderComponent?: React.ComponentType<any> | React.ReactElement | null; // Ajouté
-    ListFooterComponent?: React.ComponentType<any> | React.ReactElement | null; // Ajouté
+    items: Product[];
+    onRemove: (item: Product) => void;
+    onAddToCart: (item: Product) => void;
+    ListHeaderComponent?: React.ComponentType<any> | React.ReactElement | null;
+    ListFooterComponent?: React.ComponentType<any> | React.ReactElement | null;
 };
 
 const WishlistGrid = ({ items, onRemove, onAddToCart, ListHeaderComponent, ListFooterComponent }: Props) => {

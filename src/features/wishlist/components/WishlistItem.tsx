@@ -2,16 +2,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { WishlistItemType } from '../types';
+import { Product } from '@/types/product';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
 
 type Props = {
-    item: WishlistItemType;
-    onRemove: (id: string) => void;
-    onAddToCart: (item: WishlistItemType) => void;
-    onPress?: (item: WishlistItemType) => void;
+    item: Product;
+    onRemove: (item: Product) => void;
+    onAddToCart: (item: Product) => void;
+    onPress?: (item: Product) => void;
 };
 
 const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
@@ -24,7 +24,7 @@ const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
             {/* Product Image - Portrait 3:4 */}
             <View style={styles.imageContainer}>
                 <Image
-                    source={item.imageUrl}
+                    source={item.product_profile}
                     style={styles.image}
                     contentFit="cover"
                     transition={200}
@@ -33,7 +33,7 @@ const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
                 {/* Favorite Icon (Filled Orange, No circle) */}
                 <TouchableOpacity
                     style={styles.heartButton}
-                    onPress={() => onRemove(item.id)}
+                    onPress={() => onRemove(item)}
                     activeOpacity={0.6}
                 >
                     <Ionicons name="heart" size={24} color="#E67E22" />
@@ -42,10 +42,10 @@ const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
 
             {/* Product Details */}
             <View style={styles.details}>
-                <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+                <Text style={styles.title} numberOfLines={1}>{item.product_name}</Text>
 
                 <View style={styles.footer}>
-                    <Text style={styles.price}>{item.price.toLocaleString()} FCFA</Text>
+                    <Text style={styles.price}>{Number(item.product_price).toLocaleString()} FCFA</Text>
 
                     <TouchableOpacity
                         style={styles.cartButton}
