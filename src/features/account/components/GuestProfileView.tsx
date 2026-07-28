@@ -86,13 +86,6 @@ const GuestProfileView = ({ onLogin, onRegister }: GuestProfileViewProps) => {
                                 <Text style={styles.guestSub}>Connectez-vous pour une meilleure experience</Text>
                             </View>
                         </View>
-                        <TouchableOpacity
-                            style={styles.loginButton}
-                            activeOpacity={0.8}
-                            onPress={onLogin || (() => router.push('/(auth)/login'))}
-                        >
-                            <Text style={styles.loginButtonText}>Se connecter</Text>
-                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -104,8 +97,7 @@ const GuestProfileView = ({ onLogin, onRegister }: GuestProfileViewProps) => {
                             icon={Settings}
                             title="Mes préférences"
                             subtitle="Définissez vos centres d'intérêt"
-                            isLocked={true}
-                            onPress={() => router.push('/preferences')}
+                            onPress={() => router.push('/(navigation)/preferences')}
                             isLast
                         />
                     </View>
@@ -158,7 +150,7 @@ const styles = StyleSheet.create({
     },
     // --- PROFILE CARD ---
     profileCardBg: {
-        backgroundColor: COLORS.primary,
+
         borderRadius: 24,
         padding: 2, // Petite bordure intérieure
         marginTop: 16,
@@ -218,30 +210,18 @@ const styles = StyleSheet.create({
     },
     guestSub: {
         fontSize: 12,
-        width: "54%",
         color: '#6B7280',
         marginTop: 2,
-    },
-    loginButton: {
-        backgroundColor: COLORS.primary,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 12,
-    },
-    loginButtonText: {
-        color: '#FFFFFF',
-        fontSize: 14,
-        fontWeight: '700',
     },
     // --- SECTIONS ---
     section: {
         marginBottom: 24,
     },
     sectionTitle: {
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: '700',
         color: '#6B7280',
-        marginBottom: 8,
+        marginBottom: 12,
         marginLeft: 4,
         textTransform: 'uppercase',
         letterSpacing: 0.5,

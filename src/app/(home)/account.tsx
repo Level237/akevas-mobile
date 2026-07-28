@@ -1,5 +1,6 @@
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS } from '@/constants/colors';
 
 import AuthenticatedProfileView from '../../features/account/components/AuthenticatedProfileView';
 import GuestProfileView from '../../features/account/components/GuestProfileView';
@@ -43,7 +44,13 @@ export default function AccountScreen() {
                     />
                 </View>
                 <Text style={styles.headerTitle}>Profil</Text>
-                <View style={styles.headerRight} /> {/* Équilibre le côté gauche */}
+                <View style={styles.headerRight}>
+                    {!isAuthenticated && (
+                        <TouchableOpacity style={styles.headerLoginBtn} onPress={handleLogin}>
+                            <Text style={styles.headerLoginText}>Se connecter</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
             <ScrollView
                 showsVerticalScrollIndicator={false}
@@ -81,6 +88,19 @@ const styles = StyleSheet.create({
     },
     headerRight: {
         flex: 1, // Prend tout l'espace disponible à droite (équilibre le titre)
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+    },
+    headerLoginBtn: {
+        backgroundColor: COLORS.primary,
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 12,
+    },
+    headerLoginText: {
+        color: '#FFFFFF',
+        fontSize: 13,
+        fontWeight: '700',
     },
 
     headerTitle: {

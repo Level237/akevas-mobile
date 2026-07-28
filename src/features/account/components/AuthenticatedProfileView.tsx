@@ -215,6 +215,7 @@ const AuthenticatedProfileView = ({ user, onLogout }: AuthenticatedProfileViewPr
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Préférences & Aide</Text>
                     <View style={styles.menuCard}>
+                        <MenuItem icon={SettingsIcon} title="Mes préférences" onPress={() => router.push('/(navigation)/preferences')} />
                         <MenuItem icon={Globe} title="Langue" subtitle="Français" />
                         <MenuItem icon={FileText} title="Centre d'aide" />
                         <MenuItem icon={ShieldCheck} title="Confidentialité" />
