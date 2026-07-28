@@ -1,6 +1,6 @@
 import ProductCard from '@/components/ProductCard';
 import { normalizeProduct } from '@/lib/normalizeProduct';
-import { useGetCategoryProductsByUrlQuery } from '@/services/guardService';
+import { useGetCategoryProductsByUrlQuery, useGetSubCategoriesQuery } from '@/services/guardService';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -19,15 +19,6 @@ type Props = {
     description?: string;
     id?: string;
 };
-
-// Mock subcategories for UI layout matching the provided design
-const MOCK_SUBCATEGORIES = [
-    { id: 'all', name: 'All' },
-    { id: 'clothing', name: 'Clothing' },
-    { id: 'shoes', name: 'Shoes' },
-    { id: 'hats', name: 'Hats' },
-    { id: 'bags', name: 'Bags' },
-];
 
 export default function CategoryDetailScreen({ url, name, image, description, id }: Props) {
     const insets = useSafeAreaInsets();
@@ -54,6 +45,18 @@ export default function CategoryDetailScreen({ url, name, image, description, id
         seller_mode: isSellerMode,
         bulk_price_range: selectedBulkPriceRange
     });
+
+    const { data: subCategoriesData, isLoading: isLoadingSubCategories } = useGetSubCategoriesQuery({
+        arrayId: `[${id}]`,
+        id: "1"
+    }, {
+        skip: !id
+    });
+
+    const subCategories = useMemo(() => {
+        const fetched = subCategoriesData?.categories || [];
+        return [{ id: 'all', category_name: 'Tous' }, ...fetched];
+    }, [subCategoriesData]);
 
     const products = data?.productList || [];
     const normalizedProducts = useMemo(() => products?.map(normalizeProduct), [products]);
@@ -170,7 +173,7 @@ export default function CategoryDetailScreen({ url, name, image, description, id
 
             {/* Subcategories Filter ScrollView */}
             <View style={styles.filtersContainer}>
-                {isLoading ? (
+                {isLoadingSubCategories ? (
                     <View style={styles.filtersListSkeleton}>
                         {[1, 2, 3, 4, 5].map((i) => (
                             <Animated.View key={i} style={[styles.filterChipSkeleton, { opacity }]} />
@@ -178,20 +181,20 @@ export default function CategoryDetailScreen({ url, name, image, description, id
                     </View>
                 ) : (
                     <FlatList
-                        data={MOCK_SUBCATEGORIES}
-                        keyExtractor={(item) => item.id}
+                        data={subCategories}
+                        keyExtractor={(item) => item.id.toString()}
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={styles.filtersList}
                         renderItem={({ item }) => {
-                            const isActive = activeSubcategory === item.id;
+                            const isActive = activeSubcategory === item.id.toString();
                             return (
                                 <TouchableOpacity
                                     style={[styles.filterChip, isActive && styles.filterChipActive]}
-                                    onPress={() => setActiveSubcategory(item.id)}
+                                    onPress={() => setActiveSubcategory(item.id.toString())}
                                 >
                                     <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
-                                        {item.name}
+                                        {item.category_name}
                                     </Text>
                                 </TouchableOpacity>
                             );
@@ -208,7 +211,9 @@ export default function CategoryDetailScreen({ url, name, image, description, id
             ) : normalizedProducts.length > 0 && (
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>
-                        {activeSubcategory === 'all' ? 'Tous les articles' : MOCK_SUBCATEGORIES.find(s => s.id === activeSubcategory)?.name}
+                        {activeSubcategory === 'all' 
+                            ? 'Tous les articles' 
+                            : subCategories.find(s => s.id.toString() === activeSubcategory)?.category_name}
                     </Text>
                 </View>
             )}
