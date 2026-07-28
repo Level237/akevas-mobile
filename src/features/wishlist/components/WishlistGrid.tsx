@@ -12,7 +12,7 @@ type Props = {
 };
 
 const WishlistGrid = ({ items, onRemove, onAddToCart, ListHeaderComponent, ListFooterComponent }: Props) => {
-    console.log(items)
+
     return (
         <FlatList
             data={items}

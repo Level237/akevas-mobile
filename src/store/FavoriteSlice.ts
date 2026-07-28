@@ -11,6 +11,7 @@ export interface FavoriteItem {
             hex: string;
         };
         price?: string;
+        image?: string;
         attributes?: {
             id: number;
             value: string;

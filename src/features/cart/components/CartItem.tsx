@@ -14,7 +14,11 @@ type Props = {
 const CartItem = ({ item, onIncrease, onDecrease, onRemove }: Props) => {
 
     const normalizedProduct = normalizeProduct(item.product);
-    const variation = item.selectedVariatio
+    const variation = item.selectedVariation;
+    const profileImage = variation?.image || normalizedProduct.product_profile;
+    const imageSource = typeof profileImage === 'string' 
+        ? { uri: profileImage } 
+        : profileImage;
 
     // Determine the correct unit price: priority to variation price
     const unitPrice = variation?.price
@@ -27,7 +31,7 @@ const CartItem = ({ item, onIncrease, onDecrease, onRemove }: Props) => {
             {/* Product Image */}
             <View style={styles.imageContainer}>
                 <Image
-                    source={{ uri: normalizedProduct.product_profile }}
+                    source={imageSource}
                     style={styles.image}
                     contentFit="cover"
                     transition={200}

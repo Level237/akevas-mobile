@@ -38,6 +38,7 @@ const ProductDetailScreen = ({ url }: Props) => {
     const dispatch = useAppDispatch();
     const cartItems = useAppSelector(selectCartItems);
 
+    console.log(product)
 
     const handleBuyNow = useCallback(() => {
         setDrawerMode('buy');
@@ -214,6 +215,7 @@ const ProductDetailScreen = ({ url }: Props) => {
             id: currentInfo.productVariationId,
             color: currentInfo.color,
             price: currentInfo.price,
+            image: currentInfo.mainImage,
             attributes: currentInfo.attributeVariationId ? {
                 id: currentInfo.attributeVariationId,
                 value: currentInfo.attribute,

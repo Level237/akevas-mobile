@@ -1,6 +1,7 @@
 import { FavoriteItem } from '@/store/FavoriteSlice';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { useMemo } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -17,6 +18,29 @@ const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
     const product = item.product || item;
     const selectedVariation = item.selectedVariation;
     const price = selectedVariation?.attributes?.price || selectedVariation?.price || product.product_price;
+    const profileImage = selectedVariation?.image || product.product_profile;
+    const imageSource = typeof profileImage === 'string' ? { uri: profileImage } : profileImage;
+
+
+    const swatches = useMemo(() => {
+        if (selectedVariation?.color?.hex) {
+            return [{ name: selectedVariation.color.name, hex: selectedVariation.color.hex }];
+        }
+        if (!product.variations?.length) return [];
+        const seen = new Set();
+        const colors = [];
+        for (const variation of product.variations) {
+            if (variation.color?.hex && !seen.has(variation.color.hex)) {
+                colors.push({
+                    name: variation.color.name,
+                    hex: variation.color.hex,
+                });
+                seen.add(variation.color.hex);
+            }
+            if (colors.length === 4) break;
+        }
+        return colors;
+    }, [product.variations, selectedVariation]);
 
     return (
         <TouchableOpacity
@@ -27,7 +51,7 @@ const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
             {/* Product Image - Portrait 3:4 */}
             <View style={styles.imageContainer}>
                 <Image
-                    source={{ uri: product.product_profile }}
+                    source={imageSource}
                     style={styles.image}
                     contentFit="cover"
                     transition={200}
@@ -41,18 +65,28 @@ const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
                 >
                     <Ionicons name="heart" size={24} color="#E67E22" />
                 </TouchableOpacity>
+
+                {/* Color Swatches */}
+                {swatches.length > 0 && (
+                    <View style={styles.swatchesContainer}>
+                        {swatches.map((color: any, index: number) => (
+                            <View
+                                key={index}
+                                style={[
+                                    styles.swatch,
+                                    { backgroundColor: color.hex },
+                                ]}
+                            />
+                        ))}
+                    </View>
+                )}
             </View>
 
             {/* Product Details */}
             <View style={styles.details}>
                 <Text style={styles.title} numberOfLines={1}>{product.product_name}</Text>
 
-                {selectedVariation && (
-                    <Text style={styles.variationSubtitle} numberOfLines={1}>
-                        {selectedVariation.color.name}
-                        {selectedVariation.attributes ? ` - ${selectedVariation.attributes.value}` : ''}
-                    </Text>
-                )}
+
 
                 <View style={styles.footer}>
                     <Text style={styles.price}>{Number(price).toLocaleString()} FCFA</Text>
@@ -107,6 +141,30 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: '#333',
         marginBottom: 2,
+    },
+    swatchesContainer: {
+        position: 'absolute',
+        bottom: 8,
+        left: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.75)',
+        paddingHorizontal: 4,
+        paddingVertical: 4,
+        borderRadius: 12,
+        gap: 4,
+    },
+    swatch: {
+        width: 14,
+        height: 14,
+        borderRadius: 7,
+        borderWidth: 1,
+        borderColor: '#FFF',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.3,
+        shadowRadius: 2,
     },
     variationSubtitle: {
         fontSize: 12,
