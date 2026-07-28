@@ -1,21 +1,22 @@
+import { FavoriteItem } from '@/store/FavoriteSlice';
 import React from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { Product } from '@/types/product';
 import WishlistItem from './WishlistItem';
 
 type Props = {
-    items: Product[];
-    onRemove: (item: Product) => void;
-    onAddToCart: (item: Product) => void;
+    items: FavoriteItem[];
+    onRemove: (item: FavoriteItem) => void;
+    onAddToCart: (item: FavoriteItem) => void;
     ListHeaderComponent?: React.ComponentType<any> | React.ReactElement | null;
     ListFooterComponent?: React.ComponentType<any> | React.ReactElement | null;
 };
 
 const WishlistGrid = ({ items, onRemove, onAddToCart, ListHeaderComponent, ListFooterComponent }: Props) => {
+    console.log(items)
     return (
         <FlatList
             data={items}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item: any) => item.product?.id || item.id || Math.random().toString()}
             numColumns={2}
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={styles.container}

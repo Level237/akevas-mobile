@@ -6,9 +6,13 @@ import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
 import { removeFavorite, selectFavoriteItems } from '@/store/FavoriteSlice';
 import { addItem } from '@/store/CartSlice';
 import { Product } from '@/types/product';
+import * as SecureStore from 'expo-secure-store';
+import { useFilterProductsQuery, useGetHomeProductsQuery } from '@/services/guardService';
+import { normalizeProduct } from '@/lib/normalizeProduct';
 import EmptyWishlist from '../components/EmptyWishlist';
 import HeaderWishlist from '../components/HeaderWishlist';
 import RecommendationItem from '../components/RecommendationItem';
+import RecommendationItemSkeleton from '../components/RecommendationItemSkeleton';
 import WishlistGrid from '../components/WishlistGrid';
 import { RecommendationItemType } from '../types';
 
@@ -24,17 +28,46 @@ const WishlistScreen = () => {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const items = useAppSelector(selectFavoriteItems);
-    const [recommendations] = useState<RecommendationItemType[]>(MOCK_RECOMMENDATIONS);
+    const [preferencesArray, setPreferencesArray] = useState<string | null>(null);
+
+    React.useEffect(() => {
+        const fetchPrefs = async () => {
+            const prefs = await SecureStore.getItemAsync('USER_PREFERENCES');
+            setPreferencesArray(prefs || '[]'); // '[]' indique qu'il n'y a pas de préférences
+        };
+        fetchPrefs();
+    }, []);
+
+    const hasPrefs = preferencesArray !== null && preferencesArray !== '[]';
+    const isReady = preferencesArray !== null;
+
+    const { data: filterData, isLoading: isFilterLoading, isFetching: isFilterFetching } = useFilterProductsQuery(
+        { arrayId: preferencesArray },
+        { skip: !hasPrefs }
+    );
+
+    const { data: homeData, isLoading: isHomeLoading, isFetching: isHomeFetching } = useGetHomeProductsQuery(undefined, {
+        skip: !isReady || hasPrefs
+    });
+
+    const isRecommendationsLoading = isFilterLoading || isFilterFetching || isHomeLoading || isHomeFetching || !isReady;
+
+    const activeData = hasPrefs ? filterData : homeData;
+    const rawRecommendations = activeData?.data || activeData?.productList || activeData || [];
+    const recommendations = Array.isArray(rawRecommendations) ? rawRecommendations.map(normalizeProduct) : [];
 
     const isEmpty = items.length === 0;
     const showRecommendations = isEmpty || items.length <= 3;
 
-    const handleRemove = (product: Product) => {
-        dispatch(removeFavorite(product));
+    const handleRemove = (item: any) => {
+        const productToRemove = item.product || item;
+        const variationToRemove = item.selectedVariation;
+
+        dispatch(removeFavorite({ product: productToRemove, selectedVariation: variationToRemove }));
         Toast.show({
             type: 'info',
             text1: 'Retiré des favoris',
-            text2: `${product.product_name} a été retiré.`,
+            text2: `${productToRemove.product_name} a été retiré.`,
             visibilityTime: 2000,
             autoHide: true,
             position: 'bottom',
@@ -42,7 +75,23 @@ const WishlistScreen = () => {
     };
 
     const handleAddToCart = (item: any) => {
-        // Gérer à la fois les vrais produits et les recommandations mockées
+        const productToAdd = item.product || item;
+
+        if (item.selectedVariation || !item.product_name) {
+            // C'est un FavoriteItem de la grille (provenant de WishlistItem)
+            dispatch(addItem({ product: productToAdd, quantity: 1, selectedVariation: item.selectedVariation }));
+            Toast.show({
+                type: 'success',
+                text1: 'Ajouté au panier',
+                text2: `${productToAdd.product_name} ajouté avec succès.`,
+                visibilityTime: 2000,
+                autoHide: true,
+                position: 'bottom',
+            });
+            return;
+        }
+
+        // Sinon, c'est un produit de la liste de recommandations (qui n'a pas été formaté en FavoriteItem)
         const product = item.product_name ? item : { 
             ...item, 
             id: item.id,
@@ -62,37 +111,50 @@ const WishlistScreen = () => {
         });
     };
 
-    const handleToggleFavorite = (item: RecommendationItemType) => {
-        // This is a placeholder for logic to convert recommendation to a product and add to favorites
+    const handleToggleFavorite = (item: any) => {
+        // Logique pour basculer en favori si nécessaire depuis les recommandations
+        const product = item.product_name ? item : { ...item, id: item.id, product_name: item.title, product_price: item.price, product_profile: item.imageUrl };
+        dispatch(addItem({ product, quantity: 1 }));
     };
 
     const handleProductPress = (product: any) => {
         router.push({
-            pathname: '/(navigation)/category',
-            params: { title: product.title }
+            pathname: '/product/[url]',
+            params: { url: product.product_url || product.id }
         });
     };
 
     const renderFooter = () => {
         if (!showRecommendations) return null;
+        
         return (
             <View style={styles.recommendationBox}>
                 <Text style={styles.recommendationTitle}>Vous aimerez aussi</Text>
-                <FlatList
-                    horizontal
-                    data={recommendations}
-                    keyExtractor={(item) => item.id}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.recommendationList}
-                    renderItem={({ item }) => (
-                        <RecommendationItem
-                            item={item}
-                            onAddToCart={handleAddToCart}
-                            onFavorite={handleToggleFavorite}
-                            onPress={() => { }}
-                        />
-                    )}
-                />
+                
+                {isRecommendationsLoading ? (
+                    <FlatList
+                        horizontal
+                        data={[1, 2, 3, 4]}
+                        keyExtractor={(item) => item.toString()}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.recommendationList}
+                        renderItem={() => <RecommendationItemSkeleton />}
+                    />
+                ) : (
+                    <FlatList
+                        horizontal
+                        data={recommendations}
+                        keyExtractor={(item) => item.id}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.recommendationList}
+                        renderItem={({ item }) => (
+                            <RecommendationItem
+                                item={item}
+                                onPress={handleProductPress}
+                            />
+                        )}
+                    />
+                )}
             </View>
         );
     };

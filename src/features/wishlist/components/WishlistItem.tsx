@@ -1,20 +1,23 @@
+import { FavoriteItem } from '@/store/FavoriteSlice';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import React from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Product } from '@/types/product';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
 
 type Props = {
-    item: Product;
-    onRemove: (item: Product) => void;
-    onAddToCart: (item: Product) => void;
-    onPress?: (item: Product) => void;
+    item: FavoriteItem;
+    onRemove: (item: FavoriteItem) => void;
+    onAddToCart: (item: FavoriteItem) => void;
+    onPress?: (item: FavoriteItem) => void;
 };
 
 const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
+    const product = item.product || item;
+    const selectedVariation = item.selectedVariation;
+    const price = selectedVariation?.attributes?.price || selectedVariation?.price || product.product_price;
+
     return (
         <TouchableOpacity
             style={styles.container}
@@ -24,7 +27,7 @@ const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
             {/* Product Image - Portrait 3:4 */}
             <View style={styles.imageContainer}>
                 <Image
-                    source={item.product_profile}
+                    source={{ uri: product.product_profile }}
                     style={styles.image}
                     contentFit="cover"
                     transition={200}
@@ -42,10 +45,17 @@ const WishlistItem = ({ item, onRemove, onAddToCart, onPress }: Props) => {
 
             {/* Product Details */}
             <View style={styles.details}>
-                <Text style={styles.title} numberOfLines={1}>{item.product_name}</Text>
+                <Text style={styles.title} numberOfLines={1}>{product.product_name}</Text>
+
+                {selectedVariation && (
+                    <Text style={styles.variationSubtitle} numberOfLines={1}>
+                        {selectedVariation.color.name}
+                        {selectedVariation.attributes ? ` - ${selectedVariation.attributes.value}` : ''}
+                    </Text>
+                )}
 
                 <View style={styles.footer}>
-                    <Text style={styles.price}>{Number(item.product_price).toLocaleString()} FCFA</Text>
+                    <Text style={styles.price}>{Number(price).toLocaleString()} FCFA</Text>
 
                     <TouchableOpacity
                         style={styles.cartButton}
@@ -96,7 +106,12 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '500',
         color: '#333',
-        marginBottom: 4,
+        marginBottom: 2,
+    },
+    variationSubtitle: {
+        fontSize: 12,
+        color: '#666',
+        marginBottom: 6,
     },
     footer: {
         flexDirection: 'row',

@@ -209,8 +209,8 @@ const ProductDetailScreen = ({ url }: Props) => {
 
     const currentInfo = getCurrentProductInfo();
 
-    const handleAddToCart = useCallback((qty: number) => {
-        const variation = currentInfo.attributeVariationId || currentInfo.productVariationId ? {
+    const currentVariation = useMemo(() => {
+        return currentInfo.attributeVariationId || currentInfo.productVariationId ? {
             id: currentInfo.productVariationId,
             color: currentInfo.color,
             price: currentInfo.price,
@@ -221,11 +221,13 @@ const ProductDetailScreen = ({ url }: Props) => {
                 price: currentInfo.price
             } : undefined
         } : undefined;
+    }, [currentInfo]);
 
+    const handleAddToCart = useCallback((qty: number) => {
         dispatch(addItem({
             product,
             quantity: qty,
-            selectedVariation: variation
+            selectedVariation: currentVariation
         }));
 
         setIsDrawerOpen(false);
@@ -329,7 +331,7 @@ const ProductDetailScreen = ({ url }: Props) => {
     return (
         <View style={styles.container}>
             {/* Header Sticky Placeholder */}
-            <ProductDetailHeader product={product} />
+            <ProductDetailHeader product={product} selectedVariation={currentVariation} />
 
             <ScrollView
                 showsVerticalScrollIndicator={false}

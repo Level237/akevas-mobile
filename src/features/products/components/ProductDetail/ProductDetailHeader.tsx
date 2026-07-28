@@ -9,12 +9,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = {
     product: Product;
+    selectedVariation?: any;
 };
 
-const ProductDetailHeader = ({ product }: Props) => {
+const ProductDetailHeader = ({ product, selectedVariation }: Props) => {
     const navigation = useNavigation();
     const dispatch = useAppDispatch();
-    const isFavorite = useAppSelector(selectIsFavorite(product?.id || 0));
+    const isFavorite = useAppSelector(selectIsFavorite(product, selectedVariation));
 
     // Contracter le nom du produit à 6 caractères
     const title = product?.product_name || 'Produit';
@@ -54,7 +55,7 @@ const ProductDetailHeader = ({ product }: Props) => {
 
     const handleToggleFavorite = () => {
         if (product) {
-            dispatch(toggleFavorite(product));
+            dispatch(toggleFavorite({ product, selectedVariation }));
         }
     };
 
