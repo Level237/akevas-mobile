@@ -38,7 +38,8 @@ const MenuScreen = () => {
                 url: category.category_url || category.id,
                 name: category.category_name,
                 image: category.category_profile,
-                description: category.category_description
+                description: category.category_description,
+                id: category.id
             }
         });
     }, []);

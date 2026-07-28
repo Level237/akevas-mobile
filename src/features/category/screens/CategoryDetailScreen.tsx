@@ -6,8 +6,9 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, FlatList, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import CategoryFilterModal from '../components/CategoryFilterModal';
 
 const { width, height } = Dimensions.get('window');
 
@@ -16,6 +17,7 @@ type Props = {
     name: string;
     image: string;
     description?: string;
+    id?: string;
 };
 
 // Mock subcategories for UI layout matching the provided design
@@ -27,12 +29,31 @@ const MOCK_SUBCATEGORIES = [
     { id: 'bags', name: 'Bags' },
 ];
 
-export default function CategoryDetailScreen({ url, name, image, description }: Props) {
+export default function CategoryDetailScreen({ url, name, image, description, id }: Props) {
     const insets = useSafeAreaInsets();
     const [activeSubcategory, setActiveSubcategory] = useState('all');
+    const [isFilterVisible, setIsFilterVisible] = useState(false);
 
-    // Fetch products using the endpoint
-    const { data, isLoading } = useGetCategoryProductsByUrlQuery({ url });
+    // Filter states
+    const [minPrice, setMinPrice] = useState(0);
+    const [maxPrice, setMaxPrice] = useState(500000);
+    const [selectedColors, setSelectedColors] = useState<string[]>([]);
+    const [selectedAttributes, setSelectedAttributes] = useState<number[]>([]);
+    const [selectedGenders, setSelectedGenders] = useState<number[]>([]);
+    const [isSellerMode, setIsSellerMode] = useState(false);
+    const [selectedBulkPriceRange, setSelectedBulkPriceRange] = useState('');
+
+    // Fetch products using the endpoint with filters
+    const { data, isLoading } = useGetCategoryProductsByUrlQuery({ 
+        url,
+        min_price: minPrice,
+        max_price: maxPrice,
+        colors: selectedColors,
+        attribut: selectedAttributes,
+        gender: selectedGenders,
+        seller_mode: isSellerMode,
+        bulk_price_range: selectedBulkPriceRange
+    });
 
     const products = data?.productList || [];
     const normalizedProducts = useMemo(() => products?.map(normalizeProduct), [products]);
@@ -56,6 +77,28 @@ export default function CategoryDetailScreen({ url, name, image, description }: 
         router.back();
     };
 
+    const handleShare = async () => {
+        try {
+            await Share.share({
+                message: `Découvrez la catégorie ${name} sur Akevas !\nhttps://akevas.com/category/${url}`,
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleApplyFilters = (filters: any) => {
+        setMinPrice(filters.minPrice);
+        setMaxPrice(filters.maxPrice);
+        setSelectedColors(filters.selectedColors);
+        setSelectedAttributes(filters.selectedAttributes);
+        setSelectedGenders(filters.selectedGenders);
+        setIsSellerMode(filters.isSellerMode);
+        setSelectedBulkPriceRange(filters.selectedBulkPriceRange);
+    };
+
+    const activeFiltersCount = selectedColors.length + selectedAttributes.length + selectedGenders.length + (isSellerMode ? 1 : 0) + (selectedBulkPriceRange ? 1 : 0) + (minPrice > 0 || maxPrice < 500000 ? 1 : 0);
+
     const renderHeader = () => (
         <View style={styles.headerContainer}>
             {/* Hero Image */}
@@ -78,6 +121,27 @@ export default function CategoryDetailScreen({ url, name, image, description }: 
                 >
                     <Ionicons name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
+
+                {/* Right Actions: Filter & Share */}
+                <View style={[styles.rightActions, { top: insets.top + 10 }]}>
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => setIsFilterVisible(true)}
+                    >
+                        <Ionicons name="options-outline" size={22} color="#000" />
+                        {activeFiltersCount > 0 && (
+                            <View style={styles.badge}>
+                                <Text style={styles.badgeText}>{activeFiltersCount}</Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={handleShare}
+                    >
+                        <Ionicons name="share-social-outline" size={22} color="#000" />
+                    </TouchableOpacity>
+                </View>
 
                 {/* Text Overlay */}
                 <View style={styles.heroTextContainer}>
@@ -169,6 +233,29 @@ export default function CategoryDetailScreen({ url, name, image, description }: 
                     <ProductCard product={item} />
                 )}
             />
+
+            <CategoryFilterModal 
+                visible={isFilterVisible}
+                onClose={() => setIsFilterVisible(false)}
+                categoryId={Number(id)}
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+                selectedColors={selectedColors}
+                selectedAttributes={selectedAttributes}
+                selectedGenders={selectedGenders}
+                isSellerMode={isSellerMode}
+                selectedBulkPriceRange={selectedBulkPriceRange}
+                onApply={handleApplyFilters}
+                onClearAll={() => {
+                    setMinPrice(0);
+                    setMaxPrice(500000);
+                    setSelectedColors([]);
+                    setSelectedAttributes([]);
+                    setSelectedGenders([]);
+                    setIsSellerMode(false);
+                    setSelectedBulkPriceRange('');
+                }}
+            />
         </View>
     );
 }
@@ -203,6 +290,43 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 3,
+    },
+    rightActions: {
+        position: 'absolute',
+        right: 20,
+        flexDirection: 'row',
+        gap: 12,
+    },
+    actionButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    badge: {
+        position: 'absolute',
+        top: -4,
+        right: -4,
+        backgroundColor: '#F97316',
+        borderRadius: 10,
+        width: 18,
+        height: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#FFF',
+    },
+    badgeText: {
+        color: '#FFF',
+        fontSize: 10,
+        fontWeight: 'bold',
     },
     heroTextContainer: {
         position: 'absolute',

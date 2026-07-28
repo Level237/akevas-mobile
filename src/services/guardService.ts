@@ -195,6 +195,11 @@ export const guardService = createApi({
                 method: "GET"
             })
         }),
+
+        getAttributeValues: builder.query({
+            query: (id) => ({ url: `/api/attributes/value/${id}`, method: 'GET' }),
+            keepUnusedDataFor: 3600, // Les attributs changent rarement
+        }),
         getAllProducts: builder.query({
             query: ({ page = 1, min_price, max_price, categories, colors, attribut, gender, seller_mode, bulk_price_range }) => {
                 const params = new URLSearchParams();
@@ -251,8 +256,17 @@ export const guardService = createApi({
             }),
         }),
 
+        getAttributeByCategory: builder.query({
+            query: () => ({ url: "/api/categories/attributes", method: "GET" }),
+            providesTags: ['guard'],
+            keepUnusedDataFor: 3600,
+        }),
 
-
+        getAttributeValueById: builder.query({
+            query: (id) => ({ url: `/api/attributes/value/by/group/${id}`, method: "GET" }),
+            providesTags: ['guard'],
+            keepUnusedDataFor: 3600,
+        })
 
     }),
 })
@@ -264,6 +278,9 @@ export const {
     useGetCategoryProductsByUrlQuery,
     useCheckIfEmailExistsMutation,
     useCheckIfPhoneExistsMutation,
+    useGetAttributeByCategoryQuery,
+    useGetAttributeValueByIdQuery,
+    useGetAttributeValuesQuery,
     useGetCategoriesWithParentIdNullQuery,
     useGetCategoriesWithParentIdQuery,
     useGetCategoryByGenderQuery,

@@ -11,6 +11,7 @@ export default function CategoryRoute() {
             name={params.name as string} 
             image={params.image as string} 
             description={params.description as string}
+            id={params.id as string}
         />
     );
 }
