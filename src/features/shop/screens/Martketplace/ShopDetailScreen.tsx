@@ -1,5 +1,6 @@
 import HeaderScreen from "@/components/common/HeaderScreen";
 import ShopDetailFeature from "@/features/shop/components/shopDetail";
+import ShopDetailSkeleton from "@/features/shop/components/shopDetail/ShopDetailSkeleton";
 import { useGetShopQuery } from "@/services/guardService";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React from 'react';
@@ -11,7 +12,15 @@ export default function ShopDetailScreen() {
 
     const shopPreview = shop?.shop || {}
 
-
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1 }}>
+                <Stack.Screen options={{ headerShown: false }} />
+                <HeaderScreen title="Chargement..." />
+                <ShopDetailSkeleton />
+            </View>
+        );
+    }
 
     return (
         <View style={{ flex: 1 }}>
