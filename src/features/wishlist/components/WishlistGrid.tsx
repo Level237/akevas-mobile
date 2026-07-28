@@ -7,11 +7,12 @@ type Props = {
     items: FavoriteItem[];
     onRemove: (item: FavoriteItem) => void;
     onAddToCart: (item: FavoriteItem) => void;
+    onPress?: (item: FavoriteItem) => void;
     ListHeaderComponent?: React.ComponentType<any> | React.ReactElement | null;
     ListFooterComponent?: React.ComponentType<any> | React.ReactElement | null;
 };
 
-const WishlistGrid = ({ items, onRemove, onAddToCart, ListHeaderComponent, ListFooterComponent }: Props) => {
+const WishlistGrid = ({ items, onRemove, onAddToCart, onPress, ListHeaderComponent, ListFooterComponent }: Props) => {
 
     return (
         <FlatList
@@ -28,6 +29,7 @@ const WishlistGrid = ({ items, onRemove, onAddToCart, ListHeaderComponent, ListF
                     item={item}
                     onRemove={onRemove}
                     onAddToCart={onAddToCart}
+                    onPress={onPress}
                 />
             )}
         />

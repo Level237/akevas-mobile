@@ -1,7 +1,7 @@
 import { COLORS } from '@/constants/colors';
-import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
+import { useAppDispatch } from '@/hooks/hooks';
 import { useGetProductByUrlQuery } from '@/services/guardService';
-import { addItem, selectCartItems } from '@/store/CartSlice';
+import { addItem } from '@/store/CartSlice';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -36,9 +36,9 @@ const ProductDetailScreen = ({ url }: Props) => {
     const [quantity, setQuantity] = useState<number>(1);
     const [selectedImage, setSelectedImage] = useState<number>(0);
     const dispatch = useAppDispatch();
-    const cartItems = useAppSelector(selectCartItems);
 
-    console.log(product)
+
+
 
     const handleBuyNow = useCallback(() => {
         setDrawerMode('buy');

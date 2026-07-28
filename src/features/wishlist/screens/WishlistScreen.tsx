@@ -124,6 +124,14 @@ const WishlistScreen = () => {
         });
     };
 
+    const handleFavoritePress = (item: any) => {
+        const product = item.product || item;
+        router.push({
+            pathname: '/product/[url]',
+            params: { url: product.product_url || product.id }
+        });
+    };
+
     const renderFooter = () => {
         if (!showRecommendations) return null;
         
@@ -174,6 +182,7 @@ const WishlistScreen = () => {
                     items={items}
                     onRemove={handleRemove}
                     onAddToCart={handleAddToCart}
+                    onPress={handleFavoritePress}
                     ListFooterComponent={renderFooter()} // On injecte les reco ici
                 />
             )}
