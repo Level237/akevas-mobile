@@ -31,6 +31,18 @@ const MenuScreen = () => {
         router.back();
     }, []);
 
+    const handleCategoryPress = useCallback((category: any) => {
+        router.push({
+            pathname: '/(navigation)/category/[url]',
+            params: {
+                url: category.category_url || category.id,
+                name: category.category_name,
+                image: category.category_profile,
+                description: category.category_description
+            }
+        });
+    }, []);
+
     const currentCategories = currentGender?.categories;
 
     return (
@@ -54,7 +66,7 @@ const MenuScreen = () => {
                     data={currentCategories}
                     keyExtractor={(item) => item.id}
                     numColumns={2}
-                    renderItem={({ item }) => <CategoryCard category={item} />}
+                    renderItem={({ item }) => <CategoryCard category={item} onPress={handleCategoryPress} />}
                     contentContainerStyle={styles.gridContent}
                     columnWrapperStyle={styles.columnWrapper}
                     showsVerticalScrollIndicator={false}
