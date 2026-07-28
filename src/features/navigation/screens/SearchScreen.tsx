@@ -1,9 +1,10 @@
 import { COLORS } from '@/constants/colors';
 import { useGetHistorySearchQuery } from '@/services/authService';
 import { useSearchByQueryQuery } from '@/services/guardService';
+import { addSearch, clearSearches, removeSearch, selectRecentSearches } from '@/store/SearchSlice';
+import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -13,6 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import RecentSearch from '../components/Search/RecentSearch';
 import SearchInput from '../components/Search/SearchInput';
+import SearchSkeleton from '../components/Search/SearchSkeleton';
 import SearchSuggestions from '../components/Search/SearchSuggestions';
 import TrendingSearch from '../components/Search/TrendingSearch';
 import { TrendingKeyword } from '../components/Search/types';
@@ -28,10 +30,9 @@ const MOCK_TRENDING: TrendingKeyword[] = [
 
 const SearchScreen = () => {
     const insets = useSafeAreaInsets();
+    const dispatch = useAppDispatch();
     const [query, setQuery] = useState('');
-
-    const { data: history, isLoading: isLoadingSearch } = useGetHistorySearchQuery('auth')
-    const [recentSearches, setRecentSearches] = useState<any[]>(history || []);
+    const recentSearches = useAppSelector(selectRecentSearches);
     const [debouncedQuery, setDebouncedQuery] = useState(query);
 
     useEffect(() => {
@@ -44,18 +45,42 @@ const SearchScreen = () => {
         };
     }, [query]);
 
+    // Timeout pour sauvegarder automatiquement la recherche après 2 secondes d'inactivité
+    useEffect(() => {
+        const historyTimer = setTimeout(() => {
+            if (query.trim()) {
+                handleSubmitSearch(query);
+            }
+        }, 2000);
+
+        return () => {
+            clearTimeout(historyTimer);
+        };
+    }, [query, handleSubmitSearch]);
+
     const { data, isLoading } = useSearchByQueryQuery(
         { query: debouncedQuery, userId: 0 },
         { skip: debouncedQuery === '' }
     );
 
+    const handleSubmitSearch = useCallback((keyword: string) => {
+        if (keyword.trim()) {
+            dispatch(addSearch(keyword));
+        }
+    }, [dispatch]);
+
     const handleClearRecent = useCallback(() => {
-        setRecentSearches([]);
-    }, []);
+        dispatch(clearSearches());
+    }, [dispatch]);
+
+    const handleRemoveRecent = useCallback((id: string) => {
+        dispatch(removeSearch(id));
+    }, [dispatch]);
 
     const handleSelectKeyword = useCallback((keyword: string) => {
         setQuery(keyword);
-    }, []);
+        handleSubmitSearch(keyword);
+    }, [handleSubmitSearch]);
 
     return (
         <KeyboardAvoidingView
@@ -65,6 +90,7 @@ const SearchScreen = () => {
             <SearchInput
                 value={query}
                 onChangeText={setQuery}
+                onSubmit={handleSubmitSearch}
             />
 
             <View style={styles.content}>
@@ -74,6 +100,7 @@ const SearchScreen = () => {
                             searches={recentSearches}
                             onSelect={handleSelectKeyword}
                             onClearAll={handleClearRecent}
+                            onRemove={handleRemoveRecent}
                         />
                         <TrendingSearch
                             keywords={MOCK_TRENDING}
@@ -83,9 +110,7 @@ const SearchScreen = () => {
                 ) : (
                     <View style={{ flex: 1 }}>
                         {isLoading ? (
-                            <View style={styles.loadingContainer}>
-                                <ActivityIndicator size="large" color={COLORS.primary} />
-                            </View>
+                            <SearchSkeleton />
                         ) : (
                             <SearchSuggestions
                                 suggestions={data}

@@ -8,9 +8,10 @@ type Props = {
     value: string;
     onChangeText: (text: string) => void;
     onCancel?: () => void;
+    onSubmit?: (text: string) => void;
 };
 
-const SearchInput = ({ value, onChangeText, onCancel }: Props) => {
+const SearchInput = ({ value, onChangeText, onCancel, onSubmit }: Props) => {
     const insets = useSafeAreaInsets();
 
     const handleCancel = () => {
@@ -33,6 +34,7 @@ const SearchInput = ({ value, onChangeText, onCancel }: Props) => {
                     autoFocus={true}
                     placeholderTextColor="#999"
                     returnKeyType="search"
+                    onSubmitEditing={() => onSubmit?.(value)}
                 />
                 {value.length > 0 && (
                     <TouchableOpacity onPress={() => onChangeText('')} style={styles.clearButton}>

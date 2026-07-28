@@ -8,9 +8,10 @@ type Props = {
     searches: RecentSearchType[];
     onSelect: (keyword: string) => void;
     onClearAll: () => void;
+    onRemove: (id: string) => void;
 };
 
-const RecentSearch = ({ searches, onSelect, onClearAll }: Props) => {
+const RecentSearch = ({ searches, onSelect, onClearAll, onRemove }: Props) => {
     if (searches.length === 0) return null;
 
     return (
@@ -35,7 +36,12 @@ const RecentSearch = ({ searches, onSelect, onClearAll }: Props) => {
                         </Text>
                         <View style={styles.rightContent}>
                             <Text style={styles.dateText}>{formatDate(item.created_at)}</Text>
-                            <Ionicons name="chevron-forward" size={16} color="#DDD" />
+                            <TouchableOpacity 
+                                onPress={() => onRemove(item.id)} 
+                                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                            >
+                                <Ionicons name="close" size={18} color="#DDD" />
+                            </TouchableOpacity>
                         </View>
                     </TouchableOpacity>
                 ))}
