@@ -44,7 +44,7 @@ export default function CategoryDetailScreen({ url, name, image, description, id
     const [selectedBulkPriceRange, setSelectedBulkPriceRange] = useState('');
 
     // Fetch products using the endpoint with filters
-    const { data, isLoading } = useGetCategoryProductsByUrlQuery({ 
+    const { data, isLoading } = useGetCategoryProductsByUrlQuery({
         url,
         min_price: minPrice,
         max_price: maxPrice,
@@ -59,6 +59,19 @@ export default function CategoryDetailScreen({ url, name, image, description, id
     const normalizedProducts = useMemo(() => products?.map(normalizeProduct), [products]);
 
     const opacity = useRef(new Animated.Value(0.3)).current;
+    const scrollY = useRef(new Animated.Value(0)).current;
+
+    const headerOpacity = scrollY.interpolate({
+        inputRange: [height * 0.25, height * 0.35],
+        outputRange: [0, 1],
+        extrapolate: 'clamp',
+    });
+
+    const headerTranslateY = scrollY.interpolate({
+        inputRange: [height * 0.25, height * 0.35],
+        outputRange: [-20, 0],
+        extrapolate: 'clamp',
+    });
 
     useEffect(() => {
         if (isLoading) {
@@ -204,10 +217,45 @@ export default function CategoryDetailScreen({ url, name, image, description, id
 
     return (
         <View style={styles.container}>
-            <FlatList
+            {/* Sticky Header */}
+            <Animated.View style={[
+                styles.stickyHeader,
+                {
+                    opacity: headerOpacity,
+                    transform: [{ translateY: headerTranslateY }],
+                    paddingTop: insets.top,
+                }
+            ]}>
+                <TouchableOpacity style={styles.stickyHeaderButton} onPress={handleBack}>
+                    <Ionicons name="arrow-back" size={24} color="#111827" />
+                </TouchableOpacity>
+                <View style={styles.stickyHeaderTitleContainer}>
+                    <Text style={styles.stickyHeaderTitle} numberOfLines={1}>{name}</Text>
+                </View>
+                <View style={styles.stickyHeaderActions}>
+                    <TouchableOpacity style={styles.stickyHeaderIconButton} onPress={() => setIsFilterVisible(true)}>
+                        <Ionicons name="options-outline" size={24} color="#111827" />
+                        {activeFiltersCount > 0 && (
+                            <View style={styles.stickyBadge}>
+                                <Text style={styles.stickyBadgeText}>{activeFiltersCount}</Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.stickyHeaderIconButton} onPress={handleShare}>
+                        <Ionicons name="share-social-outline" size={24} color="#111827" />
+                    </TouchableOpacity>
+                </View>
+            </Animated.View>
+
+            <Animated.FlatList
                 data={normalizedProducts}
                 keyExtractor={(item: any) => item.id}
                 numColumns={2}
+                onScroll={Animated.event(
+                    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                    { useNativeDriver: true }
+                )}
+                scrollEventThrottle={16}
                 ListHeaderComponent={renderHeader}
                 columnWrapperStyle={styles.columnWrapper}
                 contentContainerStyle={styles.listContent}
@@ -234,7 +282,7 @@ export default function CategoryDetailScreen({ url, name, image, description, id
                 )}
             />
 
-            <CategoryFilterModal 
+            <CategoryFilterModal
                 visible={isFilterVisible}
                 onClose={() => setIsFilterVisible(false)}
                 categoryId={Number(id)}
@@ -335,7 +383,7 @@ const styles = StyleSheet.create({
         right: 20,
     },
     heroTitle: {
-        fontSize: 38,
+        fontSize: 28,
         fontWeight: '900',
         color: '#FFF',
         marginBottom: 8,
@@ -479,5 +527,69 @@ const styles = StyleSheet.create({
         width: '50%',
         backgroundColor: '#E5E7EB',
         borderRadius: 4,
+    },
+    stickyHeader: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#FFF',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingBottom: 10,
+        zIndex: 10,
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#F2F2F2',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    stickyHeaderButton: {
+        width: 44,
+        height: 44,
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        paddingLeft: 5,
+    },
+    stickyHeaderTitleContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    stickyHeaderTitle: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#111827',
+        textAlign: 'center',
+    },
+    stickyHeaderActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    stickyHeaderIconButton: {
+        width: 36,
+        height: 36,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    stickyBadge: {
+        position: 'absolute',
+        top: 2,
+        right: 2,
+        backgroundColor: '#F97316',
+        borderRadius: 10,
+        width: 16,
+        height: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    stickyBadgeText: {
+        color: '#FFF',
+        fontSize: 9,
+        fontWeight: 'bold',
     },
 });
