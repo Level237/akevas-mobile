@@ -3,7 +3,6 @@ import SearchResource from "@/components/common/Search";
 import { COLORS } from "@/constants/colors";
 import { router } from 'expo-router';
 import { Bell, Menu } from 'lucide-react-native';
-import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Logo from "./Logo";
@@ -23,7 +22,7 @@ const HomeHeader = () => {
                         style={styles.iconButton}
                         onPress={() => router.push('/(navigation)/category')}
                     >
-                        <Menu size={28} color={COLORS.iconLight} />
+                        <Menu strokeWidth={1.2} size={28} color={COLORS.iconLight} />
                     </TouchableOpacity>
                     <Logo />
 
@@ -36,7 +35,7 @@ const HomeHeader = () => {
 
                     <TouchableOpacity onPress={() => router.push('/(navigation)/notification')} activeOpacity={0.7} style={styles.iconButton}>
                         <View>
-                            <Bell size={24} color={COLORS.iconLight} />
+                            <Bell strokeWidth={1.2} size={24} color={COLORS.iconLight} />
                             <View style={styles.notificationDot} />
                         </View>
                     </TouchableOpacity>

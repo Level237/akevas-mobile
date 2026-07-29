@@ -1,10 +1,9 @@
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { COLORS } from '@/constants/colors';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DarkTheme, DefaultTheme, Tabs, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Heart, ShoppingCart, Store, User } from "lucide-react-native";
+import { Heart, Home, ShoppingCart, Store, User } from "lucide-react-native";
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
@@ -38,7 +37,7 @@ export default function TabLayout() {
                     options={{
                         headerShown: false,
                         title: 'Accueil',
-                        tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+                        tabBarIcon: ({ color, focused }) => <Home color={color} size={26} strokeWidth={focused ? 1.4 : 1.3} />,
                     }}
                 />
                 <Tabs.Screen
@@ -48,7 +47,7 @@ export default function TabLayout() {
                         title: 'Boutiques',
                         headerShown: false,
                         // "bag.fill" ou "storefront.fill" sont les standards pour les boutiques
-                        tabBarIcon: ({ color }) => <Store color={color} style={{ width: 28, height: 28 }} />,
+                        tabBarIcon: ({ color, focused }) => <Store color={color} size={26} strokeWidth={focused ? 1.4 : 1.3} />,
                     }}
                 />
                 <Tabs.Screen
@@ -57,7 +56,7 @@ export default function TabLayout() {
                         title: 'Mes Favoris',
                         headerShown: false,
                         // "square.grid.2x2.fill" évoque bien un catalogue de produits
-                        tabBarIcon: ({ color }) => <Heart color={color} style={{ width: 28, height: 28 }} />,
+                        tabBarIcon: ({ color, focused }) => <Heart color={color} size={26} strokeWidth={focused ? 1.4 : 1.3} />,
                     }}
                 />
                 <Tabs.Screen
@@ -66,7 +65,7 @@ export default function TabLayout() {
                         title: 'Panier',
                         headerShown: false,
                         // "cart.fill" est indispensable ici
-                        tabBarIcon: ({ color }) => <ShoppingCart color={color} style={{ width: 28, height: 28 }} />,
+                        tabBarIcon: ({ color, focused }) => <ShoppingCart color={color} size={26} strokeWidth={focused ? 1.4 : 1.3} />,
                     }}
                 />
                 <Tabs.Screen
@@ -75,7 +74,7 @@ export default function TabLayout() {
                         title: 'Compte',
                         headerShown: false,
                         // "person.fill" pour l'espace utilisateur
-                        tabBarIcon: ({ color }) => <User color={color} style={{ width: 28, height: 28 }} />,
+                        tabBarIcon: ({ color, focused }) => <User color={color} size={26} strokeWidth={focused ? 1.4 : 1.3} />,
                     }}
                 />
             </Tabs>

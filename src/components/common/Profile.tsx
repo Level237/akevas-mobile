@@ -41,7 +41,7 @@ export const Profile = React.memo(() => {
                 </View>
             ) : (
                 <View style={[styles.avatarContainer, styles.guestAvatar]}>
-                    <UserRound size={20} color={COLORS.iconLight} strokeWidth={2.5} />
+                    <UserRound size={20} color={COLORS.iconLight} strokeWidth={1.2} />
                 </View>
             )}
         </TouchableOpacity>

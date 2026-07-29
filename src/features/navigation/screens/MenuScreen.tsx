@@ -2,7 +2,7 @@
 import { useGetCurrentHomeByGenderQuery } from '@/services/guardService';
 import { router } from 'expo-router';
 import { X } from 'lucide-react-native';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CategoryCard from '../components/Category/CategoryCard';
@@ -52,7 +52,7 @@ const MenuScreen = () => {
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Menu</Text>
                 <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-                    <X size={28} color="#000" />
+                    <X strokeWidth={1.2} size={28} color="#000" />
                 </TouchableOpacity>
             </View>
 

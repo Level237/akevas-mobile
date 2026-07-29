@@ -11,7 +11,7 @@ const SearchResource = () => {
             style={styles.iconButton}
             onPress={() => router.push('/(navigation)/search')}
         >
-            <Search size={24} color={COLORS.iconLight} />
+            <Search size={24} strokeWidth={1.2} color={COLORS.iconLight} />
         </TouchableOpacity>
     );
 }
