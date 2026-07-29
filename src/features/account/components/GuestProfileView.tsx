@@ -1,4 +1,5 @@
 import { COLORS } from '@/constants/colors';
+import { openWebLink } from '@/utils/openWebLink';
 import { router } from 'expo-router';
 import {
     BookOpen,
@@ -107,9 +108,9 @@ const GuestProfileView = ({ onLogin, onRegister }: GuestProfileViewProps) => {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Découvrir Akevas</Text>
                     <View style={styles.sectionContent}>
-                        <MenuItem icon={Info} title="À propos de nous" onPress={() => handleNavigate('/about')} />
-                        <MenuItem icon={BookOpen} title="Comment ça marche ?" onPress={() => handleNavigate('/how-it-works')} />
-                        <MenuItem icon={Store} title="Devenir vendeur" onPress={() => handleNavigate('/(auth)/register?role=seller')} isLast />
+                        <MenuItem icon={Info} title="À propos de nous" onPress={() => openWebLink('https://akevas.com/about')} />
+                        <MenuItem icon={BookOpen} title="Comment ça marche ?" onPress={() => openWebLink('https://akevas.com/how-it-works')} />
+                        <MenuItem icon={Store} title="Devenir vendeur" onPress={() => openWebLink('https://seller.akevas.com/seller/guide')} isLast />
                     </View>
                 </View>
 
@@ -118,7 +119,7 @@ const GuestProfileView = ({ onLogin, onRegister }: GuestProfileViewProps) => {
                     <Text style={styles.sectionTitle}>Assistance</Text>
                     <View style={styles.sectionContent}>
                         <MenuItem icon={HelpCircle} title="Centre d'aide & FAQ" onPress={() => handleNavigate('/help')} />
-                        <MenuItem icon={User} title="Nous contacter" onPress={() => handleNavigate('/contact')} isLast />
+                        <MenuItem icon={User} title="Nous contacter" onPress={() => openWebLink('https://akevas.com/contact')} isLast />
                     </View>
                 </View>
 

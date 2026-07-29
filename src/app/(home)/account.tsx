@@ -1,6 +1,6 @@
+import { COLORS } from '@/constants/colors';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '@/constants/colors';
 
 import AuthenticatedProfileView from '../../features/account/components/AuthenticatedProfileView';
 import GuestProfileView from '../../features/account/components/GuestProfileView';
@@ -21,7 +21,7 @@ export default function AccountScreen() {
     const handleLogout = async () => {
         dispatch(logout());
         await logoutUser("Auth");
-        router.replace('/welcome');
+        router.replace('/(home)/index');
     };
 
     const handleLogin = () => {
