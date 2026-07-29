@@ -26,7 +26,7 @@ export const useRedirectToLogin = () => {
         };
 
         // Redirection vers Login (replace pour ne pas revenir en arrière)
-        router.replace({
+        router.push({
             pathname: '/login',
             params: params
         });

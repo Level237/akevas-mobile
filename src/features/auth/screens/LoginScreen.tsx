@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { ArrowLeft } from 'lucide-react-native';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
     Dimensions,
     KeyboardAvoidingView,
@@ -39,41 +39,47 @@ const LoginScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [checkIfPhoneExists] = useCheckIfPhoneExistsMutation();
 
-    const { redirect, s } = useLocalSearchParams();
+    const params = useLocalSearchParams();
+    const { redirect, ...restParams } = params;
 
     const [login, { isLoading: isLoadingLogin }] = useLoginMutation()
 
 
     const handleLogin = async (phone: string, pass: string) => {
         setIsLoading(true);
-        let destination = redirect || '/(home)';
 
-
-
-        const userObject = { phone_number: phone, password: pass, role_id: 3 }
-        const res = await login(userObject)
+        const userObject = { phone_number: phone, password: pass, role_id: 3 };
+        const res = await login(userObject);
 
         if (res?.error) {
-            setIsLoading(false)
-            return "404"
-        } else {
+            setIsLoading(false);
+            // Optionnel : Afficher une alerte d'erreur ici
+            console.error("Erreur de connexion", res.error);
+            return;
+        }
+
+        // ✅ SUCCÈS DE LA CONNEXION
+        try {
+            // 1. Sauvegarder le token et mettre à jour Redux
             await SecureStore.setItemAsync('access_token', res.data.data.access_token);
             dispatch(setCredentials({ user: res.data.data.user }));
 
-            if (destination === "/checkout") {
+            // 2. 🚀 REDIRECTION INTELLIGENTE
+            if (redirect && typeof redirect === 'string') {
+                // On utilise 'replace' pour écraser l'écran de Login par l'écran de destination.
+                // Ainsi, quand l'utilisateur appuiera sur "Retour", il reviendra à l'écran d'avant le Login.
                 router.replace({
-                    pathname: '/checkout',
-                    params: {
-                        s: s
-                    }
-                })
+                    pathname: redirect as any,
+                    params: restParams // On transmet TOUS les paramètres originaux (s, productIds, etc.)
+                });
             } else {
+                // Fallback par défaut si aucun redirect n'est spécifié
                 router.replace("/(home)");
             }
+        } catch (error) {
+            console.error("Erreur lors de la redirection post-login:", error);
+            setIsLoading(false);
         }
-
-
-
     };
 
     const handleVerifyPhone = async (phone: string) => {

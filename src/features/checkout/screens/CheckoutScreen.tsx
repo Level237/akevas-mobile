@@ -216,15 +216,25 @@ const CheckoutScreen = ({ params }: Props) => {
         setIsProcessing(false);
     }, [deliveryOption, selectedQuarter, paymentPhone, firstName, productId, quantity, productName, subtotal, total, variationInfo, phone, addressDetails, shippingFee, selectedPayment]);
 
-    const renderHeader = () => (
-        <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                <Ionicons name="arrow-back" size={24} color="#1F2937" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Finaliser la commande</Text>
-            <View style={{ width: 40 }} />
-        </View>
-    );
+    const renderHeader = () => {
+        const handleBack = () => {
+            if (router.canGoBack()) {
+                router.back();
+            } else {
+                router.replace('/(home)');
+            }
+        };
+
+        return (
+            <View style={styles.header}>
+                <TouchableOpacity onPress={handleBack} style={styles.backBtn}>
+                    <Ionicons name="arrow-back" size={24} color="#1F2937" />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Finaliser la commande</Text>
+                <View style={{ width: 40 }} />
+            </View>
+        );
+    };
 
     const renderSection = (title: string, icon: React.ReactNode, children: React.ReactNode) => (
         <View style={styles.section}>

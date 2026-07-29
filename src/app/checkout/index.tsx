@@ -1,6 +1,5 @@
 import CheckoutScreen from '@/features/checkout/screens/CheckoutScreen';
 import { useLocalSearchParams } from 'expo-router';
-import React from 'react';
 
 const CheckoutIndex = () => {
     const params = useLocalSearchParams();
