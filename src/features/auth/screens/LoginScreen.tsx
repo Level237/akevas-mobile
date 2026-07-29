@@ -156,7 +156,7 @@ const LoginScreen = () => {
                     <Text style={styles.footerText}>Pas encore de compte ?</Text>
                     <TouchableOpacity
                         activeOpacity={0.7}
-                        onPress={() => console.log('Aller à la page inscription')}
+                        onPress={() => router.push('/(auth)/register')}
                     >
                         <Text style={styles.footerLink}>Créer un compte</Text>
                     </TouchableOpacity>
