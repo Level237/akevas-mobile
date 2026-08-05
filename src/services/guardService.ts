@@ -77,6 +77,21 @@ export const guardService = createApi({
                 body: credentials,
             }),
         }),
+        checkGoogle: builder.mutation({
+            query: (payload) => ({
+                url: '/api/login/google/check',
+                method: 'POST',
+                body: payload,
+            }),
+        }),
+
+        linkGooglePhone: builder.mutation({
+            query: (payload) => ({
+                url: '/api/login/google/link',
+                method: 'POST',
+                body: payload,
+            }),
+        }),
         // Tu peux ajouter register, logout, etc. ici
 
 
@@ -288,6 +303,8 @@ export const {
     useTriggerWelcomeNotificationMutation,
     useGetAllShopsQuery,
     useLoginMutation,
+    useCheckGoogleMutation,
+    useLinkGooglePhoneMutation,
     useSearchByQueryQuery,
     useGetHomeShopsQuery,
     useGetProfileShopQuery,

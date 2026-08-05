@@ -20,6 +20,13 @@ export default function NavigationLayout() {
 
                     }}
                 />
+                <Stack.Screen
+                    name="link-google-phone"
+                    options={{
+                        title: 'Compléter le profil',
+
+                    }}
+                />
             </Stack>
             <StatusBar style="dark" />
         </ThemeProvider>

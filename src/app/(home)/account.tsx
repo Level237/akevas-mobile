@@ -21,7 +21,7 @@ export default function AccountScreen() {
     const handleLogout = async () => {
         dispatch(logout());
         await logoutUser("Auth");
-        router.replace('/(home)/index');
+        router.replace('/(home)');
     };
 
     const handleLogin = () => {

@@ -1,16 +1,16 @@
 import { images } from '@/constants/images';
 import { useAppDispatch } from '@/hooks/hooks';
-import { useCheckIfPhoneExistsMutation, useLoginMutation } from '@/services/guardService';
+import { useCheckGoogleMutation, useCheckIfPhoneExistsMutation, useLoginMutation } from '@/services/guardService';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { setCredentials } from '../authSlice';
 import LoginForm from '../forms/LoginForm';
 
-import * as SecureStore from 'expo-secure-store'; // <-- AJOUTÉ (indispensable pour ton handleLogin)
+import * as SecureStore from 'expo-secure-store';
 
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Alert,
     Dimensions,
@@ -24,10 +24,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// ⚠️ OBLIGATOIRE : Doit rester en dehors du composant, tout en haut
+// Configuration initiale (à mettre AVANT le composant, au niveau du module)
 GoogleSignin.configure({
-    webClientId: '896900522165-1rntm3v1jblt6cpr96qllk44k338lmt7.apps.googleusercontent.com', // celui de type "Web application"
-    offlineAccess: true,
+    webClientId: '602337726747-jbkcik70np9fhvp9e30hvv7bsm6f4sh2.apps.googleusercontent.com',
+    scopes: ['profile', 'email'],
+    forceCodeForRefreshToken: false,
 });
 
 // Using a clean white UI inspired by WelcomeScreen
@@ -52,39 +53,93 @@ const LoginScreen = () => {
     const params = useLocalSearchParams();
     const { redirect, ...restParams } = params;
 
-    const [login, { isLoading: isLoadingLogin }] = useLoginMutation()
+    const [login, { isLoading: isLoadingLogin }] = useLoginMutation();
+    const [checkGoogleLoginMutation] = useCheckGoogleMutation();
 
-    // 1. Configuration de la requête Google
-    // Remplace par TES VRAIS CLIENT IDS obtenus à l'étape 2
+    // Initialisation au montage
+    useEffect(() => {
+        // Vérifie si un utilisateur est déjà connecté
+        GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true }).then((hasServices) => {
+            if (!hasServices) {
+                console.log('Google Play Services non disponible');
+            }
+        }).catch((err) => {
+            console.log('Erreur vérification Play Services', err);
+        });
+    }, []);
 
-
-    // 2. Écouter la réponse de Google
-
-
-    // 3. Fonction appelée quand Google renvoie le token
     const handleGoogleLogin = async () => {
         try {
-            await GoogleSignin.hasPlayServices();
+            // 1. Sign out au cas où un utilisateur serait déjà connecté
+            await GoogleSignin.signOut();
+
+            // 2. Lancer le flow de connexion
             const userInfo = await GoogleSignin.signIn();
-            const { idToken } = await GoogleSignin.getTokens();
+            const idToken = userInfo.data?.idToken || (userInfo as any).idToken;
 
-            // Envoie ce idToken à TON backend Laravel pour vérification + création session
-            const res = await loginWithGoogleMutation({ id_token: idToken }).unwrap();
+            if (idToken) {
+                await handleGoogleLoginSuccess(idToken);
+            } else {
+                Alert.alert('Erreur', 'Token Google non reçu');
+            }
+        } catch (error: any) {
+            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+                console.log('Connexion annulée par l\'utilisateur');
+            } else if (error.code === statusCodes.IN_PROGRESS) {
+                console.log('Connexion en cours');
+            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+                Alert.alert('Erreur', 'Google Play Services non disponible');
+            } else {
+                console.error('Erreur Google Sign-In:', error);
+                Alert.alert('Erreur', 'Impossible de se connecter avec Google');
+            }
+        }
+    };
 
-            await SecureStore.setItemAsync('access_token', res.data.access_token);
-            dispatch(setCredentials({ user: res.data.user }));
+    const handleGoogleLoginSuccess = async (idToken: string) => {
+        try {
+            setIsLoading(true);
 
+            // 1. Appel à l'endpoint de vérification
+            const res = await checkGoogleLoginMutation({ id_token: idToken }).unwrap();
+
+            // 2. Si succès, on extrait les données de la structure standardisée
+            const accessToken = res.data.access_token;
+            const userData = res.data.user; // ✅ C'est ici que se trouvent les infos de l'utilisateur
+
+            // 3. Sauvegarde et Dispatch (EXACTEMENT comme le login classique)
+            await SecureStore.setItemAsync('access_token', accessToken);
+            dispatch(setCredentials({ user: userData }));
+
+            // 4. Redirection intelligente
             if (redirect && typeof redirect === 'string') {
                 router.replace({ pathname: redirect as any, params: restParams });
             } else {
                 router.replace("/(home)");
             }
+
         } catch (error: any) {
-            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-                // utilisateur a annulé, pas d'erreur à afficher
-            } else {
+            // Gestion des erreurs
+            if (error.status === 404 && error.data?.status === 'needs_phone') {
+                const userData = error.data.data; // Les données sont dans error.data.data ici à cause du format 404
+                router.push({
+                    pathname: '/(auth)/link-google-phone',
+                    params: {
+                        id_token: idToken,
+                        email: userData.email,
+                        name: userData.name,
+                        redirect: redirect
+                    }
+                });
+            }
+            else if (error.status === 403 && error.data?.status === 'role_mismatch') {
+                Alert.alert('Accès refusé', error.data?.message || 'Email professionnel non autorisé ici.');
+            }
+            else {
                 Alert.alert('Erreur', 'Impossible de se connecter avec Google.');
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 

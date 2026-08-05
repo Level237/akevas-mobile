@@ -1,5 +1,5 @@
 import { ArrowLeft, Eye, EyeOff, Lock, Phone } from 'lucide-react-native';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 type LoginFormProps = {
@@ -65,7 +65,7 @@ const LoginForm = ({ onSubmit, isLoading, checkIfEmailExists }: LoginFormProps) 
                             <Phone size={20} color={isPhoneFocused ? COLORS.primary : "#9CA3AF"} style={styles.icon} />
                             <TextInput
                                 style={styles.input}
-                                placeholder="06 12 34 56 78"
+                                placeholder="Entrez votre numéro de téléphone"
                                 placeholderTextColor="#9CA3AF"
                                 keyboardType="phone-pad"
                                 value={phone}
@@ -230,9 +230,11 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         height: '100%',
-        fontSize: 16,
+        fontSize: 14,
         color: COLORS.text,
         fontWeight: '500',
+
+        marginRight: 12,
     },
     eyeIcon: {
         padding: 8,

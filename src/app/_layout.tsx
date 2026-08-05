@@ -8,13 +8,13 @@ import 'react-native-reanimated';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
+import { toastConfig } from '@/components/common/toastConfig';
 import { COLORS } from '@/constants/colors';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { registerForPushNotificationsAsync } from '@/utils/notification';
-import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import { setupNotificationCategories } from '@/utils/notificationCategories';
+import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { toastConfig } from '@/components/common/toastConfig';
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -27,7 +27,7 @@ export default function RootLayout() {
     const handleNotificationRouting = (response: Notifications.NotificationResponse) => {
         const content = response.notification.request.content;
         const actionIdentifier = response.actionIdentifier;
-        
+
         let data = content.data || {};
         const dataString = (content as any).dataString || data?.dataString;
         if (dataString) {
@@ -49,28 +49,28 @@ export default function RootLayout() {
                     router.replace('/(home)/shop');
                     return;
                 }
-                
+
                 // Priorité 2 : Route dans les données
                 if (data?.route) {
                     console.log('️ Navigation vers:', data.route);
                     router.replace(data.route as any);
                     return;
                 }
-                
+
                 // Priorité 3 : Type de notification
                 if (data?.type === 'welcome_marketplace') {
                     router.replace('/(home)/shop');
                     return;
                 }
-                
+
                 if (data?.type === 'new_order' && data?.orderId) {
                     router.replace(`/orders/${data.orderId}`);
                     return;
                 }
-                
+
                 // Fallback
                 router.replace('/');
-                
+
             } catch (error) {
                 console.error('❌ Erreur navigation:', error);
                 router.replace('/');
@@ -99,7 +99,7 @@ export default function RootLayout() {
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
             const actionIdentifier = response.actionIdentifier;
             const content = response.notification.request.content;
-            
+
             console.log('👆 Action cliquée:', actionIdentifier);
             console.log('📦 Données:', content.data);
 
@@ -112,7 +112,6 @@ export default function RootLayout() {
                 }
                 if (actionIdentifier === 'explore_later') {
                     console.log('ℹ️ Action: Explorer plus tard');
-                    // Ne rien faire, juste fermer la notification
                     return;
                 }
                 if (actionIdentifier === 'view_order') {
@@ -144,13 +143,13 @@ export default function RootLayout() {
         // Le listener doit être enregistré UNE SEULE FOIS au montage du composant.
         return () => {
             if (notificationListener.current) {
-                Notifications.removeNotificationSubscription(notificationListener.current);
+                notificationListener.current.remove(); // ✅ Méthode moderne et sûre
             }
             if (responseListener.current) {
-                Notifications.removeNotificationSubscription(responseListener.current);
+                responseListener.current.remove(); // ✅ Méthode moderne et sûre
             }
         };
-    }, []); // <-- J'ai retiré navigationState?.key d'ici !
+    }, []);
 
     const LoadingScreen = () => (
         <View style={styles.loadingContainer}>
