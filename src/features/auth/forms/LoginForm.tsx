@@ -6,6 +6,7 @@ type LoginFormProps = {
     onSubmit: (phone: string, pass: string) => Promise<any>;
     isLoading?: boolean;
     checkIfEmailExists: (phone: string) => Promise<any>;
+    onForgotPassword?: () => void;
 };
 
 const COLORS = {
@@ -17,7 +18,7 @@ const COLORS = {
     border: '#E5E7EB',
 };
 
-const LoginForm = ({ onSubmit, isLoading, checkIfEmailExists }: LoginFormProps) => {
+const LoginForm = ({ onSubmit, isLoading, checkIfEmailExists, onForgotPassword }: LoginFormProps) => {
     const [step, setStep] = useState<1 | 2>(1);
     const [error, setError] = useState("")
     const [phone, setPhone] = useState('');
@@ -142,7 +143,7 @@ const LoginForm = ({ onSubmit, isLoading, checkIfEmailExists }: LoginFormProps) 
                     </View>
 
                     <View style={styles.forgotPasswordContainer}>
-                        <TouchableOpacity activeOpacity={0.7}>
+                        <TouchableOpacity activeOpacity={0.7} onPress={onForgotPassword}>
                             <Text style={styles.forgotPasswordText}>Mot de passe oublié ?</Text>
                         </TouchableOpacity>
                     </View>

@@ -55,10 +55,13 @@ export const guardService = createApi({
 
                 body: formData,
             }),
+
             invalidatesTags: ['guard'],
             //transformResponse: (response: { data: { message: string } }) => response.data.message,
         }),
-
+        forgotPassword: builder.mutation({
+            query: (data) => ({ url: "/api/password/forgot", method: "POST", body: data }),
+        }),
         checkIfPhoneExists: builder.mutation({
             query: (formData) => ({
                 url: `/api/check/login/phone-number`,
@@ -302,6 +305,7 @@ export const {
     useGetSubCategoriesQuery,
     useTriggerWelcomeNotificationMutation,
     useGetAllShopsQuery,
+    useForgotPasswordMutation,
     useLoginMutation,
     useCheckGoogleMutation,
     useLinkGooglePhoneMutation,

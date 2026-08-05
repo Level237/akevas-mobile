@@ -21,6 +21,8 @@ import {
     Text,
     TouchableOpacity,
     View,
+    Modal,
+    TextInput
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -49,6 +51,8 @@ const LoginScreen = () => {
     const dispatch = useAppDispatch();
     const [isLoading, setIsLoading] = useState(false);
     const [checkIfPhoneExists] = useCheckIfPhoneExistsMutation();
+    const [isForgotPasswordVisible, setIsForgotPasswordVisible] = useState(false);
+    const [resetPhone, setResetPhone] = useState('');
 
     const params = useLocalSearchParams();
     const { redirect, ...restParams } = params;
@@ -228,7 +232,12 @@ const LoginScreen = () => {
 
                 {/* Main Content */}
                 <View style={styles.formSection}>
-                    <LoginForm onSubmit={handleLogin} isLoading={isLoading} checkIfEmailExists={handleVerifyPhone} />
+                    <LoginForm 
+                        onSubmit={handleLogin} 
+                        isLoading={isLoading} 
+                        checkIfEmailExists={handleVerifyPhone} 
+                        onForgotPassword={() => setIsForgotPasswordVisible(true)}
+                    />
 
                     {/* Social Login Section */}
                     <View style={styles.socialSection}>
@@ -266,6 +275,53 @@ const LoginScreen = () => {
                 </View>
 
             </ScrollView>
+
+            {/* Forgot Password Modal */}
+            <Modal
+                visible={isForgotPasswordVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setIsForgotPasswordVisible(false)}
+            >
+                <KeyboardAvoidingView 
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    style={styles.modalOverlay}
+                >
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Mot de passe oublié</Text>
+                            <TouchableOpacity onPress={() => setIsForgotPasswordVisible(false)}>
+                                <Text style={styles.modalCloseText}>Fermer</Text>
+                            </TouchableOpacity>
+                        </View>
+                        
+                        <Text style={styles.modalSubtitle}>
+                            Entrez votre numéro de téléphone pour réinitialiser votre mot de passe.
+                        </Text>
+                        
+                        <View style={styles.modalInputContainer}>
+                            <TextInput
+                                style={styles.modalInput}
+                                placeholder="Numéro de téléphone"
+                                keyboardType="phone-pad"
+                                value={resetPhone}
+                                onChangeText={setResetPhone}
+                                placeholderTextColor="#9CA3AF"
+                            />
+                        </View>
+                        
+                        <TouchableOpacity 
+                            style={styles.modalSubmitButton}
+                            onPress={() => {
+                                Alert.alert("Information", "Fonctionnalité en cours de développement");
+                                setIsForgotPasswordVisible(false);
+                            }}
+                        >
+                            <Text style={styles.modalSubmitButtonText}>Envoyer</Text>
+                        </TouchableOpacity>
+                    </View>
+                </KeyboardAvoidingView>
+            </Modal>
         </KeyboardAvoidingView>
     );
 };
@@ -360,6 +416,63 @@ const styles = StyleSheet.create({
         color: COLORS.primary,
         fontSize: 15,
         fontWeight: '700',
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    },
+    modalContent: {
+        backgroundColor: COLORS.background,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        padding: 24,
+        paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: COLORS.text,
+    },
+    modalCloseText: {
+        color: COLORS.textSecondary,
+        fontSize: 16,
+    },
+    modalSubtitle: {
+        fontSize: 15,
+        color: COLORS.textSecondary,
+        marginBottom: 24,
+        lineHeight: 22,
+    },
+    modalInputContainer: {
+        borderWidth: 1.5,
+        borderColor: COLORS.border,
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        marginBottom: 24,
+        height: 56,
+        justifyContent: 'center',
+    },
+    modalInput: {
+        fontSize: 16,
+        color: COLORS.text,
+    },
+    modalSubmitButton: {
+        backgroundColor: COLORS.primary,
+        paddingVertical: 16,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+    modalSubmitButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
 
