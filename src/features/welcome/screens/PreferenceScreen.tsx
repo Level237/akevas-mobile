@@ -101,7 +101,7 @@ export default function PreferencesScreen() {
             } catch (error) {
                 console.error('⚠️ Échec du déclenchement de la notification (non bloquant):', error);
             }
-        }, 10000);
+        }, 100);
 
         router.replace('/(home)');
     };

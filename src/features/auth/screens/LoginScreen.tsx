@@ -1,12 +1,18 @@
 import { images } from '@/constants/images';
 import { useAppDispatch } from '@/hooks/hooks';
 import { useCheckIfPhoneExistsMutation, useLoginMutation } from '@/services/guardService';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import { setCredentials } from '../authSlice';
+import LoginForm from '../forms/LoginForm';
+
+import * as SecureStore from 'expo-secure-store'; // <-- AJOUTÉ (indispensable pour ton handleLogin)
+
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import { ArrowLeft } from 'lucide-react-native';
 import { useState } from 'react';
 import {
+    Alert,
     Dimensions,
     KeyboardAvoidingView,
     Platform,
@@ -17,8 +23,12 @@ import {
     View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { setCredentials } from '../authSlice';
-import LoginForm from '../forms/LoginForm';
+
+// ⚠️ OBLIGATOIRE : Doit rester en dehors du composant, tout en haut
+GoogleSignin.configure({
+    webClientId: '896900522165-1rntm3v1jblt6cpr96qllk44k338lmt7.apps.googleusercontent.com', // celui de type "Web application"
+    offlineAccess: true,
+});
 
 // Using a clean white UI inspired by WelcomeScreen
 const COLORS = {
@@ -44,6 +54,39 @@ const LoginScreen = () => {
 
     const [login, { isLoading: isLoadingLogin }] = useLoginMutation()
 
+    // 1. Configuration de la requête Google
+    // Remplace par TES VRAIS CLIENT IDS obtenus à l'étape 2
+
+
+    // 2. Écouter la réponse de Google
+
+
+    // 3. Fonction appelée quand Google renvoie le token
+    const handleGoogleLogin = async () => {
+        try {
+            await GoogleSignin.hasPlayServices();
+            const userInfo = await GoogleSignin.signIn();
+            const { idToken } = await GoogleSignin.getTokens();
+
+            // Envoie ce idToken à TON backend Laravel pour vérification + création session
+            const res = await loginWithGoogleMutation({ id_token: idToken }).unwrap();
+
+            await SecureStore.setItemAsync('access_token', res.data.access_token);
+            dispatch(setCredentials({ user: res.data.user }));
+
+            if (redirect && typeof redirect === 'string') {
+                router.replace({ pathname: redirect as any, params: restParams });
+            } else {
+                router.replace("/(home)");
+            }
+        } catch (error: any) {
+            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+                // utilisateur a annulé, pas d'erreur à afficher
+            } else {
+                Alert.alert('Erreur', 'Impossible de se connecter avec Google.');
+            }
+        }
+    };
 
     const handleLogin = async (phone: string, pass: string) => {
         setIsLoading(true);
@@ -140,7 +183,12 @@ const LoginScreen = () => {
                             <View style={styles.divider} />
                         </View>
 
-                        <TouchableOpacity style={styles.googleButton} activeOpacity={0.7}>
+                        <TouchableOpacity
+                            style={styles.googleButton}
+                            onPress={handleGoogleLogin}
+                            activeOpacity={0.7}
+                            disabled={isLoadingLogin}
+                        >
                             {/* Simple G placeholder or Google image */}
                             <Image
                                 source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png' }}
