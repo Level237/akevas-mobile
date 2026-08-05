@@ -1,6 +1,6 @@
 import { images } from '@/constants/images';
 import { useAppDispatch } from '@/hooks/hooks';
-import { useCheckGoogleMutation, useCheckIfPhoneExistsMutation, useLoginMutation } from '@/services/guardService';
+import { useCheckGoogleMutation, useCheckIfPhoneExistsMutation, useForgotPasswordMutation, useLoginMutation } from '@/services/guardService';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { setCredentials } from '../authSlice';
 import LoginForm from '../forms/LoginForm';
@@ -12,17 +12,18 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
     Alert,
     Dimensions,
     KeyboardAvoidingView,
+    Modal,
     Platform,
     ScrollView,
     StyleSheet,
     Text,
+    TextInput,
     TouchableOpacity,
-    View,
-    Modal,
-    TextInput
+    View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -52,7 +53,8 @@ const LoginScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [checkIfPhoneExists] = useCheckIfPhoneExistsMutation();
     const [isForgotPasswordVisible, setIsForgotPasswordVisible] = useState(false);
-    const [resetPhone, setResetPhone] = useState('');
+    const [resetEmail, setResetEmail] = useState('');
+    const [forgotPassword, { isLoading: isForgotLoading }] = useForgotPasswordMutation();
 
     const params = useLocalSearchParams();
     const { redirect, ...restParams } = params;
@@ -197,6 +199,28 @@ const LoginScreen = () => {
 
     };
 
+    const handleForgotPassword = async () => {
+        if (!resetEmail || !resetEmail.includes('@')) {
+            Alert.alert('Erreur', 'Veuillez entrer une adresse email valide.');
+            return;
+        }
+        try {
+            const res = await forgotPassword({ email: resetEmail }).unwrap();
+            if (res.status === 200 || res.success) {
+                setIsForgotPasswordVisible(false);
+                setResetEmail('');
+                router.push({
+                    pathname: '/(auth)/forgot-password-otp' as any,
+                    params: { email: resetEmail }
+                });
+            } else {
+                Alert.alert('Erreur', 'Impossible d\'envoyer le code OTP.');
+            }
+        } catch (error: any) {
+            Alert.alert('Erreur', error?.data?.message || 'Une erreur est survenue.');
+        }
+    };
+
     return (
         <KeyboardAvoidingView
             style={styles.container}
@@ -232,10 +256,10 @@ const LoginScreen = () => {
 
                 {/* Main Content */}
                 <View style={styles.formSection}>
-                    <LoginForm 
-                        onSubmit={handleLogin} 
-                        isLoading={isLoading} 
-                        checkIfEmailExists={handleVerifyPhone} 
+                    <LoginForm
+                        onSubmit={handleLogin}
+                        isLoading={isLoading}
+                        checkIfEmailExists={handleVerifyPhone}
                         onForgotPassword={() => setIsForgotPasswordVisible(true)}
                     />
 
@@ -281,43 +305,65 @@ const LoginScreen = () => {
                 visible={isForgotPasswordVisible}
                 animationType="slide"
                 transparent={true}
-                onRequestClose={() => setIsForgotPasswordVisible(false)}
+                onRequestClose={() => {
+                    setIsForgotPasswordVisible(false);
+                    setResetEmail('');
+                }}
             >
-                <KeyboardAvoidingView 
+                <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     style={styles.modalOverlay}
                 >
                     <View style={styles.modalContent}>
+                        <View style={styles.modalHandle} />
+
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>Mot de passe oublié</Text>
-                            <TouchableOpacity onPress={() => setIsForgotPasswordVisible(false)}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setIsForgotPasswordVisible(false);
+                                    setResetEmail('');
+                                }}
+                                style={styles.modalCloseButton}
+                            >
                                 <Text style={styles.modalCloseText}>Fermer</Text>
                             </TouchableOpacity>
                         </View>
-                        
+
                         <Text style={styles.modalSubtitle}>
-                            Entrez votre numéro de téléphone pour réinitialiser votre mot de passe.
+                            Entrez votre adresse email pour recevoir un code de réinitialisation.
                         </Text>
-                        
-                        <View style={styles.modalInputContainer}>
+
+                        <View style={[
+                            styles.modalInputContainer,
+                            resetEmail.length > 0 && resetEmail.includes('@') && styles.modalInputContainerFocused
+                        ]}>
                             <TextInput
                                 style={styles.modalInput}
-                                placeholder="Numéro de téléphone"
-                                keyboardType="phone-pad"
-                                value={resetPhone}
-                                onChangeText={setResetPhone}
+                                placeholder="Entrez votre adresse email"
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                                autoComplete="email"
+                                value={resetEmail}
+                                onChangeText={setResetEmail}
                                 placeholderTextColor="#9CA3AF"
                             />
                         </View>
-                        
-                        <TouchableOpacity 
-                            style={styles.modalSubmitButton}
-                            onPress={() => {
-                                Alert.alert("Information", "Fonctionnalité en cours de développement");
-                                setIsForgotPasswordVisible(false);
-                            }}
+
+                        <TouchableOpacity
+                            style={[
+                                styles.modalSubmitButton,
+                                (isForgotLoading || !resetEmail.includes('@')) && styles.modalSubmitButtonDisabled
+                            ]}
+                            onPress={handleForgotPassword}
+                            disabled={isForgotLoading || !resetEmail.includes('@')}
+                            activeOpacity={0.8}
                         >
-                            <Text style={styles.modalSubmitButtonText}>Envoyer</Text>
+                            {isForgotLoading ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.modalSubmitButtonText}>Envoyer le code</Text>
+                            )}
                         </TouchableOpacity>
                     </View>
                 </KeyboardAvoidingView>
@@ -444,6 +490,17 @@ const styles = StyleSheet.create({
         color: COLORS.textSecondary,
         fontSize: 16,
     },
+    modalCloseButton: {
+        padding: 4,
+    },
+    modalHandle: {
+        width: 36,
+        height: 4,
+        borderRadius: 2,
+        backgroundColor: '#E5E7EB',
+        alignSelf: 'center',
+        marginBottom: 20,
+    },
     modalSubtitle: {
         fontSize: 15,
         color: COLORS.textSecondary,
@@ -459,6 +516,9 @@ const styles = StyleSheet.create({
         height: 56,
         justifyContent: 'center',
     },
+    modalInputContainerFocused: {
+        borderColor: COLORS.primary,
+    },
     modalInput: {
         fontSize: 16,
         color: COLORS.text,
@@ -468,6 +528,16 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         borderRadius: 12,
         alignItems: 'center',
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    modalSubmitButtonDisabled: {
+        backgroundColor: '#fcdcb8',
+        shadowOpacity: 0,
+        elevation: 0,
     },
     modalSubmitButtonText: {
         color: '#fff',

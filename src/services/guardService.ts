@@ -62,6 +62,13 @@ export const guardService = createApi({
         forgotPassword: builder.mutation({
             query: (data) => ({ url: "/api/password/forgot", method: "POST", body: data }),
         }),
+
+        verifyOtp: builder.mutation({
+            query: (data) => ({ url: "/api/password/verify", method: "POST", body: data }),
+        }),
+        resetPassword: builder.mutation({
+            query: (data) => ({ url: "/api/password/reset", method: "POST", body: data }),
+        }),
         checkIfPhoneExists: builder.mutation({
             query: (formData) => ({
                 url: `/api/check/login/phone-number`,
@@ -307,6 +314,8 @@ export const {
     useGetAllShopsQuery,
     useForgotPasswordMutation,
     useLoginMutation,
+    useVerifyOtpMutation,
+    useResetPasswordMutation,
     useCheckGoogleMutation,
     useLinkGooglePhoneMutation,
     useSearchByQueryQuery,

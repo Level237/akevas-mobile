@@ -24,7 +24,18 @@ export default function NavigationLayout() {
                     name="link-google-phone"
                     options={{
                         title: 'Compléter le profil',
-
+                    }}
+                />
+                <Stack.Screen
+                    name="forgot-password-otp"
+                    options={{
+                        title: 'Vérification OTP',
+                    }}
+                />
+                <Stack.Screen
+                    name="reset-password"
+                    options={{
+                        title: 'Nouveau mot de passe',
                     }}
                 />
             </Stack>
