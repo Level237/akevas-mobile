@@ -1,28 +1,20 @@
 import { User as UserType } from '@/features/auth/authSlice';
+import { openWebLink } from '@/utils/openWebLink';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import {
-    BarChart3,
     ChevronRight,
-    CreditCard,
     FileText,
-    Gift,
-    Globe,
     Heart,
     Info,
     LogOut,
-    Package,
-    Phone,
-    Receipt,
     Settings as SettingsIcon,
     ShieldCheck,
-    Store,
+    ShoppingCart,
     User
 } from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import {
-    Dimensions,
-    FlatList,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -30,89 +22,10 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { width } = Dimensions.get('window');
-
 type AuthenticatedProfileViewProps = {
     user: UserType | null;
     onLogout: () => void;
 };
-
-const QUICK_LINKS = [
-    {
-        id: 'orders',
-        icon: Package,
-        title: 'Commandes',
-        subtitle: 'Suivi & colis',
-        link: '/orders',
-        color: '#E67E22',
-        bgColor: '#FFF7ED',
-    },
-    {
-        id: 'transactions',
-        icon: Receipt,
-        title: 'Paiements',
-        link: '/orders/payment',
-        subtitle: 'Historique',
-        color: '#3B82F6',
-        bgColor: '#EFF6FF',
-    },
-    {
-        id: 'stats',
-        icon: BarChart3,
-        title: 'Statistiques',
-        subtitle: 'Mes activités',
-        color: '#10B981',
-        bgColor: '#ECFDF5',
-    },
-    {
-        id: 'wishlist',
-        icon: Heart,
-        title: 'Ma Liste',
-        subtitle: 'Coups de coeur',
-        color: '#EC4899',
-        bgColor: '#FDF2F8',
-    },
-    {
-        id: 'stores',
-        icon: Store,
-        title: 'Boutiques',
-        subtitle: 'Mes suivis',
-        color: '#8B5CF6',
-        bgColor: '#F5F3FF',
-    },
-    {
-        id: 'referral',
-        icon: Gift,
-        title: 'Parrainage',
-        subtitle: 'Gagner des coins',
-        color: '#F59E0B',
-        bgColor: '#FFFBEB',
-    },
-];
-
-const QuickLinkItem = React.memo(({ item }: { item: typeof QUICK_LINKS[0] }) => {
-    const Icon = item.icon;
-    const router = useRouter()
-    return (
-        <TouchableOpacity style={styles.quickLinkCard} onPress={() => router.push(item.link as any)} activeOpacity={0.7}>
-            <View style={[styles.quickLinkIconContainer, { backgroundColor: item.bgColor }]}>
-                <Icon size={22} color={item.color} strokeWidth={2.5} />
-            </View>
-            <Text style={styles.quickLinkTitle} numberOfLines={1}>{item.title}</Text>
-            <Text style={styles.quickLinkSubtitle} numberOfLines={1}>{item.subtitle}</Text>
-        </TouchableOpacity>
-    );
-});
-
-const MetricItem = React.memo(({ icon: Icon, label, value, color }: any) => (
-    <View style={styles.metricCard}>
-        <View style={[styles.metricIconContainer, { backgroundColor: `${color}15` }]}>
-            <Icon size={20} color={color} />
-        </View>
-        <Text style={styles.metricValue}>{value}</Text>
-        <Text style={styles.metricLabel}>{label}</Text>
-    </View>
-));
 
 const MenuItem = React.memo(({ icon: Icon, title, subtitle, onPress, showChevron = true, destructive = false }: any) => (
     <TouchableOpacity
@@ -143,12 +56,9 @@ const getInitials = (name?: string) => {
 
 const AuthenticatedProfileView = ({ user, onLogout }: AuthenticatedProfileViewProps) => {
     const insets = useSafeAreaInsets();
-    const initials = useMemo(() => getInitials(user?.userName), [user?.userName]);
+    const initials = useMemo(() => getInitials(user?.name), [user?.name]);
 
-    const renderQuickLink = ({ item }: { item: typeof QUICK_LINKS[0] }) => (
-        <QuickLinkItem item={item} />
-    );
-
+    const router = useRouter()
     return (
         <View style={styles.container}>
             {/* Modern Header with Gradient */}
@@ -174,7 +84,7 @@ const AuthenticatedProfileView = ({ user, onLogout }: AuthenticatedProfileViewPr
                             <View style={styles.onlineBadge} />
                         </View>
                         <View style={styles.userTextContainer}>
-                            <Text style={styles.userName}>{user?.userName || 'Utilisateur'}</Text>
+                            <Text style={styles.userName}>{user?.name || 'Utilisateur'}</Text>
                             <Text style={styles.userHandle}>ID: #AKV-{user?.id || '0000'}</Text>
                         </View>
                     </View>
@@ -187,27 +97,15 @@ const AuthenticatedProfileView = ({ user, onLogout }: AuthenticatedProfileViewPr
 
 
                 {/* Liens Rapides Section */}
-                <View style={styles.quickLinksSection}>
-
-                    <FlatList
-                        data={QUICK_LINKS}
-                        renderItem={renderQuickLink}
-                        keyExtractor={(item) => item.id}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.quickLinksList}
-                        snapToInterval={width * 0.38 + 12}
-                        decelerationRate="fast"
-                    />
-                </View>
 
                 {/* Account Actions */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Compte</Text>
                     <View style={styles.menuCard}>
                         <MenuItem icon={User} title="Informations Personnelles" />
-                        <MenuItem icon={CreditCard} title="Mes Méthodes de Paiement" />
-                        <MenuItem icon={Phone} title="Sécurité du compte" />
+                        <MenuItem icon={ShoppingCart} title="Mes Commandes" onPress={() => router.push('/orders')} />
+                        <MenuItem icon={Heart} title="Ma liste" onPress={() => router.push('/(home)/wishlist')} />
+
                     </View>
                 </View>
 
@@ -216,10 +114,10 @@ const AuthenticatedProfileView = ({ user, onLogout }: AuthenticatedProfileViewPr
                     <Text style={styles.sectionTitle}>Préférences & Aide</Text>
                     <View style={styles.menuCard}>
                         <MenuItem icon={SettingsIcon} title="Mes préférences" onPress={() => router.push('/(navigation)/preferences')} />
-                        <MenuItem icon={Globe} title="Langue" subtitle="Français" />
-                        <MenuItem icon={FileText} title="Centre d'aide" />
-                        <MenuItem icon={ShieldCheck} title="Confidentialité" />
-                        <MenuItem icon={Info} title="À propos d'Akevas" />
+
+                        <MenuItem icon={FileText} title="Contactez nous" onPress={() => openWebLink('https://akevas.com/contact')} />
+                        <MenuItem icon={ShieldCheck} title="Confidentialité" onPress={() => openWebLink('https://akevas.com/privacy-policy')} />
+                        <MenuItem icon={Info} title="Mention legales" onPress={() => openWebLink('https://akevas.com/legal-terms')} />
                     </View>
                 </View>
 
@@ -338,18 +236,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 24,
     },
-    metricCard: {
-        width: (width - 60) / 2,
-        backgroundColor: '#FFF',
-        borderRadius: 20,
-        padding: 16,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 2,
-    },
+
     metricIconContainer: {
         width: 40,
         height: 40,
@@ -378,26 +265,8 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingRight: 20,
     },
-    quickLinkCard: {
-        width: width * 0.38,
-        backgroundColor: '#FFF',
-        borderRadius: 20,
-        padding: 16,
-        marginRight: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 2,
-    },
-    quickLinkIconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
+
+
     quickLinkTitle: {
         fontSize: 14,
         fontWeight: '800',
@@ -411,6 +280,7 @@ const styles = StyleSheet.create({
     },
     section: {
         marginBottom: 24,
+        marginTop: 18,
     },
     sectionTitle: {
         fontSize: 16,

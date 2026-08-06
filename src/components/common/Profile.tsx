@@ -21,13 +21,13 @@ export const Profile = React.memo(() => {
     const user = useAppSelector(selectCurrentUser);
     console.log(user)
     // Mémoriser les initiales pour éviter des recalculs inutiles (performance)
-    const initials = useMemo(() => getInitials(user?.userName), [user?.userName]);
+    const initials = useMemo(() => getInitials(user?.name), [user?.name]);
 
     return (
         <TouchableOpacity
             onPress={() => {
                 // TODO: Naviguer vers la vue de profil détaillée
-                console.log("Naviguer vers le profil de:", user?.userName || "Guest");
+                console.log("Naviguer vers le profil de:", user?.name || "Guest");
             }}
             style={styles.container}
             activeOpacity={0.7}
