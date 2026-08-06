@@ -4,7 +4,6 @@ import { useGetNotificationsQuery } from '@/services/authService';
 import { router } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
-    ActivityIndicator,
     FlatList,
     StyleSheet,
     View
@@ -12,6 +11,7 @@ import {
 import EmptyNotifications from '../components/EmptyNotifications';
 import FilterPills from '../components/FilterPills';
 import NotificationItem from '../components/NotificationItem';
+import { NotificationSkeleton } from '../components/NotificationSkeleton';
 
 type FilterType = 'Toutes' | 'Commandes' | 'Promos' | 'Alertes';
 
@@ -55,8 +55,13 @@ const NotificationScreen = () => {
 
     if (isLoading) {
         return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#ed7e0f" />
+            <View style={styles.container}>
+                <HeaderSetting
+                    title="Notifications"
+                    onRightPress={() => { }}
+                />
+                <FilterPills activeFilter={activeFilter} onFilterChange={setActiveFilter} />
+                <NotificationSkeleton />
             </View>
         );
     }
@@ -96,12 +101,6 @@ const NotificationScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9F9F9',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
         backgroundColor: '#F9F9F9',
     },
     listContent: {

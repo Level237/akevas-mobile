@@ -5,11 +5,14 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 
 const getIconConfig = (type: any, data?: any) => {
-    if (type === 'commandes' || type === 'order_in_progress' || type === 'order_confirmation') {
+    if (type === 'commandes') {
         if (data?.status === 'in_progress') {
-            return { name: 'cube-outline' as const, color: '#ed7e0f', bgColor: '#FFF5EB' }; // Orange Akevas
+            return { name: 'cube-outline' as const, color: '#ed7e0f', bgColor: '#FFF5EB' }; // Orange
         }
-        return { name: 'cart-outline' as const, color: '#3498DB', bgColor: '#EBF5FB' };
+        if (data?.status === 'completed') {
+            return { name: 'checkmark-circle-outline' as const, color: '#10B981', bgColor: '#ECFDF5' }; // ✅ Vert
+        }
+        return { name: 'cart-outline' as const, color: '#3498DB', bgColor: '#EBF5FB' }; // Bleu (confirmation)
     }
 
     switch (type) {
@@ -46,7 +49,7 @@ const NotificationItem = ({ notification, onPress, onLongPress }: any) => {
                     >
                         {notification.title}
                     </Text>
-                    {!notification.isRead && <View style={styles.unreadDot} />}
+
                 </View>
 
                 <Text style={styles.description} numberOfLines={2}>

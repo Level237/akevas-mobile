@@ -27,24 +27,34 @@ export const authService = createApi({
                 method: 'GET'
             }),
 
-            transformResponse: (response) => {
+            transformResponse: (response: any) => {
 
 
                 return response.map((notif: any) => {
                     const data = typeof notif.data === 'string' ? JSON.parse(notif.data) : notif.data;
 
+                    // Déterminer le type pour le filtre UI
+                    let uiType: any = 'alertes';
+                    let title = 'Notification';
+
+                    if (data.type === 'order_in_progress') {
+                        uiType = 'commandes';
+                        title = 'Commande en cours';
+                    } else if (data.type === 'order_completed') {
+                        uiType = 'commandes';
+                        title = 'Commande terminée';
+                    } else if (data.type === 'order_confirmation') {
+                        uiType = 'commandes';
+                        title = 'Commande confirmée';
+                    }
+
                     return {
                         id: notif.id,
-                        type: data.type === 'order_in_progress' ? 'commandes' :
-                            data.type === 'order_confirmation' ? 'commandes' : 'alertes',
-                        title: data.type === 'order_in_progress' ? 'Commande en cours' :
-                            data.type === 'order_confirmation' ? 'Commande confirmée' : 'Notification',
+                        type: uiType,
+                        title: title,
                         description: data.message || '',
                         timestamp: new Date(notif.created_at).toLocaleDateString('fr-FR', {
-                            day: '2-digit',
-                            month: 'short',
-                            hour: '2-digit',
-                            minute: '2-digit'
+                            day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
                         }),
                         isRead: notif.read_at !== null,
                         data: data,

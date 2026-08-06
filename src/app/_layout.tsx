@@ -70,6 +70,12 @@ export default function RootLayout() {
                     return;
                 }
 
+                if (data?.type === 'order_completed' && data?.orderId) {
+                    console.log('️ Navigation vers le détail de la commande terminée');
+                    router.replace(`/orders/${data.orderId}`);
+                    return;
+                }
+
                 // Fallback
                 router.replace('/');
 
