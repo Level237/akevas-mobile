@@ -151,8 +151,8 @@ const LoginScreen = () => {
 
     const handleLogin = async (phone: string, pass: string) => {
         setIsLoading(true);
-
-        const userObject = { phone_number: phone, password: pass, role_id: 3 };
+        const token = await SecureStore.getItemAsync('EXPO_PUSH_TOKEN');
+        const userObject = { phone_number: phone, password: pass, role_id: 3, expo_push_token: token };
         const res = await login(userObject);
 
         if (res?.error) {

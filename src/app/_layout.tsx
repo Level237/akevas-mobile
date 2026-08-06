@@ -63,7 +63,9 @@ export default function RootLayout() {
                     return;
                 }
 
-                if (data?.type === 'new_order' && data?.orderId) {
+
+                if (data?.type === 'order_in_progress' && data?.orderId) {
+                    console.log("Navigation vers le détail de la commande")
                     router.replace(`/orders/${data.orderId}`);
                     return;
                 }

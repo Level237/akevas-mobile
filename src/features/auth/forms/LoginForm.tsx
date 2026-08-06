@@ -40,6 +40,8 @@ const LoginForm = ({ onSubmit, isLoading, checkIfEmailExists, onForgotPassword }
     };
 
     const handleSubmit = async () => {
+
+
         if (phone && password) {
             const response = await onSubmit(phone, password);
 
