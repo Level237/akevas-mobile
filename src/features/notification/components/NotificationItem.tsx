@@ -1,18 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Notification } from '../types';
 
-type Props = {
-    notification: Notification;
-    onPress: (id: string) => void;
-    onLongPress: (id: string) => void;
-};
 
-const getIconConfig = (type: Notification['type']) => {
+
+const getIconConfig = (type: any, data?: any) => {
+    if (type === 'commandes' || type === 'order_in_progress' || type === 'order_confirmation') {
+        if (data?.status === 'in_progress') {
+            return { name: 'cube-outline' as const, color: '#ed7e0f', bgColor: '#FFF5EB' }; // Orange Akevas
+        }
+        return { name: 'cart-outline' as const, color: '#3498DB', bgColor: '#EBF5FB' };
+    }
+
     switch (type) {
-        case 'commandes':
-            return { name: 'cart-outline' as const, color: '#3498DB', bgColor: '#EBF5FB' };
         case 'promos':
             return { name: 'pricetag-outline' as const, color: '#F1C40F', bgColor: '#FEF9E7' };
         case 'alertes':
@@ -22,8 +22,8 @@ const getIconConfig = (type: Notification['type']) => {
     }
 };
 
-const NotificationItem = ({ notification, onPress, onLongPress }: Props) => {
-    const iconConfig = getIconConfig(notification.type);
+const NotificationItem = ({ notification, onPress, onLongPress }: any) => {
+    const iconConfig = getIconConfig(notification.type, notification.data);
 
     return (
         <TouchableOpacity
@@ -32,12 +32,12 @@ const NotificationItem = ({ notification, onPress, onLongPress }: Props) => {
             onLongPress={() => onLongPress(notification.id)}
             activeOpacity={0.7}
         >
-            {/* Icon Circle */}
+            {/* Icône */}
             <View style={[styles.iconCircle, { backgroundColor: iconConfig.bgColor }]}>
                 <Ionicons name={iconConfig.name} size={24} color={iconConfig.color} />
             </View>
 
-            {/* Content */}
+            {/* Contenu */}
             <View style={styles.content}>
                 <View style={styles.header}>
                     <Text
@@ -48,9 +48,18 @@ const NotificationItem = ({ notification, onPress, onLongPress }: Props) => {
                     </Text>
                     {!notification.isRead && <View style={styles.unreadDot} />}
                 </View>
+
                 <Text style={styles.description} numberOfLines={2}>
                     {notification.description}
                 </Text>
+
+                {/* Afficher l'ID de commande si disponible */}
+                {notification.data?.order_id && (
+                    <Text style={styles.orderId}>
+                        Commande #{notification.data.order_id}
+                    </Text>
+                )}
+
                 <Text style={styles.time}>{notification.timestamp}</Text>
             </View>
         </TouchableOpacity>
@@ -66,7 +75,7 @@ const styles = StyleSheet.create({
         borderBottomColor: '#F0F0F0',
     },
     unreadBackground: {
-        backgroundColor: '#FFF', // Keeping it clean white, handled by dot and bold text
+        backgroundColor: '#FFF',
     },
     iconCircle: {
         width: 48,
@@ -78,6 +87,7 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
+        justifyContent: 'center',
     },
     header: {
         flexDirection: 'row',
@@ -107,6 +117,12 @@ const styles = StyleSheet.create({
         color: '#666',
         lineHeight: 20,
         marginBottom: 6,
+    },
+    orderId: {
+        fontSize: 12,
+        color: '#ed7e0f',
+        fontWeight: '600',
+        marginBottom: 4,
     },
     time: {
         fontSize: 12,

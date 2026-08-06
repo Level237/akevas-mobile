@@ -1,109 +1,93 @@
 import HeaderSetting from '@/components/common/HeaderSetting';
-import React, { useCallback, useMemo, useState } from 'react';
+
+import { useGetNotificationsQuery } from '@/services/authService';
+import { router } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
 import {
-    ActionSheetIOS,
-    Alert,
+    ActivityIndicator,
     FlatList,
-    Platform,
     StyleSheet,
     View
 } from 'react-native';
 import EmptyNotifications from '../components/EmptyNotifications';
 import FilterPills from '../components/FilterPills';
 import NotificationItem from '../components/NotificationItem';
-import { FilterType, MOCK_NOTIFICATIONS, Notification } from '../types';
+
+type FilterType = 'Toutes' | 'Commandes' | 'Promos' | 'Alertes';
 
 const NotificationScreen = () => {
-    const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
     const [activeFilter, setActiveFilter] = useState<FilterType>('Toutes');
+
+    // Hooks RTK Query
+    const { data: notifications = [], isLoading, refetch } = useGetNotificationsQuery("Auth");
+
+    //const [markAsRead] = useMarkAsReadMutation();
+    //const [markAllAsRead] = useMarkAllAsReadMutation();
+    //const [deleteNotification] = useDeleteNotificationMutation();
 
     const filteredNotifications = useMemo(() => {
         if (activeFilter === 'Toutes') return notifications;
-        return notifications.filter(n => n.type === activeFilter.toLowerCase());
+        return notifications.filter((n: any) => {
+            if (activeFilter === 'Commandes') return n.type === 'commandes' || n.type === 'order_in_progress';
+            if (activeFilter === 'Promos') return n.type === 'promos';
+            if (activeFilter === 'Alertes') return n.type === 'alertes';
+            return true;
+        });
     }, [activeFilter, notifications]);
 
-    const handleMarkAsRead = useCallback((id: string) => {
-        setNotifications(prev => prev.map(n =>
-            n.id === id ? { ...n, isRead: true } : n
-        ));
-    }, []);
 
-    const handleMarkAllRead = useCallback(() => {
-        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-    }, []);
 
-    const handleDelete = useCallback((id: string) => {
-        Alert.alert(
-            "Supprimer",
-            "Voulez-vous supprimer cette notification ?",
-            [
-                { text: "Annuler", style: "cancel" },
-                {
-                    text: "Supprimer",
-                    style: "destructive",
-                    onPress: () => setNotifications(prev => prev.filter(n => n.id !== id))
-                }
-            ]
-        );
-    }, []);
 
-    const handleMorePress = useCallback(() => {
-        const options = ['Mark all as read', 'Delete all read', 'Cancel'];
-        const destructiveButtonIndex = 1;
-        const cancelButtonIndex = 2;
 
-        if (Platform.OS === 'ios') {
-            ActionSheetIOS.showActionSheetWithOptions(
-                {
-                    options,
-                    cancelButtonIndex,
-                    destructiveButtonIndex,
-                },
-                buttonIndex => {
-                    if (buttonIndex === 0) handleMarkAllRead();
-                    if (buttonIndex === 1) {
-                        setNotifications(prev => prev.filter(n => !n.isRead));
-                    }
-                }
-            );
-        } else {
-            Alert.alert(
-                "Options",
-                "Actions sur les notifications",
-                [
-                    { text: "Tout marquer comme lu", onPress: handleMarkAllRead },
-                    { text: "Supprimer les lus", style: 'destructive', onPress: () => setNotifications(prev => prev.filter(n => !n.isRead)) },
-                    { text: "Annuler", style: 'cancel' }
-                ]
-            );
+
+
+    const handleNotificationPress = useCallback((notification: any) => {
+        // Marquer comme lu
+        //handleMarkAsRead(notification.id);
+
+        // Navigation vers le détail de la commande si c'est une notification de commande
+        if (notification.data?.order_id) {
+            router.push(`/orders/${notification.data.order_id}`);
         }
-    }, [handleMarkAllRead]);
+    }, []);
+
+
+
+    if (isLoading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#ed7e0f" />
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
-            {/* Premium Custom Header with Settings Icon */}
+            {/* Header avec icône de paramètres */}
             <HeaderSetting
                 title="Notifications"
-                onRightPress={handleMorePress}
+                onRightPress={() => { }}
             />
 
-            {/* Filters */}
+            {/* Filtres */}
             <FilterPills activeFilter={activeFilter} onFilterChange={setActiveFilter} />
 
-            {/* List */}
+            {/* Liste des notifications */}
             <FlatList
                 data={filteredNotifications}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                     <NotificationItem
                         notification={item}
-                        onPress={handleMarkAsRead}
-                        onLongPress={handleDelete}
+                        onPress={() => handleNotificationPress(item)}
+                        onLongPress={() => { }}
                     />
                 )}
                 ListEmptyComponent={<EmptyNotifications />}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
+                refreshing={isLoading}
+                onRefresh={refetch}
             />
         </View>
     );
@@ -114,6 +98,12 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#F9F9F9',
     },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F9F9F9',
+    },
     listContent: {
         flexGrow: 1,
         paddingBottom: 20,
@@ -121,4 +111,3 @@ const styles = StyleSheet.create({
 });
 
 export default NotificationScreen;
-

@@ -1,11 +1,11 @@
 
-import { createApi } from "@reduxjs/toolkit/query/react"
-import baseQueryWithAuth from "./baseQueryWithReauth"
+import { createApi } from "@reduxjs/toolkit/query/react";
+import baseQueryWithAuth from "./baseQueryWithReauth";
 
 export const authService = createApi({
     baseQuery: baseQueryWithAuth,
     reducerPath: "authService",
-    tagTypes: ['Auth', 'User'],
+    tagTypes: ['Auth', 'User', 'Notifications'],
     endpoints: builder => ({
         getHistorySearch: builder.query({
             query: () => ({
@@ -20,6 +20,37 @@ export const authService = createApi({
                 method: "POST",
             }),
             invalidatesTags: ['Auth', 'User']
+        }),
+        getNotifications: builder.query({
+            query: () => ({
+                url: '/api/v1/customer/notifications',
+                method: 'GET'
+            }),
+
+            transformResponse: (response) => {
+
+
+                return response.map((notif: any) => {
+                    const data = typeof notif.data === 'string' ? JSON.parse(notif.data) : notif.data;
+
+                    return {
+                        id: notif.id,
+                        type: data.type === 'order_in_progress' ? 'commandes' :
+                            data.type === 'order_confirmation' ? 'commandes' : 'alertes',
+                        title: data.type === 'order_in_progress' ? 'Commande en cours' :
+                            data.type === 'order_confirmation' ? 'Commande confirmée' : 'Notification',
+                        description: data.message || '',
+                        timestamp: new Date(notif.created_at).toLocaleDateString('fr-FR', {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }),
+                        isRead: notif.read_at !== null,
+                        data: data,
+                    };
+                });
+            },
         }),
         getUser: builder.query({
             query: () => ({
@@ -93,5 +124,6 @@ export const {
     useAddShopReviewMutation,
     useInitPayinMutation,
     useVerifyPayinMutation,
+    useGetNotificationsQuery,
     useControlPaymentMutation,
 } = authService
