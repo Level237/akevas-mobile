@@ -1,7 +1,6 @@
-import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Cart from './Cart';
+
 import SearchResource from './Search';
 
 type Props = {
@@ -25,7 +24,7 @@ const HeaderTabs = ({ title }: Props) => {
                     <View style={styles.iconSpacing}>
                         <SearchResource />
                     </View>
-                    <Cart />
+
                 </View>
 
             </View>

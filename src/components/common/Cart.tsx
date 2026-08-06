@@ -1,12 +1,14 @@
 import { COLORS } from "@/constants/colors";
+import { useRouter } from "expo-router";
 import { ShoppingCart } from "lucide-react-native";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Cart = () => {
+    const router = useRouter();
     return (
-        <TouchableOpacity activeOpacity={0.7} style={styles.iconButton}>
+        <TouchableOpacity onPress={() => router.push('/(home)/cart')} activeOpacity={0.7} style={styles.iconButton}>
             <View>
-                <ShoppingCart size={24} color={COLORS.iconLight} />
+                <ShoppingCart size={24} strokeWidth={1.2} color={COLORS.iconLight} />
                 <View style={styles.cartBadge}>
                     <Text style={styles.cartBadgeText}>2</Text>
                 </View>

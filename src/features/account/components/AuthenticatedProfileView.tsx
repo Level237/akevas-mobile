@@ -71,12 +71,7 @@ const AuthenticatedProfileView = ({ user, onLogout }: AuthenticatedProfileViewPr
                 />
 
                 <View style={[styles.headerContent, { paddingTop: insets.top + 20 }]}>
-                    <View style={styles.headerTopRow}>
-                        <Text style={styles.headerTitle}>Mon Profil</Text>
-                        <TouchableOpacity style={styles.settingsButton}>
-                            <SettingsIcon size={24} color="#FFF" />
-                        </TouchableOpacity>
-                    </View>
+
 
                     <View style={styles.profileInfo}>
                         <View style={styles.avatarContainer}>
@@ -85,7 +80,7 @@ const AuthenticatedProfileView = ({ user, onLogout }: AuthenticatedProfileViewPr
                         </View>
                         <View style={styles.userTextContainer}>
                             <Text style={styles.userName}>{user?.name || 'Utilisateur'}</Text>
-                            <Text style={styles.userHandle}>ID: #AKV-{user?.id || '0000'}</Text>
+                            <Text style={styles.userHandle}>Compte client</Text>
                         </View>
                     </View>
                 </View>
@@ -100,7 +95,7 @@ const AuthenticatedProfileView = ({ user, onLogout }: AuthenticatedProfileViewPr
 
                 {/* Account Actions */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Compte</Text>
+
                     <View style={styles.menuCard}>
                         <MenuItem icon={User} title="Informations Personnelles" />
                         <MenuItem icon={ShoppingCart} title="Mes Commandes" onPress={() => router.push('/orders')} />
@@ -280,7 +275,7 @@ const styles = StyleSheet.create({
     },
     section: {
         marginBottom: 24,
-        marginTop: 18,
+        marginTop: 8,
     },
     sectionTitle: {
         fontSize: 16,
@@ -323,7 +318,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     menuTitle: {
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: '700',
         color: '#111827',
     },
