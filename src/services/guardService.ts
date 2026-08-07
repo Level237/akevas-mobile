@@ -105,6 +105,14 @@ export const guardService = createApi({
         // Tu peux ajouter register, logout, etc. ici
 
 
+        register: builder.mutation({
+            query: (data) => ({
+                url: '/api/register',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['guard'],
+        }),
         getCategoriesWithParentIdNull: builder.query({
             query: (genderId) => {
                 console.log(genderId);
@@ -303,6 +311,7 @@ export const {
     useGetCategoryProductsByUrlQuery,
     useCheckIfEmailExistsMutation,
     useCheckIfPhoneExistsMutation,
+    useRegisterMutation,
     useGetAttributeByCategoryQuery,
     useGetAttributeValueByIdQuery,
     useGetAttributeValuesQuery,

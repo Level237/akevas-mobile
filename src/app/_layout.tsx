@@ -76,6 +76,18 @@ export default function RootLayout() {
                     return;
                 }
 
+                if (data?.type == 'daily_shop_reminder') {
+                    console.log('🛍️ Navigation vers la liste des boutiques (Rappel quotidien)');
+                    router.replace('/(home)/shop'); // ou '/(shop)' selon ta structure exacte
+                    return;
+                }
+
+                if (data?.type === 'order_confirmation' && data?.orderId) {
+                    console.log('️ Navigation vers le détail de la commande confirmée');
+                    router.replace(`/orders/${data.orderId}`);
+                    return;
+                }
+
                 // Fallback
                 router.replace('/');
 
@@ -100,7 +112,7 @@ export default function RootLayout() {
 
         // 2. Écouter les notifications en premier plan
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-            console.log('🔔 Notification reçue (foreground):', notification.request.content.title);
+
         });
 
         // 3. Écouter les clics sur les notifications (App en arrière-plan)
@@ -108,8 +120,7 @@ export default function RootLayout() {
             const actionIdentifier = response.actionIdentifier;
             const content = response.notification.request.content;
 
-            console.log('👆 Action cliquée:', actionIdentifier);
-            console.log('📦 Données:', content.data);
+
 
             // Gestion des actions iOS
             if (Platform.OS === 'ios') {

@@ -86,7 +86,7 @@ const LoginScreen = () => {
             if (idToken) {
                 await handleGoogleLoginSuccess(idToken);
             } else {
-                Alert.alert('Erreur', 'Token Google non reçu');
+
             }
         } catch (error: any) {
             if (error.code === statusCodes.SIGN_IN_CANCELLED) {
