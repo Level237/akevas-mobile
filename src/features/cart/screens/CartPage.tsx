@@ -101,15 +101,20 @@ const CartPage = () => {
                     >
                         {/* Cart Items List */}
                         <View style={styles.section}>
-                            {cartItems.map(item => (
-                                <CartItem
-                                    key={item.product.id + item?.selectedVariation?.attributes?.id ? item?.selectedVariation?.attributes?.id : ''}
-                                    item={item}
-                                    onIncrease={handleIncrease}
-                                    onDecrease={handleDecrease}
-                                    onRemove={handleRemoveItem}
-                                />
-                            ))}
+                            {cartItems.map((item, index) => {
+                                const variationId = item.selectedVariation?.attributes?.id ?? 'default';
+                                const itemKey = `${item.product?.id ?? 'product'}-${variationId}-${index}`;
+
+                                return (
+                                    <CartItem
+                                        key={itemKey}
+                                        item={item}
+                                        onIncrease={handleIncrease}
+                                        onDecrease={handleDecrease}
+                                        onRemove={handleRemoveItem}
+                                    />
+                                );
+                            })}
                         </View>
                     </ScrollView>
 
