@@ -97,7 +97,10 @@ export default function HomeScreen() {
                     <View style={styles.heroWrapper}>
                         <HomeHero />
                         <FeaturedShops refetchControl={refreshControl} shops={shopsData} />
+
                         <PremiumProductsCarousel />
+
+
                     </View>
                 )}
                 renderItem={({ item }) => (

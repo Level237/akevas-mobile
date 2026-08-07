@@ -2,13 +2,14 @@ import PremiumProductCard from '@/components/PremiumProductCard';
 import { normalizeProduct } from '@/lib/normalizeProduct';
 import { useGetHomeProductsQuery } from '@/services/guardService';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const PremiumProductsCarousel = () => {
     // According to mock/standard API it probably returns data property
     const { data: responseData, isLoading } = useGetHomeProductsQuery(undefined);
-
+    const router = useRouter();
     // Extract products safely depending on actual backend response shape
     // Assuming `{ data: [...] }` since many of your queries map this way
     const products = responseData?.data || [];
@@ -54,7 +55,7 @@ const PremiumProductsCarousel = () => {
                 })}
             />
 
-            <TouchableOpacity style={styles.footerButton}>
+            <TouchableOpacity onPress={() => { router.push("/(navigation)/explore") }} style={styles.footerButton}>
                 <Text style={styles.footerText}>Voir toutes les produits</Text>
                 <Ionicons name="chevron-forward" size={16} color="#374151" />
             </TouchableOpacity>

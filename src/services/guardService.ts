@@ -173,6 +173,14 @@ export const guardService = createApi({
             }),
             providesTags: ['guard'],
         }),
+
+        getHomeShopsByGender: builder.query({
+            query: (genderId) => ({
+                url: `/api/home/shops/${genderId}`,
+                method: "GET",
+            }),
+            providesTags: ['guard'],
+        }),
         allGenders: builder.query({
             query: () => ({
                 url: "/api/all/genders",
@@ -319,6 +327,7 @@ export const {
     useGetCategoriesWithParentIdQuery,
     useGetCategoryByGenderQuery,
     useGetSubCategoriesQuery,
+    useGetHomeShopsByGenderQuery,
     useTriggerWelcomeNotificationMutation,
     useGetAllShopsQuery,
     useForgotPasswordMutation,

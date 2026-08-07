@@ -120,8 +120,7 @@ const cartSlice = createSlice({
             const { product, quantity, selectedVariation } = action.payload;
 
             const item = findCartItem(state.cartItems, product, selectedVariation);
-            console.log("item")
-            console.log(item)
+
             if (item) {
                 if (quantity <= 0) {
                     // Supprimer l'item si la quantité est 0 ou négative

@@ -5,12 +5,13 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Cart = () => {
     const router = useRouter();
+
     return (
         <TouchableOpacity onPress={() => router.push('/(home)/cart')} activeOpacity={0.7} style={styles.iconButton}>
             <View>
                 <ShoppingCart size={24} strokeWidth={1.2} color={COLORS.iconLight} />
                 <View style={styles.cartBadge}>
-                    <Text style={styles.cartBadgeText}>2</Text>
+                    <Text style={styles.cartBadgeText}></Text>
                 </View>
             </View>
         </TouchableOpacity>

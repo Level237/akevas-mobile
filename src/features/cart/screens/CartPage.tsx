@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
 import { useRedirectToLogin } from '@/hooks/useRedirectToLogin';
 import { removeItem, selectCartItems, selectCartTotalPrice, updateQuantity } from '@/store/CartSlice';
 import { useRouter } from 'expo-router';
-import React from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import CartItem from '../components/CartItem';
 import EmptyCart from '../components/EmptyCart';
@@ -37,7 +36,7 @@ const CartPage = () => {
     };
 
     const handleDecrease = (item: any) => {
-
+        console.log(item)
         if (item.quantity > 1) {
             dispatch(updateQuantity({
                 product: item,
