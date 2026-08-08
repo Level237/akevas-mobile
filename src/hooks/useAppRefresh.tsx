@@ -2,6 +2,7 @@ import { COLORS } from '@/constants/colors';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, RefreshControl, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { setRefreshing } from './refreshManager';
 
 export const useAppRefresh = (refetchFunction: () => Promise<any> | void) => {
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -46,8 +47,10 @@ export const useAppRefresh = (refetchFunction: () => Promise<any> | void) => {
 
     const onRefresh = useCallback(() => {
         setIsRefreshing(true);
+        setRefreshing(true);
         Promise.resolve(refetchFunction()).finally(() => {
             setIsRefreshing(false);
+            setRefreshing(false);
         });
     }, [refetchFunction]);
 

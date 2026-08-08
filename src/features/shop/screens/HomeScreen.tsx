@@ -75,7 +75,7 @@ export default function HomeScreen() {
             {/* Fixed Top Header (Safe Area handled inside) */}
 
             <HomeHeader />
-            <StatusBar backgroundColor={"white"} barStyle={"dark-content"} />
+            <StatusBar backgroundColor={"black"} barStyle={"dark-content"} />
             {/* Animated Secondary Header (Gender) */}
             <GenderHeader animatedStyle={animatedHeaderStyle} />
             <ProgressBar />

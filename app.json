@@ -29,6 +29,30 @@
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#E6F4FE"
       },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "akevas.com",
+              "pathPrefix": "/product"
+            },
+
+            {
+              "scheme": "https",
+              "host": "akevas.com",
+              "pathPrefix": "/product"
+            },
+            {
+              "scheme": "akevas",
+              "host": "product"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
       "sdk": "57",
       "permissions": [
         "RECEIVE_BOOT_COMPLETED",

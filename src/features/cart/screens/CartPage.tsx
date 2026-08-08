@@ -36,10 +36,10 @@ const CartPage = () => {
     };
 
     const handleDecrease = (item: any) => {
-        console.log(item)
+        
         if (item.quantity > 1) {
             dispatch(updateQuantity({
-                product: item,
+                product: item.product,
                 quantity: item.quantity - 1,
                 selectedVariation: item.selectedVariation
             }));

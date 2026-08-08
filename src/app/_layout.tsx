@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
 import { toastConfig } from '@/components/common/toastConfig';
+import RefreshOverlay from '@/components/RefreshOverlay';
 import { COLORS } from '@/constants/colors';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { registerForPushNotificationsAsync } from '@/utils/notification';
@@ -20,8 +21,8 @@ export default function RootLayout() {
     const colorScheme = useColorScheme();
     const [expoPushToken, setExpoPushToken] = useState('');
 
-    const notificationListener = useRef<Notifications.Subscription>();
-    const responseListener = useRef<Notifications.Subscription>();
+    const notificationListener = useRef<any>(null);
+    const responseListener = useRef<any>(null);
 
     // 🚀 FONCTION DÉDIÉE POUR GÉRER LE ROUTING (Plus propre et débogable)
     const handleNotificationRouting = (response: Notifications.NotificationResponse) => {
@@ -34,12 +35,11 @@ export default function RootLayout() {
             try {
                 data = { ...data, ...JSON.parse(dataString) };
             } catch (e) {
-                console.error('❌ Erreur parsing', e);
+                
             }
         }
 
-        console.log('📦 Données:', data);
-        console.log('🎯 Action:', actionIdentifier);
+      
 
         // Délai pour s'assurer que l'UI est prête
         setTimeout(() => {
@@ -192,7 +192,8 @@ export default function RootLayout() {
                         <Stack.Screen name="orders" />
                     </Stack>
 
-                    <Toast config={toastConfig} position="bottom" bottomOffset={80} />
+                        <RefreshOverlay />
+                        <Toast config={toastConfig} position="bottom" bottomOffset={80} />
                     <StatusBar style="auto" />
                 </ThemeProvider>
             </PersistGate>

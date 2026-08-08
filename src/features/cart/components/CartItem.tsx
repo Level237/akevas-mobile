@@ -1,7 +1,6 @@
 import { normalizeProduct } from '@/lib/normalizeProduct';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type Props = {
@@ -188,7 +187,7 @@ const styles = StyleSheet.create({
         minWidth: 16,
     },
     price: {
-        fontSize: 16,
+        fontSize: 12,
         fontWeight: '800',
         color: '#1A1A1A',
     },

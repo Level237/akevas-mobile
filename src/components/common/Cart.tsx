@@ -1,18 +1,23 @@
 import { COLORS } from "@/constants/colors";
+import { useAppSelector } from '@/hooks/hooks';
+import { selectCartTotalQuantity } from '@/store/CartSlice';
 import { useRouter } from "expo-router";
 import { ShoppingCart } from "lucide-react-native";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Cart = () => {
     const router = useRouter();
+    const totalQuantity = useAppSelector(selectCartTotalQuantity);
 
     return (
         <TouchableOpacity onPress={() => router.push('/(home)/cart')} activeOpacity={0.7} style={styles.iconButton}>
             <View>
                 <ShoppingCart size={24} strokeWidth={1.2} color={COLORS.iconLight} />
-                <View style={styles.cartBadge}>
-                    <Text style={styles.cartBadgeText}></Text>
-                </View>
+                {totalQuantity > 0 && (
+                    <View style={styles.cartBadge}>
+                        <Text style={styles.cartBadgeText}>{totalQuantity}</Text>
+                    </View>
+                )}
             </View>
         </TouchableOpacity>
     );
