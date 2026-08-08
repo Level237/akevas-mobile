@@ -40,7 +40,7 @@ export const store = configureStore({
     reducer: persistedReducer, // On utilise le version "persistante" et pas le rootReducer brut
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({
         // Au lieu de mettre "false", on ignore juste les actions de redux-persist
-
+        immutableCheck: false,
         serializableCheck: {
             // ✅ On ignore les actions de persist
             ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],

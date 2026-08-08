@@ -1,6 +1,6 @@
 import { COLORS } from '@/constants/colors';
 import { useEffect, useRef } from 'react';
-import { Animated, Image, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
 
 const SplashScreen = () => {
     const anims = useRef([
@@ -10,24 +10,26 @@ const SplashScreen = () => {
     ]).current;
 
     useEffect(() => {
-        const animations = anims.map(anim =>
+        const animations = anims.map((anim) =>
             Animated.sequence([
                 Animated.timing(anim, {
                     toValue: 1,
-                    duration: 400,
+                    duration: 620,
+                    easing: Easing.out(Easing.cubic),
                     useNativeDriver: true,
                 }),
+                Animated.delay(120),
                 Animated.timing(anim, {
                     toValue: 0,
-                    duration: 400,
+                    duration: 620,
+                    easing: Easing.in(Easing.cubic),
                     useNativeDriver: true,
                 }),
+                Animated.delay(120),
             ])
         );
 
-        Animated.loop(
-            Animated.stagger(150, animations)
-        ).start();
+        Animated.loop(Animated.stagger(140, animations)).start();
     }, [anims]);
 
     return (
@@ -47,13 +49,19 @@ const SplashScreen = () => {
                                 {
                                     opacity: anim.interpolate({
                                         inputRange: [0, 1],
-                                        outputRange: [0.3, 1],
+                                        outputRange: [0.25, 1],
                                     }),
                                     transform: [
                                         {
                                             scale: anim.interpolate({
                                                 inputRange: [0, 1],
-                                                outputRange: [0.8, 1.2],
+                                                outputRange: [0.85, 1.25],
+                                            }),
+                                        },
+                                        {
+                                            translateY: anim.interpolate({
+                                                inputRange: [0, 1],
+                                                outputRange: [0, -4],
                                             }),
                                         },
                                     ],
@@ -94,11 +102,16 @@ const styles = StyleSheet.create({
         height: 20,
     },
     square: {
-        width: 12,
-        height: 12,
+        width: 9,
+        height: 9,
         backgroundColor: COLORS.primary,
-        borderRadius: 4, // Petits carrés arrondis (squircle style)
-        marginHorizontal: 6,
+        borderRadius: 7, // Cercle doux
+        marginHorizontal: 8,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.18,
+        shadowRadius: 6,
+        elevation: 4,
     },
     footer: {
         position: 'absolute',
