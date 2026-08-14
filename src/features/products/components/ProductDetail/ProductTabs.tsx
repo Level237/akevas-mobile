@@ -1,9 +1,12 @@
 import { COLORS } from '@/constants/colors';
+import { useGetListReviewsQuery, useMakeReviewMutation } from '@/services/guardService';
 import { Star, MapPin } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, TextInput, ActivityIndicator } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 type Props = {
+    productId?: number;
     description: string;
     reviews?: any[];
     reviewCount?: number;
@@ -11,9 +14,42 @@ type Props = {
     residence?: string;
 };
 
-const ProductTabs = ({ description, reviews = [], reviewCount = 0, rating = 0, residence }: Props) => {
+const ProductTabs = ({ productId, description, reviews = [], reviewCount = 0, rating = 0, residence }: Props) => {
     const [activeTab, setActiveTab] = useState<'description' | 'reviews' | 'location'>('description');
     const [showAllDescription, setShowAllDescription] = useState(false);
+
+    const { data: reviewsData } = useGetListReviewsQuery(productId, { skip: !productId });
+    const [makeReview, { isLoading: isSubmitting }] = useMakeReviewMutation();
+    const [reviewComment, setReviewComment] = useState("");
+    const [reviewRating, setReviewRating] = useState(5);
+
+    const actualReviews = reviewsData?.data || reviewsData || reviews || [];
+    const actualReviewCount = Array.isArray(actualReviews) ? actualReviews.length : reviewCount;
+
+    const handleSubmitReview = async () => {
+        if (!productId || !reviewComment.trim()) return;
+        
+        const formData = new FormData();
+        formData.append('comment', reviewComment);
+        formData.append('rating', reviewRating.toString());
+        
+        try {
+            await makeReview({ formData, productId }).unwrap();
+            setReviewComment("");
+            setReviewRating(5);
+            Toast.show({
+                type: 'success',
+                text1: 'Avis ajouté',
+                text2: 'Merci pour votre retour !',
+            });
+        } catch (error) {
+            Toast.show({
+                type: 'error',
+                text1: 'Erreur',
+                text2: "Impossible d'ajouter votre avis pour le moment.",
+            });
+        }
+    };
     const renderDescription = () => (
         <View style={styles.tabContent}>
             <Text style={styles.descriptionText}>
@@ -33,13 +69,53 @@ const ProductTabs = ({ description, reviews = [], reviewCount = 0, rating = 0, r
         </View>
     );
 
+    const renderAddReview = () => (
+        <View style={styles.addReviewContainer}>
+            <Text style={styles.addReviewTitle}>Laisser un avis</Text>
+            <View style={styles.ratingInputRow}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity key={star} onPress={() => setReviewRating(star)}>
+                        <Star
+                            size={28}
+                            color={star <= reviewRating ? '#F1C40F' : '#E5E7EB'}
+                            fill={star <= reviewRating ? '#F1C40F' : 'none'}
+                        />
+                    </TouchableOpacity>
+                ))}
+            </View>
+            <TextInput
+                style={styles.reviewInput}
+                placeholder="Partagez votre expérience avec ce produit..."
+                multiline
+                numberOfLines={4}
+                value={reviewComment}
+                onChangeText={setReviewComment}
+                placeholderTextColor="#9CA3AF"
+                textAlignVertical="top"
+            />
+            <TouchableOpacity 
+                style={[styles.submitButton, (!reviewComment.trim() || isSubmitting) && styles.submitButtonDisabled]}
+                onPress={handleSubmitReview}
+                disabled={isSubmitting || !reviewComment.trim()}
+            >
+                {isSubmitting ? (
+                    <ActivityIndicator color="#FFF" size="small" />
+                ) : (
+                    <Text style={styles.submitButtonText}>Publier mon avis</Text>
+                )}
+            </TouchableOpacity>
+        </View>
+    );
+
     const renderReviews = () => (
         <View style={styles.tabContent}>
-            {reviews.length > 0 ? (
-                reviews.map((review, index) => (
+            {renderAddReview()}
+            
+            {actualReviews.length > 0 ? (
+                actualReviews.map((review: any, index: number) => (
                     <View key={index} style={styles.reviewItem}>
                         <View style={styles.reviewHeader}>
-                            <Text style={styles.reviewerName}>{review.user_name || "Clientanonyme"}</Text>
+                            <Text style={styles.reviewerName}>{review.user_name || review.user?.name || "Client anonyme"}</Text>
                             <View style={styles.ratingRow}>
                                 {[1, 2, 3, 4, 5].map((star) => (
                                     <Star
@@ -52,7 +128,7 @@ const ProductTabs = ({ description, reviews = [], reviewCount = 0, rating = 0, r
                             </View>
                         </View>
                         <Text style={styles.reviewText}>{review.comment}</Text>
-                        <Text style={styles.reviewDate}>{review.date || "Récemment"}</Text>
+                        <Text style={styles.reviewDate}>{review.date || review.created_at ? new Date(review.created_at).toLocaleDateString() : "Récemment"}</Text>
                     </View>
                 ))
             ) : (
@@ -99,9 +175,9 @@ const ProductTabs = ({ description, reviews = [], reviewCount = 0, rating = 0, r
                         <Text style={[styles.tabLabel, activeTab === 'reviews' && styles.activeTabLabel]}>
                             Avis
                         </Text>
-                        {reviewCount > 0 && (
+                        {actualReviewCount > 0 && (
                             <View style={styles.badge}>
-                                <Text style={styles.badgeText}>{reviewCount}</Text>
+                                <Text style={styles.badgeText}>{actualReviewCount}</Text>
                             </View>
                         )}
                     </View>
@@ -240,6 +316,51 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#6B7280',
         marginTop: 4,
+    },
+    addReviewContainer: {
+        marginBottom: 30,
+        padding: 20,
+        backgroundColor: '#F9FAFB',
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: '#F3F4F6',
+    },
+    addReviewTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#111827',
+        marginBottom: 12,
+    },
+    ratingInputRow: {
+        flexDirection: 'row',
+        gap: 8,
+        marginBottom: 16,
+    },
+    reviewInput: {
+        backgroundColor: '#FFF',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        borderRadius: 12,
+        padding: 16,
+        fontSize: 15,
+        color: '#111827',
+        minHeight: 100,
+        marginBottom: 16,
+    },
+    submitButton: {
+        backgroundColor: COLORS.primary || '#6366F1',
+        paddingVertical: 14,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    submitButtonDisabled: {
+        backgroundColor: '#D1D5DB',
+    },
+    submitButtonText: {
+        color: '#FFF',
+        fontSize: 15,
+        fontWeight: '700',
     },
 });
 

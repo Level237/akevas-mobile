@@ -10,7 +10,7 @@ import { baseQuery } from "./baseQuery";
 export const guardService = createApi({
     baseQuery: baseQuery,
     reducerPath: "guardService",
-    tagTypes: ['guard'],
+    tagTypes: ['guard', 'Review'],
     endpoints: builder => ({
 
         getCategories: builder.query({
@@ -307,6 +307,23 @@ export const guardService = createApi({
             query: (id) => ({ url: `/api/attributes/value/by/group/${id}`, method: "GET" }),
             providesTags: ['guard'],
             keepUnusedDataFor: 3600,
+        }),
+
+        makeReview: builder.mutation({
+            query: ({ formData, productId }) => ({
+                url: `/api/v1/make/comment/product/${productId}`,
+                method: "POST",
+                body: formData,
+            }),
+            invalidatesTags: ["Review" as any],
+        }),
+
+        getListReviews: builder.query({
+            query: (productId) => ({
+                url: `/api/list/reviews/${productId}`,
+                method: "GET",
+            }),
+            providesTags: ["Review" as any],
         })
 
     }),
@@ -345,4 +362,6 @@ export const {
     useGetProductByUrlQuery,
     useGetAllProductsQuery,
     useFilterProductsQuery,
+    useMakeReviewMutation,
+    useGetListReviewsQuery,
 } = guardService

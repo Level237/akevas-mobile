@@ -406,6 +406,7 @@ const ProductDetailScreen = ({ url }: Props) => {
         />
 
         <ProductTabs
+          productId={product.id}
           description={product.product_description}
           reviews={product.product_reviews}
           reviewCount={product.reviewCount}
