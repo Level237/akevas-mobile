@@ -1,5 +1,5 @@
 import { COLORS } from '@/constants/colors';
-import { Star } from 'lucide-react-native';
+import { Star, MapPin } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -8,10 +8,11 @@ type Props = {
     reviews?: any[];
     reviewCount?: number;
     rating?: number;
+    residence?: string;
 };
 
-const ProductTabs = ({ description, reviews = [], reviewCount = 0, rating = 0 }: Props) => {
-    const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
+const ProductTabs = ({ description, reviews = [], reviewCount = 0, rating = 0, residence }: Props) => {
+    const [activeTab, setActiveTab] = useState<'description' | 'reviews' | 'location'>('description');
     const [showAllDescription, setShowAllDescription] = useState(false);
     const renderDescription = () => (
         <View style={styles.tabContent}>
@@ -64,6 +65,19 @@ const ProductTabs = ({ description, reviews = [], reviewCount = 0, rating = 0 }:
         </View>
     );
 
+    const renderLocation = () => (
+        <View style={styles.tabContent}>
+            {residence ? (
+                <View style={styles.locationContainer}>
+                    <MapPin size={20} color="#4B5563" />
+                    <Text style={styles.descriptionText}>{residence}</Text>
+                </View>
+            ) : (
+                <Text style={styles.descriptionText}>Aucune localisation disponible pour ce produit.</Text>
+            )}
+        </View>
+    );
+
     return (
         <View style={styles.container}>
             {/* Tab Headers */}
@@ -92,11 +106,20 @@ const ProductTabs = ({ description, reviews = [], reviewCount = 0, rating = 0 }:
                         )}
                     </View>
                 </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.tabButton, activeTab === 'location' && styles.activeTabButton]}
+                    onPress={() => setActiveTab('location')}
+                >
+                    <Text style={[styles.tabLabel, activeTab === 'location' && styles.activeTabLabel]}>
+                        Localisation
+                    </Text>
+                </TouchableOpacity>
             </View>
 
             {/* Tab Content */}
             <View style={styles.contentContainer}>
-                {activeTab === 'description' ? renderDescription() : renderReviews()}
+                {activeTab === 'description' ? renderDescription() : activeTab === 'reviews' ? renderReviews() : renderLocation()}
             </View>
         </View>
     );
@@ -159,6 +182,12 @@ const styles = StyleSheet.create({
         color: '#4B5563',
         lineHeight: 24,
 
+    },
+    locationContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginTop: 8,
     },
     reviewItem: {
         marginBottom: 20,
