@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { openWebLink } from '@/utils/openWebLink';
 import { SLIDE_DATA } from '../../data/slideData';
 import HeroContent from './HeroContent';
 import HeroImageGrid from './HeroImageGrid';
@@ -37,6 +38,14 @@ const HomeHero = () => {
         startTimer(); // On relance le timer de zéro après le clic !
     };
 
+    const handleLinkPress = (link: string) => {
+        if (link.startsWith('http')) {
+            openWebLink(link);
+        } else {
+            router.push(link as any);
+        }
+    };
+
     return (
         <View style={styles.container}>
             {SLIDE_DATA.map((slide, index) => (
@@ -69,7 +78,7 @@ const HomeHero = () => {
                         {/* Footer Section (CTA + Pagination) */}
                         <View style={styles.footer}>
                             <HeroPagination activeIndex={activeIndex} onPressDot={(index) => handleManualPress(index)} />
-                            <TouchableOpacity onPress={() => router.push(slide.link as any)} style={styles.ctaButton} activeOpacity={0.9}>
+                            <TouchableOpacity onPress={() => handleLinkPress(slide.link)} style={styles.ctaButton} activeOpacity={0.9}>
                                 <Text style={[styles.ctaText, { color: slide.colors[1] }]}>{slide.ctaText}</Text>
                             </TouchableOpacity>
 

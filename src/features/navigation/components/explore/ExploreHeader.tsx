@@ -1,14 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TextInput, TouchableOpacity, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 type Props = {
   onBack: () => void;
   onFilterPress?: () => void;
   onSearchChange?: (text: string) => void;
+  activeFiltersCount?: number;
 };
 
-const ExploreHeader = ({ onBack, onFilterPress, onSearchChange }: Props) => {
+const ExploreHeader = ({ onBack, onFilterPress, onSearchChange, activeFiltersCount }: Props) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   return (
@@ -39,6 +40,11 @@ const ExploreHeader = ({ onBack, onFilterPress, onSearchChange }: Props) => {
 
       <TouchableOpacity onPress={onFilterPress} style={styles.filterButton}>
         <Ionicons name="options-outline" size={20} color="#333" />
+        {activeFiltersCount !== undefined && activeFiltersCount > 0 && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{activeFiltersCount}</Text>
+          </View>
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -83,6 +89,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F5",
     justifyContent: "center",
     alignItems: "center",
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#F97316',
+    borderRadius: 10,
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#FFF',
+  },
+  badgeText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
 });
 
