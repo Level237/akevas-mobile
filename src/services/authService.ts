@@ -136,7 +136,7 @@ export const authService = createApi({
     }),
     addShopReview: builder.mutation({
       query: (body) => ({
-        url: `/api/v1/user/add/review/shop`,
+        url: `/api/v1/make/comment/shop/${body.shop_id}`,
         method: "POST",
         body: body,
       }),

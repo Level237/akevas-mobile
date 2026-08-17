@@ -1,6 +1,6 @@
 import { useAddShopReviewMutation, useGetListShopReviewsQuery } from '@/services/authService';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -31,6 +31,7 @@ type ShopReviewsProps = {
 
 const ShopReviews = ({ shopId, shopData }: ShopReviewsProps) => {
     const { data: reviewsData, isLoading, refetch } = useGetListShopReviewsQuery(shopId);
+    console.log("Fetched reviews data:", reviewsData);
     const [addReview, { isLoading: isSubmitting }] = useAddShopReviewMutation();
     console.log(reviewsData);
     const [rating, setRating] = useState(0);
@@ -69,7 +70,7 @@ const ShopReviews = ({ shopId, shopData }: ShopReviewsProps) => {
             Alert.alert('Attention', 'Veuillez ajouter un commentaire.');
             return;
         }
-
+        console.log("Submitting review:", { shop_id: shopId, rating, comment });
         try {
             await addReview({
                 shop_id: shopId,
@@ -77,11 +78,14 @@ const ShopReviews = ({ shopId, shopData }: ShopReviewsProps) => {
                 comment: comment
             }).unwrap();
 
+            
+
             Alert.alert('Merci !', 'Votre avis a été ajouté avec succès.');
             setRating(0);
             setComment('');
             refetch();
         } catch (error) {
+            console.error('Erreur lors de l\'ajout de l\'avis:', error);
         }
     }
 
@@ -89,10 +93,10 @@ const ShopReviews = ({ shopId, shopData }: ShopReviewsProps) => {
         <View style={styles.reviewCard}>
             <View style={styles.reviewHeader}>
                 <View style={styles.userAvatar}>
-                    <Text style={styles.avatarText}>{item.user_name?.charAt(0) || 'U'}</Text>
+                    <Text style={styles.avatarText}>{item.userName?.charAt(0) || 'U'}</Text>
                 </View>
                 <View style={styles.reviewInfo}>
-                    <Text style={styles.userName}>{item.user_name || 'Utilisateur'}</Text>
+                    <Text style={styles.userName}>{item.userName || 'Utilisateur'}</Text>
                     <View style={styles.starRow}>
                         {[1, 2, 3, 4, 5].map((s) => (
                             <Ionicons
