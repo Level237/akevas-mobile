@@ -1,6 +1,7 @@
 
 import { Shop } from '@/types/seller';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from "expo-router";
 import React, { useState } from 'react';
 import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
@@ -79,7 +80,7 @@ const FeaturedShops = ({ shops, refetchControl }: Props) => {
             <View style={styles.footer}>
                 <PaginationDots data={shops || []} scrollX={scrollX} snapInterval={SNAP_INTERVAL} />
 
-                <TouchableOpacity style={styles.viewAllButton} activeOpacity={0.7}>
+                <TouchableOpacity onPress={() => router.push("/(home)/shop")} style={styles.viewAllButton} activeOpacity={0.7}>
                     <Text style={styles.viewAllText}>Voir toutes les boutiques</Text>
                     <Ionicons name="chevron-forward" size={16} color="#FFFFFF" />
                 </TouchableOpacity>

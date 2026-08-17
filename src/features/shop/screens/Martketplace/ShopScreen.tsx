@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from "react-native";
 import Animated, {
     useAnimatedScrollHandler,
@@ -6,9 +6,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Shop, ShopCardCompact } from '../../components/ShopCardList';
+import ShopCardCompactSkeleton from '../../components/ShopCardList/ShopCardCompactSkeleton';
 import HeaderShop from '../../components/shopDetail/HeaderShop';
 import ShopHeader from '../../components/shopDetail/ShopHeader';
-import ShopCardCompactSkeleton from '../../components/ShopCardList/ShopCardCompactSkeleton';
 import ShopSearchModal from '../../components/ShopSearch/ShopSearchModal';
 import ShopStorySkeleton from '../../components/ShopSearch/ShopStorySkeleton';
 
@@ -17,7 +17,7 @@ import { useAppRefresh } from '@/hooks/useAppRefresh';
 import { useGetAllShopsQuery } from '@/services/guardService';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
-import { ActivityIndicator, Text } from "react-native";
+import { Text } from "react-native";
 import ShopStoryViewer from '../../components/ShopSearch/ShopStoryViewer';
 
 export default function ShopScreen() {
@@ -28,12 +28,13 @@ export default function ShopScreen() {
     const [page, setPage] = useState(1);
 
     const [allShops, setAllShops] = useState<Shop[]>([]);
+
     const [isFooterLoading, setIsFooterLoading] = useState(false);
     const [selectedStoryShop, setSelectedStoryShop] = useState<Shop | null>(null);
     const [searchVisible, setSearchVisible] = useState(false);
     const { data, isLoading: isFetching, isError, refetch } = useGetAllShopsQuery(page.toString());
     const { refreshControl, ProgressBar, DimOverlay } = useAppRefresh(refetch);
-
+    
     useEffect(() => {
         if (data?.shopList) {
             if (page === 1) {
