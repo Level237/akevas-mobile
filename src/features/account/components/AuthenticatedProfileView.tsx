@@ -97,7 +97,7 @@ const AuthenticatedProfileView = ({ user, onLogout }: AuthenticatedProfileViewPr
                 <View style={styles.section}>
 
                     <View style={styles.menuCard}>
-                        <MenuItem icon={User} title="Informations Personnelles" />
+                        <MenuItem icon={User} title="Informations Personnelles" onPress={() => router.push('/(navigation)/profile')} />
                         <MenuItem icon={ShoppingCart} title="Mes Commandes" onPress={() => router.push('/orders')} />
                         <MenuItem icon={Heart} title="Ma liste" onPress={() => router.push('/(home)/wishlist')} />
 

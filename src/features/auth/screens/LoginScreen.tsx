@@ -113,7 +113,7 @@ const LoginScreen = () => {
             const accessToken = res.data.access_token;
             const userData = res.data.user; // ✅ C'est ici que se trouvent les infos de l'utilisateur
 
-            // 3. Sauvegarde et Dispatch (EXACTEMENT comme le login classique)
+            
             await SecureStore.setItemAsync('access_token', accessToken);
             dispatch(setCredentials({ user: userData }));
 

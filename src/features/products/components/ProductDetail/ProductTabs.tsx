@@ -1,8 +1,12 @@
 import { COLORS } from '@/constants/colors';
-import { useGetListReviewsQuery, useMakeReviewMutation } from '@/services/guardService';
-import { Star, MapPin } from 'lucide-react-native';
+import { selectIsAuthenticated } from '@/features/auth/authSlice';
+import { useAppSelector } from '@/hooks/hooks';
+import { useRedirectToLogin } from '@/hooks/useRedirectToLogin';
+import { useMakeReviewMutation } from "@/services/authService";
+import { useGetListReviewsQuery } from '@/services/guardService';
+import { MapPin, Star } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, TextInput, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 type Props = {
@@ -22,19 +26,31 @@ const ProductTabs = ({ productId, description, reviews = [], reviewCount = 0, ra
     const [makeReview, { isLoading: isSubmitting }] = useMakeReviewMutation();
     const [reviewComment, setReviewComment] = useState("");
     const [reviewRating, setReviewRating] = useState(5);
+    const isAuthenticated = useAppSelector(selectIsAuthenticated);
+    const { redirectToLogin } = useRedirectToLogin();
 
+    console.log(reviewsData)
     const actualReviews = reviewsData?.data || reviewsData || reviews || [];
     const actualReviewCount = Array.isArray(actualReviews) ? actualReviews.length : reviewCount;
 
     const handleSubmitReview = async () => {
         if (!productId || !reviewComment.trim()) return;
+        if (!isAuthenticated) {
+            Toast.show({
+                type: 'info',
+                text1: 'Connexion requise',
+                text2: 'Veuillez vous connecter pour publier un avis.',
+            });
+            redirectToLogin({ redirectUrl: `/products/${productId}`, s: '1' });
+            return;
+        }
         
         const formData = new FormData();
         formData.append('comment', reviewComment);
         formData.append('rating', reviewRating.toString());
         
         try {
-            await makeReview({ formData, productId }).unwrap();
+            const response=await makeReview({ formData, productId }).unwrap();
             setReviewComment("");
             setReviewRating(5);
             Toast.show({
@@ -42,7 +58,10 @@ const ProductTabs = ({ productId, description, reviews = [], reviewCount = 0, ra
                 text1: 'Avis ajouté',
                 text2: 'Merci pour votre retour !',
             });
+            console.log("Avis ajouté avec succès");
+            console.log("Actual reviews after submission:", response);
         } catch (error) {
+            console.log(error)
             Toast.show({
                 type: 'error',
                 text1: 'Erreur',

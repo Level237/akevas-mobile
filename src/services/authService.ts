@@ -13,6 +13,15 @@ export const authService = createApi({
       }),
       providesTags: ["Auth"],
     }),
+    updateUser: builder.mutation({
+            query: (formData) => ({
+                url: "/api/v1/update/user",
+                method: "POST",
+                body: formData,
+            }),
+            invalidatesTags: ['User'],
+        }),
+    
     logout: builder.mutation({
       query: () => ({
         url: "/api/v1/logout",
@@ -154,6 +163,7 @@ export const {
   useGetListShopReviewsQuery,
   useAddShopReviewMutation,
   useInitPayinMutation,
+  useUpdateUserMutation,
   useVerifyPayinMutation,
   useGetNotificationsQuery,
   useControlPaymentMutation,

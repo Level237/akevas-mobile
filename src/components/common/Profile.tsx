@@ -1,10 +1,11 @@
+
 import { COLORS } from "@/constants/colors";
 import { selectCurrentUser, selectIsAuthenticated } from "@/features/auth/authSlice";
 import { useAppSelector } from "@/hooks/hooks";
+import { router } from 'expo-router';
 import { UserRound } from "lucide-react-native";
 import React, { useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
 // Fonction utilitaire pour récupérer les initiales du nom
 const getInitials = (name?: string) => {
     if (!name) return "U";
@@ -22,12 +23,13 @@ export const Profile = React.memo(() => {
     console.log(user)
     // Mémoriser les initiales pour éviter des recalculs inutiles (performance)
     const initials = useMemo(() => getInitials(user?.name), [user?.name]);
-
+    
     return (
         <TouchableOpacity
             onPress={() => {
                 // TODO: Naviguer vers la vue de profil détaillée
-                console.log("Naviguer vers le profil de:", user?.name || "Guest");
+                router.push("/(home)/account");
+                
             }}
             style={styles.container}
             activeOpacity={0.7}

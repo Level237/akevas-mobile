@@ -309,14 +309,7 @@ export const guardService = createApi({
             keepUnusedDataFor: 3600,
         }),
 
-        makeReview: builder.mutation({
-            query: ({ formData, productId }) => ({
-                url: `/api/v1/make/comment/product/${productId}`,
-                method: "POST",
-                body: formData,
-            }),
-            invalidatesTags: ["Review" as any],
-        }),
+        
 
         getListReviews: builder.query({
             query: (productId) => ({
@@ -362,6 +355,5 @@ export const {
     useGetProductByUrlQuery,
     useGetAllProductsQuery,
     useFilterProductsQuery,
-    useMakeReviewMutation,
     useGetListReviewsQuery,
 } = guardService
