@@ -31,9 +31,9 @@ type ShopReviewsProps = {
 
 const ShopReviews = ({ shopId, shopData }: ShopReviewsProps) => {
     const { data: reviewsData, isLoading, refetch } = useGetListShopReviewsQuery(shopId);
-    console.log("Fetched reviews data:", reviewsData);
+    
     const [addReview, { isLoading: isSubmitting }] = useAddShopReviewMutation();
-    console.log(reviewsData);
+    
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
 
