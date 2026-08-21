@@ -1,3 +1,4 @@
+import Cart from '@/components/common/Cart';
 import ProductCard from '@/components/ProductCard';
 import { normalizeProduct } from '@/lib/normalizeProduct';
 import { useGetCategoryProductsByUrlQuery, useGetSubCategoriesQuery } from '@/services/guardService';
@@ -153,9 +154,9 @@ export default function CategoryDetailScreen({ url, name, image, description, id
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.actionButton}
-                        onPress={handleShare}
+                      
                     >
-                        <Ionicons name="share-social-outline" size={22} color="#000" />
+                        <Cart />
                     </TouchableOpacity>
                 </View>
 
@@ -246,8 +247,8 @@ export default function CategoryDetailScreen({ url, name, image, description, id
                             </View>
                         )}
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.stickyHeaderIconButton} onPress={handleShare}>
-                        <Ionicons name="share-social-outline" size={24} color="#111827" />
+                    <TouchableOpacity style={styles.stickyHeaderIconButton} >
+                        <Cart/>
                     </TouchableOpacity>
                 </View>
             </Animated.View>

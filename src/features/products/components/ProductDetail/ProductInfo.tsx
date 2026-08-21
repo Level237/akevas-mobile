@@ -1,7 +1,9 @@
 import { COLORS } from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Toast from 'react-native-toast-message';
 
 type Props = {
   name: string;
@@ -9,12 +11,13 @@ type Props = {
   originalPrice?: string;
   rating: number | null;
   reviewCount: number | null;
-  shopName: string;
+  shopId: string;
   quantity: number;
   wholesaleTiers?: any[];
   activeWholesale?: any;
   isWholesaleOnly?: boolean;
   gender?: string | number;
+  productUrl?: string;
 };
 
 const ProductInfo = ({
@@ -23,12 +26,13 @@ const ProductInfo = ({
   originalPrice,
   rating,
   reviewCount,
-  shopName,
+  shopId,
   quantity,
   wholesaleTiers = [],
   activeWholesale,
   isWholesaleOnly = false,
   gender,
+  productUrl,
 }: Props) => {
   const hasWholesale = wholesaleTiers.length > 0;
   const discountPercent =
@@ -55,12 +59,17 @@ const ProductInfo = ({
     }
   };
   const genderText = getGenderText(gender);
-
+  
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.shopSection}>
-          <Text style={styles.shopName}>{shopName}</Text>
+          <TouchableOpacity
+            onPress={() => router.push(`/(shop)/${shopId}`)}
+            activeOpacity={0.7}
+          >
+          <Text style={styles.shopName}>Voir la boutique</Text>
+          </TouchableOpacity>
           {isWholesaleOnly ? (
             <View style={[styles.modeBadge, { backgroundColor: "#FEE2E2" }]}>
               <Text style={[styles.modeText, { color: "#B91C1C" }]}>
@@ -111,6 +120,34 @@ const ProductInfo = ({
           <Text style={styles.originalPrice}>{originalPrice} FCFA</Text>
         )}
       </View>
+
+      {/* WhatsApp assistance button */}
+      {productUrl && (
+        <View style={{ marginBottom: 16 }}>
+          <TouchableOpacity
+            style={styles.whatsappButton}
+            activeOpacity={0.8}
+            onPress={async () => {
+              const phone = '237688565543';
+              const message = `Bonjour ! J'aimerai avoir plus de détails sur ce produit : ${name} Lien du produit : ${productUrl}`;
+              const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+              try {
+                const supported = await Linking.canOpenURL(url);
+                if (supported) {
+                  await Linking.openURL(url);
+                } else {
+                  Toast.show({ type: 'error', text1: "Impossible d'ouvrir WhatsApp" });
+                }
+              } catch (e) {
+                Toast.show({ type: 'error', text1: 'Erreur', text2: "Impossible d'ouvrir WhatsApp." });
+              }
+            }}
+          >
+            <Ionicons name="logo-whatsapp" size={18} color="#fff" />
+            <Text style={styles.whatsappText}>Assistance WhatsApp</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Wholesale Tiers Section */}
       {hasWholesale && (
@@ -176,10 +213,10 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   shopName: {
-    fontSize: 14,
+    fontSize: 15,
     color: COLORS.primary,
     fontWeight: "700",
-    textTransform: "uppercase",
+  
     letterSpacing: 0.5,
   },
   modeBadge: {
@@ -328,6 +365,21 @@ const styles = StyleSheet.create({
     padding: 2,
     borderWidth: 2,
     borderColor: "#FFF",
+  },
+  whatsappButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#25D366',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+  },
+  whatsappText: {
+    color: '#fff',
+    fontWeight: '700',
+    marginLeft: 4,
   },
 });
 

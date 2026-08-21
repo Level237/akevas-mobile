@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { Bell, Menu } from 'lucide-react-native';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Cart from "./Cart";
 import Logo from "./Logo";
 import { Profile } from "./Profile";
 
@@ -39,7 +40,7 @@ const HomeHeader = () => {
                             <View style={styles.notificationDot} />
                         </View>
                     </TouchableOpacity>
-
+                    <Cart />
                     <Profile />
                 </View>
             </View>

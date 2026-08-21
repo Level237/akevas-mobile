@@ -8,27 +8,27 @@ import { selectCartItems, selectCartTotalPrice } from "@/store/CartSlice";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
-    CheckCircle2,
-    CreditCard,
-    MapPin,
-    Truck,
-    User,
+  CheckCircle2,
+  CreditCard,
+  MapPin,
+  Truck,
+  User,
 } from "lucide-react-native";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    Image,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -502,14 +502,14 @@ const CheckoutScreen = ({ params }: Props) => {
                   >
                     {option === "pickup" &&
                       (isMultiCity
-                        ? `Magasin de ${selectedCity}`
-                        : `Magasin de ${residence}`)}
-                    {option === "localDelivery" && "Livraison Locale"}
-                    {option === "remotePickup" && `Expédition Magasin`}
+                        ? `Local akevas de ${selectedCity}`
+                        : `Local akevas de ${residence}`)}
+                    {option === "localDelivery" && `Livraison à domicile ${residence}`}
+                    {option === "remotePickup" && `Expédition Magasin ${otherLocation}`}
                     {option === "remoteDelivery" &&
                       (isMultiCity
                         ? `Expédition ${selectedCity}`
-                        : `Expédition Domicile`)}
+                        : `Expédition Domicile ${otherLocation}`)}
                   </Text>
                   <Text style={styles.optionFee}>
                     {option === "pickup" && isMultiCity

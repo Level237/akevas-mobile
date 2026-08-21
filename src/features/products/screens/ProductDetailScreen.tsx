@@ -5,11 +5,11 @@ import { addItem } from "@/store/CartSlice";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
@@ -19,6 +19,7 @@ import ProductActionButton from "../components/ProductDetail/ProductActionButton
 import ProductDetailHeader from "../components/ProductDetail/ProductDetailHeader";
 import ProductDetailSkeleton from "../components/ProductDetail/ProductDetailSkeleton";
 import ProductInfo from "../components/ProductDetail/ProductInfo";
+
 import ProductTabs from "../components/ProductDetail/ProductTabs";
 import VariationSelector from "../components/ProductDetail/VariationSelector";
 
@@ -357,6 +358,7 @@ const ProductDetailScreen = ({ url }: Props) => {
     return <ProductDetailSkeleton />;
   }
 
+  
   if (error || !product) {
     return (
       <View style={styles.center}>
@@ -392,7 +394,8 @@ const ProductDetailScreen = ({ url }: Props) => {
           quantity={currentInfo.quantity}
           rating={product.review_average}
           reviewCount={product.reviewCount}
-          shopName={product.shop_key}
+          productUrl={product.product_url}
+          shopId={product.shop_id}
           isWholesaleOnly={product.is_only_wholesale}
           wholesaleTiers={getWholesaleSource()}
           activeWholesale={currentInfo.wholesaleInfo}
@@ -404,8 +407,8 @@ const ProductDetailScreen = ({ url }: Props) => {
           onVariantChange={handleVariantSelect}
           handleAttributeSelect={handleAttributeSelect}
         />
-
-        <ProductTabs
+ 
+         <ProductTabs
           productId={product.id}
           description={product.product_description}
           reviews={product.product_reviews}

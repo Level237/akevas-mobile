@@ -48,6 +48,12 @@ export const guardService = createApi({
                 body: payload, // On peut envoyer les catégories choisies pour info
             }),
         }),
+
+         getSimilarProducts: builder.query({
+            query: (id) => ({ url: `/api/similar/products/${id}`, method: 'GET' }),
+            providesTags: ['guard'],
+            keepUnusedDataFor: 300,
+        }),
         checkIfEmailExists: builder.mutation({
             query: (formData) => ({
                 url: `/api/check/email-and-phone-number`,
@@ -329,6 +335,7 @@ export const {
     useGetCategoryProductsByUrlQuery,
     useCheckIfEmailExistsMutation,
     useCheckIfPhoneExistsMutation,
+    useGetSimilarProductsQuery,
     useRegisterMutation,
     useGetAttributeByCategoryQuery,
     useGetAttributeValueByIdQuery,

@@ -1,5 +1,6 @@
+import Cart from '@/components/common/Cart';
 import Logo from '@/components/common/Logo';
-import { MoreVertical, Search } from 'lucide-react-native';
+import { Search } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -30,7 +31,7 @@ const HeaderShop = ({ setSearchVisible }: Props) => {
 
             {/* RIGHT: More Options */}
             <TouchableOpacity style={styles.moreButton} activeOpacity={0.7}>
-                <MoreVertical color="#1A1A1A" size={24} />
+                <Cart/>
             </TouchableOpacity>
         </View>
     );

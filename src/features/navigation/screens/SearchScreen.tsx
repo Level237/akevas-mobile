@@ -1,9 +1,7 @@
-import { COLORS } from '@/constants/colors';
-import { useGetHistorySearchQuery } from '@/services/authService';
+import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
 import { useSearchByQueryQuery } from '@/services/guardService';
 import { addSearch, clearSearches, removeSearch, selectRecentSearches } from '@/store/SearchSlice';
-import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
     KeyboardAvoidingView,
     Platform,
@@ -16,7 +14,6 @@ import RecentSearch from '../components/Search/RecentSearch';
 import SearchInput from '../components/Search/SearchInput';
 import SearchSkeleton from '../components/Search/SearchSkeleton';
 import SearchSuggestions from '../components/Search/SearchSuggestions';
-import TrendingSearch from '../components/Search/TrendingSearch';
 import { TrendingKeyword } from '../components/Search/types';
 
 
@@ -102,10 +99,7 @@ const SearchScreen = () => {
                             onClearAll={handleClearRecent}
                             onRemove={handleRemoveRecent}
                         />
-                        <TrendingSearch
-                            keywords={MOCK_TRENDING}
-                            onSelect={handleSelectKeyword}
-                        />
+                        
                     </ScrollView>
                 ) : (
                     <View style={{ flex: 1 }}>
