@@ -6,6 +6,7 @@ import { useRedirectToLogin } from '@/hooks/useRedirectToLogin';
 import { removeItem, selectCartItems, selectCartTotalPrice, updateQuantity } from '@/store/CartSlice';
 import { useRouter } from 'expo-router';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import CartItem from '../components/CartItem';
 import EmptyCart from '../components/EmptyCart';
 import OrderSummary from '../components/OrderSummary';
@@ -26,7 +27,22 @@ const CartPage = () => {
     const deliveryFee = isEmpty ? 0 : 5000;
     const total = totalPrice + deliveryFee;
 
+    const getItemMaxQuantity = (item: any) => {
+        const stock = item.selectedVariation?.attributes?.quantity ?? item.selectedVariation?.quantity ?? item.product?.product_quantity;
+        const max = Number(stock);
+        return Number.isFinite(max) && max > 0 ? max : Number.MAX_SAFE_INTEGER;
+    };
+
     const handleIncrease = (item: any) => {
+        const maxQty = getItemMaxQuantity(item);
+        if (item.quantity >= maxQty) {
+            Toast.show({
+                type: 'info',
+                text1: 'Stock maximum atteint',
+                text2: `Vous ne pouvez pas dépasser ${maxQty} article(s) pour ce produit.`
+            });
+            return;
+        }
 
         dispatch(updateQuantity({
             product: item.product,

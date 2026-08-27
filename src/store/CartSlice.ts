@@ -55,6 +55,12 @@ const findCartItem = (cartItems: CartItem[], product: Product, selectedVariation
     });
 };
 
+const getMaxQuantity = (product: Product, selectedVariation?: any): number => {
+    const stockValue = selectedVariation?.attributes?.quantity ?? selectedVariation?.quantity ?? product?.product_quantity;
+    const parsed = Number(stockValue);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : Number.MAX_SAFE_INTEGER;
+};
+
 const recalculateTotals = (cartItems: CartItem[]): { totalQuantity: number; totalPrice: number } => {
     const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
     const totalPrice = cartItems.reduce((total, item) => {
@@ -75,26 +81,25 @@ const cartSlice = createSlice({
     reducers: {
         addItem: (state, action) => {
             const { product, quantity, selectedVariation } = action.payload;
+            const maxQuantity = getMaxQuantity(product, selectedVariation);
+            const safeQuantity = Math.min(Math.max(0, Number(quantity) || 0), maxQuantity);
 
             const existingItem = findCartItem(state.cartItems, product, selectedVariation);
 
             if (existingItem) {
-                // Mettre à jour la quantité de l'item existant
-                existingItem.quantity += quantity;
+                const nextQuantity = Math.min(existingItem.quantity + safeQuantity, maxQuantity);
+                existingItem.quantity = nextQuantity;
             } else {
-                // Ajouter un nouvel item
                 state.cartItems.push({
                     product,
-                    quantity,
+                    quantity: safeQuantity,
                     selectedVariation: selectedVariation || undefined
                 });
             }
 
-            // Recalculer les totaux pour éviter les erreurs
             const { totalQuantity, totalPrice } = recalculateTotals(state.cartItems);
             state.totalQuantity = totalQuantity;
             state.totalPrice = totalPrice;
-
         },
 
         removeItem: (state, action) => {
@@ -118,24 +123,20 @@ const cartSlice = createSlice({
 
         updateQuantity: (state, action) => {
             const { product, quantity, selectedVariation } = action.payload;
-            
+            const maxQuantity = getMaxQuantity(product, selectedVariation);
+            const nextQuantity = Math.min(Math.max(0, Number(quantity) || 0), maxQuantity);
+
             const item = findCartItem(state.cartItems, product, selectedVariation);
-            console.log(item)
             if (item) {
-                if (quantity <= 0) {
-                    // Supprimer l'item si la quantité est 0 ou négative
+                if (nextQuantity <= 0) {
                     state.cartItems = state.cartItems.filter(cartItem => cartItem !== item);
                 } else {
-                    // Mettre à jour la quantité
-                    item.quantity = quantity;
+                    item.quantity = nextQuantity;
                 }
 
-                // Recalculer les totaux
                 const { totalQuantity, totalPrice } = recalculateTotals(state.cartItems);
                 state.totalQuantity = totalQuantity;
                 state.totalPrice = totalPrice;
-
-
             }
         },
 
