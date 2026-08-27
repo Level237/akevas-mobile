@@ -15,7 +15,6 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
-import ProductSimilar from './ProductSimilar';
 
 type Props = {
   productId?: number;
@@ -37,7 +36,7 @@ const ProductTabs = ({
   residence,
 }: Props) => {
   const [activeTab, setActiveTab] = useState<
-    "description" | "reviews" | "location" | "similar"
+    "description" | "reviews" | "location"
   >("description");
   const [showAllDescription, setShowAllDescription] = useState(false);
 
@@ -277,22 +276,7 @@ const ProductTabs = ({
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === "similar" && styles.activeTabButton,
-          ]}
-          onPress={() => setActiveTab("similar")}
-        >
-          <Text
-            style={[
-              styles.tabLabel,
-              activeTab === "similar" && styles.activeTabLabel,
-            ]}
-          >
-            Similaires
-          </Text>
-        </TouchableOpacity>
+        
       </View>
 
       {/* Tab Content */}
@@ -304,7 +288,7 @@ const ProductTabs = ({
             : activeTab === "location"
               ? renderLocation()
               : (
-                <ProductSimilar productId={productId} />
+                  null
               )}
       </View>
     </View>

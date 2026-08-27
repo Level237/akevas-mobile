@@ -57,7 +57,7 @@ const ProductSimilar = ({ productId }: Props) => {
 
     return (
         <View style={styles.container}>
-            
+            <Text style={styles.title}>Produits similaires</Text>
             <FlatList
                 data={products}
                 renderItem={renderItem}
@@ -82,10 +82,10 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     title: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: '700',
         color: '#111827',
-        marginBottom: 8,
+        marginBottom: 28,
     },
     listContent: {
         paddingBottom: 4,

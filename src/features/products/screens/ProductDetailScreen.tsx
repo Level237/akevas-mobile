@@ -20,6 +20,7 @@ import ProductDetailHeader from "../components/ProductDetail/ProductDetailHeader
 import ProductDetailSkeleton from "../components/ProductDetail/ProductDetailSkeleton";
 import ProductInfo from "../components/ProductDetail/ProductInfo";
 
+import ProductSimilar from "../components/ProductDetail/ProductSimilar";
 import ProductTabs from "../components/ProductDetail/ProductTabs";
 import VariationSelector from "../components/ProductDetail/VariationSelector";
 
@@ -416,6 +417,7 @@ const ProductDetailScreen = ({ url }: Props) => {
           rating={product.review_average}
           residence={product.residence}
         />
+        <ProductSimilar productId={product.id} />
       </ScrollView>
 
       <ProductActionButton
