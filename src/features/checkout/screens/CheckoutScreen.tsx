@@ -237,6 +237,7 @@ const CheckoutScreen = ({ params }: Props) => {
           : null,
       productsPayments: s === "1" ? JSON.stringify(productsPayments) : null,
       quarter: selectedQuarter,
+      type:s,
       phone: phone,
       address: addressDetails,
       shipping: shippingFee.toString(),
@@ -502,9 +503,9 @@ const CheckoutScreen = ({ params }: Props) => {
                   >
                     {option === "pickup" &&
                       (isMultiCity
-                        ? `Local akevas de ${selectedCity}`
-                        : `Local akevas de ${residence}`)}
-                    {option === "localDelivery" && `Livraison à domicile ${residence}`}
+                        ? `Local akevas de ${selectedCity}ss`
+                        : `Local akevas de ${residence ? residence : productLocation}`)}
+                    {option === "localDelivery" && `Livraison à domicile ${residence ? residence : productLocation}`}
                     {option === "remotePickup" && `Expédition Magasin ${otherLocation}`}
                     {option === "remoteDelivery" &&
                       (isMultiCity

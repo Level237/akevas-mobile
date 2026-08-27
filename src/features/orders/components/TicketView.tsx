@@ -9,6 +9,7 @@ import { getStatusStyles, getStatusText } from "../utils/orderUtils";
 
 const TicketView = ({ payment, allProducts, totals, mainOrder, reference }: any) => {
 
+    console.log(mainOrder, 'mainOrder');
     const dateFormatted = useMemo(() => {
         if (!mainOrder?.created_at) return 'N/A';
         return new Date(mainOrder.created_at).toLocaleDateString('fr-FR');

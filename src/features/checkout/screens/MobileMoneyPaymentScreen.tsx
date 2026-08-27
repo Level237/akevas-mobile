@@ -1,4 +1,5 @@
 
+import { safeJSONParse } from '@/lib/safeJSONParse';
 import {
     useControlPaymentMutation,
     useInitPayinMutation,
@@ -6,7 +7,7 @@ import {
 } from '@/services/authService';
 import { useRouter } from 'expo-router';
 import { AlertCircle, CheckCircle, Clock, RefreshCw, Smartphone, Ticket, X } from 'lucide-react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
     Animated,
     Dimensions,
@@ -27,7 +28,7 @@ interface Props {
 const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-
+    let formData;
     const [paymentStatus, setPaymentStatus] = useState<'initializing' | 'waiting' | 'failed' | 'success' | 'loading' | 'low'>('initializing');
     const [message, setMessage] = useState("Patientez, votre paiement est en cours d'initialisation...");
     const [paymentRef, setPaymentRef] = useState<string | null>(null);
@@ -35,6 +36,7 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
     const [isControlPayment, setIsControlPayment] = useState(false);
     const [step, setStep] = useState<'start' | 'processing'>('start');
 
+    
     const [initPayment] = useInitPayinMutation();
     const [verifyPayin] = useVerifyPayinMutation();
     const [controlPayment] = useControlPaymentMutation();
@@ -49,8 +51,10 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
     const isControlPollingRef = useRef(false);
     const rotateAnim = useRef(new Animated.Value(0)).current;
 
+    let variations :any = null;
+  let productsPayments = null;
     const isOrange = orderData.paymentMethod === 'cm.orange';
-
+    
     useEffect(() => {
         if (paymentStatus === 'initializing' || paymentStatus === 'loading') {
             Animated.loop(
@@ -70,11 +74,40 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
         outputRange: ['0deg', '360deg'],
     });
 
+
+    
+
+  try {
+    const hasVariation = safeJSONParse(orderData.hasVariation, false);
+    const s = safeJSONParse(orderData.s, 0);
+
+    if (
+      hasVariation &&
+      orderData.s === 0 &&
+      orderData.variations
+    ) {
+      variations = safeJSONParse(orderData.variations, null);
+
+    }
+    if (
+      s === 1 &&
+      orderData.productsPayments
+    ) {
+
+      productsPayments = safeJSONParse(orderData.productsPayments, null);
+      //console.log(productsPayments)
+    }
+  } catch (error) {
+    console.error('Erreur lors du parsing des données:', error);
+    router.push('/(home)/cart');
+    return null;
+  }
+
     const initializePayment = async () => {
         setStep('processing');
         setPaymentStatus('initializing');
         try {
-            let variations = null;
+            
             if (orderData.variations) {
                 try {
                     variations = typeof orderData.variations === 'string'
@@ -85,7 +118,8 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
                 }
             }
 
-            const formData: any = {
+            if(orderData.type==0){
+                formData = {
                 phone: orderData.phone,
                 payinAmount: "10",
                 paymentPhone: orderData.paymentPhone,
@@ -103,6 +137,24 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
                 productVariationId: variations?.productVariationId || null,
                 attributeVariationId: variations?.attributeVariationId || null
             };
+            }else{
+                formData = {
+        phone: orderData.phone,
+        payinAmount: "10",
+        paymentPhone: orderData.paymentPhone,
+        s: orderData.s,
+        productsPayments: productsPayments,
+        quantity: orderData.quantity,
+        methodChanel: orderData.paymentMethod,
+        amount: orderData.amount,
+        quarter_delivery: orderData.quarter || null,
+        shipping: orderData.shipping,
+        isMultiCity: orderData.isMultiCity,
+        delivery_infos: orderData.delivery_info || null,
+        address: orderData.address,
+      }
+            }
+            
             setStep('processing');
             setPaymentStatus('initializing');
             const response: any = await initPayment(formData).unwrap();
