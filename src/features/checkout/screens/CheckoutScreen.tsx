@@ -506,11 +506,11 @@ const CheckoutScreen = ({ params }: Props) => {
                         ? `Local akevas de ${selectedCity}ss`
                         : `Local akevas de ${residence ? residence : productLocation}`)}
                     {option === "localDelivery" && `Livraison à domicile ${residence ? residence : productLocation}`}
-                    {option === "remotePickup" && `Expédition Magasin ${otherLocation}`}
+                    {option === "remotePickup" && `Expédition dans le local Akevas de ${otherLocation}`}
                     {option === "remoteDelivery" &&
                       (isMultiCity
                         ? `Expédition ${selectedCity}`
-                        : `Expédition Domicile ${otherLocation}`)}
+                        : `Expédition à domicile ${otherLocation}`)}
                   </Text>
                   <Text style={styles.optionFee}>
                     {option === "pickup" && isMultiCity
