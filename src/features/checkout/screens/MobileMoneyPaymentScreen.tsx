@@ -5,19 +5,22 @@ import {
     useInitPayinMutation,
     useVerifyPayinMutation
 } from '@/services/authService';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { AlertCircle, CheckCircle, Clock, RefreshCw, Smartphone, Ticket, X } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
     Animated,
     Dimensions,
+    Linking,
     Platform,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 
 const { width } = Dimensions.get('window');
 
@@ -73,6 +76,23 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
         inputRange: [0, 1],
         outputRange: ['0deg', '360deg'],
     });
+
+    const openWhatsAppClaim = () => {
+        const phone = '237688565543';
+        const ref = paymentRef || (orderData && (orderData.reference || orderData.paymentRef)) || '';
+        const amount = orderData?.amount || '';
+        const text = `Bonjour, je souhaite réclamer ma transaction. Réf: ${ref}. Montant: ${amount} XAF.`;
+        const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}`;
+        Linking.canOpenURL(url)
+            .then((supported) => {
+                if (supported) {
+                    Linking.openURL(url);
+                } else {
+                    Toast.show({ type: 'error', text1: "Impossible d'ouvrir WhatsApp" });
+                }
+            })
+            .catch(() => Toast.show({ type: 'error', text1: "Impossible d'ouvrir WhatsApp" }));
+    };
 
 
     
@@ -391,6 +411,16 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
                                     </TouchableOpacity>
                                 )}
 
+                                {paymentStatus === 'failed' && (
+                                    <TouchableOpacity
+                                        style={styles.whatsappButton}
+                                        onPress={openWhatsAppClaim}
+                                    >
+                                        <Ionicons name="logo-whatsapp" size={18} color="#fff" />
+                                        <Text style={styles.whatsappText}>Réclamer votre transaction</Text>
+                                    </TouchableOpacity>
+                                )}
+
                                 {paymentStatus === 'success' && (
                                     <TouchableOpacity
                                         style={[styles.successBtn, { backgroundColor: isOrange ? '#ff7900' : '#2563eb' }]}
@@ -620,6 +650,22 @@ const styles = StyleSheet.create({
         color: '#FFF',
         fontSize: 16,
         fontWeight: '800',
+    },
+    whatsappButton: {
+        marginTop: 16,
+        width: '100%',
+        height: 50,
+        borderRadius: 15,
+        backgroundColor: '#25D366',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    whatsappText: {
+        color: '#fff',
+        fontSize: 15,
+        fontWeight: '800',
+        marginLeft: 10,
     },
     cardFooter: {
         backgroundColor: '#f9fafb',
