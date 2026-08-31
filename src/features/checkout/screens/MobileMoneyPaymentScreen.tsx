@@ -1,14 +1,17 @@
 
+import { useAppDispatch } from '@/hooks/hooks';
 import { safeJSONParse } from '@/lib/safeJSONParse';
 import {
     useControlPaymentMutation,
     useInitPayinMutation,
     useVerifyPayinMutation
 } from '@/services/authService';
+import { clearCart } from "@/store/CartSlice";
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { AlertCircle, CheckCircle, Clock, RefreshCw, Smartphone, Ticket, X } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
+
 import {
     Animated,
     Dimensions,
@@ -38,7 +41,7 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
     const [isGeneratingTicket, setIsGeneratingTicket] = useState(false);
     const [isControlPayment, setIsControlPayment] = useState(false);
     const [step, setStep] = useState<'start' | 'processing'>('start');
-
+    const dispatch = useAppDispatch()
     
     const [initPayment] = useInitPayinMutation();
     const [verifyPayin] = useVerifyPayinMutation();
@@ -207,6 +210,10 @@ const MobileMoneyPaymentScreen = ({ orderData }: Props) => {
             const response: any = await verifyPayin({ transaction_ref: paymentRef }).unwrap();
             console.log("Verify response:", response);
             if (response.status === 'SUCCESS') {
+                if(orderData.type==0){
+                    dispatch(clearCart());
+                    
+                }
                 isActive = false;
                 setIsGeneratingTicket(true);
                 setPaymentStatus('loading');
